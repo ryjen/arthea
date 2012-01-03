@@ -1,0 +1,121 @@
+﻿namespace ArtheaServer.Creation
+{
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+
+    using ArtheaEngine;
+    using ArtheaEngine.Model;
+
+    using Object = ArtheaEngine.Model.Object;
+
+    public class ExitEditor : Editor
+    {
+        #region Fields
+
+        private Exit _data;
+
+        #endregion Fields
+
+        #region Constructors
+
+        public ExitEditor(TelnetConnection conn, Exit data)
+            : base(conn)
+        {
+            _data = data;
+        }
+
+        #endregion Constructors
+
+        #region Properties
+
+        public override string Title
+        {
+            get { return string.Format("Exit Editor - {0}", _data.Id); }
+        }
+
+        #endregion Properties
+
+        #region Methods
+
+        public override bool Execute(Argument argument)
+        {
+            var arg = argument.Next();
+
+            if (base.Execute(arg))
+                return true;
+
+            if (arg.Is("A") || arg.Is("name"))
+            {
+                _data.Name = argument;
+                Show();
+                return true;
+            }
+
+            if (arg.Is("B") || arg.Is("description"))
+            {
+                var ed = new TextEditor(_connection, _data, PropertyHelper<Exit>.GetProperty(x => x.Description));
+                Forward(ed);
+                return true;
+            }
+
+            if (arg.Is("C") || arg.Is("flags"))
+            {
+                ExitFlag flag;
+
+                if (!Enum.TryParse(argument, true, out flag))
+                {
+                    ShowValidEnumValues<ExitFlag>();
+                    return true;
+                }
+
+                _data.Flags ^= flag;
+                Show();
+                return true;
+            }
+
+            if (arg.Is("D") || arg.Is("key"))
+            {
+                Object obj;
+                long id;
+
+                if (!long.TryParse(argument, out id) || (obj = Object.Lookup(id)) == null)
+                {
+                    WriteLine("Invalid key object.");
+                    return true;
+                }
+
+                _data.Key = obj.Id;
+                Show();
+                return true;
+            }
+            return false;
+        }
+
+        public override void Save()
+        {
+            _data.Save();
+        }
+
+        public override void Show()
+        {
+            Reset();
+
+            var cols = new ColumnList(2);
+
+            cols.Add("   ~CId: ~W{0}", _data.Id);
+            cols.Add("   ~CTo Room: ~W{0}", _data.ToRoom);
+            cols.Add("   ~CFrom Room: ~W{0}", _data.Room);
+            cols.Add("   ~CDirection: ~W{0}", _data.Direction);
+            cols.Add("~YA) ~CName: ~W{0}", _data.Name);
+
+            cols.Add(2, TextEditor.Preview("~YB) ~CDescription", _data.Description, _connection.ScreenWidth));
+
+            cols.Add("~YC) ~CFlags: ~W{0}", _data.Flags);
+            cols.Add("~YD) ~CKey: ~W{0}", _data.Key == null ? "None" : string.Format("{0} ({1})", _data.Key.Value, Object.Lookup(_data.Key.Value).Name));
+        }
+
+        #endregion Methods
+    }
+}
