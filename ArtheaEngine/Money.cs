@@ -37,7 +37,7 @@
 
         #region Methods
 
-        public static implicit operator decimal(Money a)
+        public static explicit operator decimal(Money a)
         {
             return a.Value;
         }

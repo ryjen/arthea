@@ -44,17 +44,26 @@
                 textBox1.Text = openFileDialog1.FileName;
             }
         }
+		
+		private void Log (string data)
+		{
+			txtImportLog.AppendText (DateTime.Now.ToShortTimeString ());
+			txtImportLog.AppendText(data);
+			txtImportLog.AppendText(Environment.NewLine);
+		}
 
-        private void button2_Click(object sender, EventArgs e)
-        {
-            try
-            {
+        private void button2_Click (object sender, EventArgs e)
+		{
+			try {
 
-                RichTextBoxTarget target = new RichTextBoxTarget();
-                target.ControlName = txtImportLog.Name;
+				MethodCallTarget target = new MethodCallTarget ();
+				/*target.ControlName = txtImportLog.Name;
                 target.FormName = this.Name;
 
-                target.Layout = "${date:format=HH\\:MM\\:ss} ${logger} ${message}";
+                target.Layout = "${date:format=HH\\:MM\\:ss} ${logger} ${message}";*/
+				
+				target.ClassName = GetType ().Name;
+				target.MethodName = "Log";
 
                 SimpleConfigurator.ConfigureForTargetLogging(target);
 
