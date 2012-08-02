@@ -52,10 +52,7 @@
       <HintPath>Libraries\Transitions.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
-      <HintPath>..\CommonLibraries\Mono\NLog2\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\CommonLibraries\Mono\MySQLConnector\mysql.data.dll</HintPath>
+      <HintPath>..\CommonLibraries\NLog2\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

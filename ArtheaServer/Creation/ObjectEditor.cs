@@ -33,7 +33,7 @@
 
         public override string Title
         {
-            get { return string.Format("Obj Editor - {0}", _data.Id); }
+            get { return string.Format("Object {0}", _data.Id); }
         }
 
         #endregion Properties
@@ -170,10 +170,10 @@
 
         public override void Save()
         {
-            if (_data.Save())
+            /*if (DbManager.Save(_data))
                 _connection.WriteLine("Object saved.");
             else
-                _connection.WriteLine("Object not saved. See logs for details.");
+                _connection.WriteLine("Object not saved. See logs for details.");*/
         }
 
         public override void Show()

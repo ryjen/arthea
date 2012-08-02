@@ -1,4 +1,9 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -92,11 +97,11 @@
         #endregion Methods
     }
 
-    public abstract class Character : IEntity<long>, IWritable, IFormattable, IDisposable, ICloneable, ISaveable, ILoadable
+	[BsonKnownTypes(typeof(NonPlayer), typeof(Player))]
+	[BsonDiscriminator(Required = true, RootClass = true)]
+    public abstract class Character : INamedEntity, IRootLevelDocument, IWritable, IFormattable, IDisposable, ICloneable
     {
         #region Fields
-
-        public static readonly HashSet<Character> List = new HashSet<Character>();
 
         private static readonly string[] HeShe = { "it", "he", "she", "it" };
         private static readonly string[] HimHer = { "it", "him", "her", "it" };
@@ -109,23 +114,12 @@
 
         public Character()
         {
+			Id = ObjectId.GenerateNewId().ToString();
             Affects = new ObservableCollection<Affect>();
-            Carrying = new ObservableCollection<CharObj>();
-            Carrying.CollectionChanged += ArtheaHelper.CollectionChangedHandler<CharObj>((o, n) =>
-                {
-                    if (n)
-                    {
-                        if (o.Object != null)
-                            o.Object.CarriedBy = this;
-                        o.Character = this;
-                    }
-                    else
-                    {
-                        if (o.Object != null)
-                            o.Object.CarriedBy = null;
-                        o.Character = null;
-                    }
-                });
+            Carrying = new ObservableCollection<Object>();
+            Carrying.AddChangedHandler((o, n) => {
+				o.CarriedBy = n ? this : null;
+            });
 
             Attack = new Dice(2, 4);
             Defense = new Dice(2, 4);
@@ -147,7 +141,7 @@
             get; set;
         }
 
-        public ObservableCollection<CharObj> Carrying
+        public ObservableCollection<Object> Carrying
         {
             get; set;
         }
@@ -168,9 +162,10 @@
             set;
         }
 
-        public long Id
-        {
-            get; set;
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
+		{
+			get; set;
         }
 
         public short Level
@@ -193,6 +188,17 @@
             get; set;
         }
 
+		[BsonElement("Room")]
+		public string RoomRef {
+			get { 
+				return Room == null ? null : Room.Id; 
+			}
+			set {
+				Room = Room.Lookup(value);
+			}
+		}
+
+		[BsonIgnore]
         public Room Room
         {
             get; set;
@@ -213,6 +219,7 @@
             get; set;
         }
 
+		[BsonIgnore]
         public abstract World World
         {
             get;
@@ -220,18 +227,17 @@
 
         #endregion Properties
 
+		public static Character Lookup (string id)
+		{
+			return DbManager.Lookup<Character>(id);
+		}
+
+		public static T Lookup<T> (string id) where T:Character
+		{
+			return DbManager.Lookup<T> (id);
+		}
+
         #region Methods
-
-        public static Character Lookup(string name)
-        {
-            return List.FirstOrDefault( x=> x.Name.HasWord(name) );
-        }
-
-        public static T Lookup<T>(string name)
-            where T : Character
-        {
-            return List.OfType<T>().FirstOrDefault(x => x.Name.HasWord(name));
-        }
 
         public void Act(string format, params object[] args)
         {
@@ -248,14 +254,6 @@
             return MemberwiseClone() as Character;
         }
 
-        public virtual bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_char");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            return cmd.ExecuteNonQuery()== 1;
-        }
-
         /// <summary>
         ///                     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
@@ -267,14 +265,13 @@
                 Room.Characters.Remove(this);
                 Room = null;
             }
-            List.Remove(this);
         }
 
         public virtual bool Equals(Character obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.Id == Id;
+            return obj.Id.Equals(Id);
         }
 
         public override bool Equals(object obj)
@@ -285,15 +282,21 @@
             return Equals((Character)obj);
         }
 
-        public void Equip(Object obj, WearLocation location)
-        {
+        public void Equip (Object obj, WearLocation location)
+		{
+			if (obj.WearLocation != WearLocation.None) {
+				Log.Warn ("Object {0} already equipped", obj);
+				return;
+			}
             if (!obj.WearFlags.HasFlag(location.ToFlag()))
             {
                 Log.Warn("Cannot equip object {0} on {1}", obj, location);
                 return;
             }
 
-            Carrying.Add(new CharObj { Object = obj, Character = this, WearLocation = location });
+			obj.WearLocation = location;
+
+            Carrying.Add(obj);
         }
 
         public override int GetHashCode()
@@ -306,6 +309,7 @@
             return this.Clone();
         }
 
+		/*
         public abstract bool Load(IDbConnection conn);
 
         public virtual int MapRow(IDataRecord reader)
@@ -327,7 +331,6 @@
             return i;
         }
 
-        public abstract void Page(string buf);
 
         public virtual bool Save(IDbConnection conn)
         {
@@ -352,6 +355,10 @@
 
             return res;
         }
+
+		*/
+
+        public abstract void Page(string buf);
 
         public override string ToString()
         {
@@ -410,84 +417,6 @@
         public abstract void WriteLine(object obj);
 
         public abstract void WriteLine(string format, params object[] args);
-
-        #endregion Methods
-    }
-
-    public class CharObj : IEntity<long>, ISaveable
-    {
-        #region Properties
-
-        public Character Character
-        {
-            get; set;
-        }
-
-        public long Id
-        {
-            get; set;
-        }
-
-        public Object Object
-        {
-            get; set;
-        }
-
-        public WearLocation WearLocation
-        {
-            get; set;
-        }
-
-        #endregion Properties
-
-        #region Methods
-
-        public static explicit operator Object(CharObj chObj)
-        {
-            return chObj.Object;
-        }
-
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_char_obj");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@char_id", DbType.Int64, Character.Id);
-            cmd.AddParameter("@obj_id", DbType.Int64, Object.Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-
-            Id = reader.GetInt64(i++);
-            i++;
-            Object = new Object();
-            Object.Id = reader.GetInt64(i++);
-            Object.Load();
-            WearLocation = reader.GetEnum<WearLocation>(i++);
-
-            return i;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_char_obj");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@char_id", DbType.Int64, Character.Id);
-            cmd.AddParameter("@obj_id", DbType.Int64, Object.Id);
-            cmd.AddParameter("@wearloc", DbType.String, WearLocation.ToString());
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-            {
-                Id = Convert.ToInt64(conn.LastInsertId());
-            }
-
-            return res;
-        }
 
         #endregion Methods
     }

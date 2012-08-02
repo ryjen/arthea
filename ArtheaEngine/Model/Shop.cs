@@ -1,4 +1,8 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -7,8 +11,12 @@
     using System.Linq;
     using System.Text;
 
-    public class Shop : IEntity<long>, IPersistent
+    public class Shop : IEntity
     {
+		public Shop ()
+		{
+			Id = ObjectId.GenerateNewId ().ToString ();
+		}
         #region Properties
 
         public short CloseHour
@@ -16,26 +24,34 @@
             get; set;
         }
 
-        public long Id
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
         {
             get; set;
         }
 
+		[BsonDefaultValue(6)]
+		[BsonIgnoreIfDefault]
         public short OpenHour
         {
             get; set;
         }
 
+		[BsonIgnore]
         public Character Owner
         {
             get; set;
         }
 
+		[BsonDefaultValue(110)]
+		[BsonIgnoreIfDefault]
         public short ProfitBuy
         {
             get; set;
         }
 
+		[BsonDefaultValue(110)]
+		[BsonIgnoreIfDefault]
         public short ProfitSell
         {
             get; set;
@@ -43,58 +59,5 @@
 
         #endregion Properties
 
-        #region Methods
-
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_shop");
-
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@owner", DbType.Int64, Owner.Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
-
-        public bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_shop");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@owner", DbType.Int64, Owner.Id);
-
-            return this.Load(cmd);
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-
-            ProfitBuy = reader.GetInt16(i++);
-            ProfitSell = reader.GetInt16(i++);
-            OpenHour = reader.GetInt16(i++);
-            CloseHour = reader.GetInt16(i++);
-
-            return i;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("update_shop");
-
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@pb", DbType.Int16, ProfitBuy);
-            cmd.AddParameter("@ps", DbType.Int16, ProfitSell);
-            cmd.AddParameter("@oh", DbType.Int16, OpenHour);
-            cmd.AddParameter("@ch", DbType.Int16, CloseHour);
-            cmd.AddParameter("@owner", DbType.Int64, Owner.Id);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-                Id = Convert.ToInt64(conn.LastInsertId());
-
-            return res;
-        }
-
-        #endregion Methods
     }
 }

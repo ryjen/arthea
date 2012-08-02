@@ -34,10 +34,12 @@
 
         #region Methods
 
-        public override void Commit(IDbConnection conn)
+        public override void Commit()
         {
-            foreach (Help help in Loaded)
-                    help.Save(conn);
+			DbManager.InsertBatch<Help>(Loaded);
+
+            //foreach (Help help in Loaded)
+              //      help.Save(conn);
         }
 
         public override void Load(FileReader reader)

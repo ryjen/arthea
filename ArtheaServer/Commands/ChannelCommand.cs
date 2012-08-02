@@ -72,7 +72,7 @@
                 case ChannelPermission.Public:
                     return true;
                 case ChannelPermission.Admin:
-                    return (ch is Player) && (ch.Level >= ArtheaHelper.Immortal);
+                    return (ch is Player) && (ch.Level >= Game.Immortal);
                 default:
                     return false;
             }
@@ -111,7 +111,7 @@
                 case '+':
                     argument.Next();
 
-                    Social s = Social.List.FirstOrDefault(soc => soc.Name.StartsWith(argument.Next()));
+				    var s = Social.Lookup(argument.Next());
 
                     if (s == null)
                     {
@@ -189,7 +189,7 @@
                     break;
             }
 
-            foreach (var player in Character.List.OfType<Player>())
+            foreach (var player in ch.World.Players)
             {
                 if (type == ChannelType.Who || player == ch || !CanUseChannel(player))
                     continue;
@@ -214,7 +214,7 @@
 
         private void ProcessChannelSocial(Character ch, string argument, params object[] args)
         {
-            foreach (var wch in Character.List.OfType<Player>())
+            foreach (var wch in ch.World.Players)
             {
                 if (ch == wch || CanUseChannel(wch))
                 {

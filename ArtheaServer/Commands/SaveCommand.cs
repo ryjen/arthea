@@ -25,7 +25,11 @@
         {
             if (!(ch is Player)) return;
 
-            ch.Save();
+			Player p = ch as Player;
+
+			p.Save();
+
+			p.Account.Save();
 
             ch.WriteLine(ch.Name + " saved.");
         }

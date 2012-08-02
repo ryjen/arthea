@@ -20,7 +20,7 @@
 
         #region Methods
 
-        public override void Commit(IDbConnection conn)
+        public override void Commit()
         {
         }
 

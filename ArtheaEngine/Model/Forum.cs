@@ -1,4 +1,9 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -32,138 +37,96 @@
 
     #endregion Enumerations
 
-    public class AnnounceForum : Forum
-    {
-        #region Properties
-
-        public override string Description
-        {
-            get { return "Forum for announcements from administrators."; }
-        }
-
-        public override int Id
-        {
-            get { return 1; }
-        }
-
-        public override string Name
-        {
-            get { return "Announce"; }
-        }
-
-        public override ForumPermissions ReadPermission
-        {
-            get { return ForumPermissions.None; }
-        }
-
-        public override ForumPermissions WritePermission
-        {
-            get { return ForumPermissions.Admin; }
-        }
-
-        #endregion Properties
-    }
 
     /// <summary>
     /// Implementation of Forum.
     /// </summary>
-    public abstract class Forum : IEntity<int>, IPersistent
+	/// 
+	[BsonKnownTypes(typeof(AnnounceForum), typeof(GeneralForum), typeof(PersonalForum))]
+	[BsonDiscriminator(Required = true, RootClass = true)]
+    public class Forum : INamedEntity, IRootLevelDocument
     {
-        #region Fields
-
-        public static readonly HashSet<Forum> List = new HashSet<Forum>();
-
-        #endregion Fields
-
         #region Constructors
-
-        static Forum()
-        {
-            var assm = Assembly.GetExecutingAssembly();
-
-            using (var conn = ArtheaHelper.NewConnection())
-            {
-                foreach (var t in assm.GetTypes())
-                {
-                    if (t.IsSubclassOf(typeof(Forum)))
-                    {
-                        var b = (Forum)Activator.CreateInstance(t);
-                        b.Load(conn);
-                        List.Add(b);
-                    }
-                }
-            }
-        }
+	
+		static Forum() {
+			DbManager.Synchronize(new Forum[] {
+				new AnnounceForum(), 
+				new GeneralForum(), 
+				new PersonalForum()
+			});
+		}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Forum"/> class.
         /// </summary>
         public Forum()
         {
+			Id = ObjectId.GenerateNewId().ToString();
             Notes = new ObservableCollection<Note>();
-            Notes.CollectionChanged += ArtheaHelper.CollectionChangedHandler<Note>((n, a) =>
-                {
-                    n.Forum = a ? this : null;
-                });
+            Notes.AddChangedHandler<Note>((n, a) =>
+            {
+                n.Forum = a ? this : null;
+            });
         }
 
         #endregion Constructors
 
         #region Properties
 
-        public abstract string Description
+		[BsonIgnoreIfNull]
+        public string Description
         {
-            get;
+			get; protected set;
         }
 
-        public abstract int Id
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
         {
-            get;
+			get; protected set;
         }
 
-        public abstract string Name
+        public string Name
         {
-            get;
+			get; protected set;
         }
 
         public ObservableCollection<Note> Notes
         {
-            get; set;
+            get; protected set;
         }
 
-        public abstract ForumPermissions ReadPermission
+		[BsonDefaultValue(ForumPermissions.None)]
+		[BsonIgnoreIfDefault]
+        public ForumPermissions ReadPermission
         {
-            get;
+			get; protected set;
         }
-
-        public abstract ForumPermissions WritePermission
+		
+		[BsonDefaultValue(ForumPermissions.None)]
+		[BsonIgnoreIfDefault]
+        public ForumPermissions WritePermission
         {
-            get;
+			get; protected set;
         }
 
         #endregion Properties
 
         #region Methods
 
-        public static Note FindNote(long id)
+        public static Forum Lookup(string id)
         {
-            foreach (var b in List)
-            {
-                var n = b.Notes.SingleOrDefault(x => x.Id == id);
-
-                if (n != null) return n;
-            }
-            return null;
+			return DbManager.Lookup<Forum>(id);
         }
 
-        public static Forum Lookup(int id)
-        {
-            return List.FirstOrDefault(x => x.Id == id);
-        }
+		public static IEnumerable<Forum> All ()
+		{
+			return DbManager.GetCollection<Forum>().FindAll();
+
+		}
 
         public bool ReadableBy(Character ch)
         {
-            if (ReadPermission.HasFlag(ForumPermissions.Admin) && ch.Level < ArtheaHelper.Immortal)
+            if (ReadPermission.HasFlag(ForumPermissions.Admin) && ch.Level < Game.Immortal)
                 return false;
 
             return true;
@@ -195,14 +158,6 @@
             return count;
         }
 
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_forum");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
-
         /// <summary>
         /// Gets the next unread.
         /// </summary>
@@ -225,34 +180,6 @@
             }
 
             return null;
-        }
-
-        public bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_forum");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            Note.ReadAll(this);
-
-            return this.Load(cmd);
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            return 0;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_forum");
-
-            cmd.AddParameter("@id", DbType.Int32, Id);
-            cmd.AddParameter("@name", DbType.String, Name);
-            cmd.AddParameter("@descr", DbType.String, Description);
-            cmd.AddParameter("@read_perm", DbType.String, ReadPermission.ToString());
-            cmd.AddParameter("@write_perm", DbType.String, WritePermission.ToString());
-
-            return cmd.ExecuteNonQuery() > 0;
         }
 
         /// <summary>
@@ -291,5 +218,38 @@
         }
 
         #endregion Methods
-    }
+	}
+
+	public class AnnounceForum : Forum
+	{
+		public AnnounceForum() 
+		{
+			Name = "Announce";
+			Description = "Forum for announcements.";
+			ReadPermission = ForumPermissions.None;
+			WritePermission = ForumPermissions.Admin;
+		}
+	}
+
+	public class GeneralForum : Forum
+	{
+		public GeneralForum ()
+		{
+			Name = "General";
+			Description = "General notes";
+			ReadPermission = ForumPermissions.None;
+			WritePermission = ForumPermissions.None;
+		}
+	}
+
+	public class PersonalForum : Forum
+	{
+		public PersonalForum()
+		{
+			Name = "Personal";
+			Description = "Forum to person to person notes.";
+			ReadPermission = ForumPermissions.Personal;
+			WritePermission = ForumPermissions.None;
+		}
+	}
 }

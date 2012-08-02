@@ -38,6 +38,7 @@
 
     #endregion Enumerations
 
+	/*
     public class RebootRecovery : MarshalByRefObject
     {
         #region Fields
@@ -65,12 +66,12 @@
         /// </summary>
         /// <param name="processId">The process id.</param>
         /// <returns></returns>
-        public Dictionary<int, RebootRecoveryData> TransferConnections(int processId)
+        public Dictionary<string, RebootRecoveryData> TransferConnections(int processId)
         {
             Log.Info("Transferring connections...");
 
             var connections =
-                new Dictionary<int, RebootRecoveryData>();
+                new Dictionary<string, RebootRecoveryData>();
 
             foreach (var s in TelnetServer.List)
             {
@@ -98,7 +99,7 @@
         public SocketInformation SockInfo;
 
         #endregion Fields
-    }
+    }*/
 
     public class TelnetServer : IDisposable
     {
@@ -146,50 +147,7 @@
 
         #region Methods
 
-        public static void Reboot()
-        {
-            var worlds = new List<WorldConfig>();
-
-            foreach (var s in List)
-            {
-                worlds.Add(new WorldConfig { Id = s.World.Id, Name = s.World.Name, Port = s.World.Port });
-
-            }
-            Log.Info("Writing reboot.xml");
-
-            var sw = new StreamWriter("reboot.xml");
-            var ser = new XmlSerializer(worlds.GetType());
-
-            ser.Serialize(sw, worlds);
-
-            sw.Close();
-
-            Log.Info("Stopping servers");
-            foreach (var s in TelnetServer.List.Reverse())
-            {
-                if(s.State == ServerState.Running)
-                    s.Stop();
-            }
-
-            Log.Info("Creating task");
-
-            var assm = Assembly.GetEntryAssembly();
-            var taskName = new AssemblyName(assm.FullName).Name;
-            var dir = Path.GetDirectoryName(assm.Location);
-
-            using (var ts = new TaskService())
-            {
-                Log.Info("current dir " + dir);
-
-                var task = ts.AddTask(taskName,
-                    new TimeTrigger(DateTime.Now.AddSeconds(10)),
-                    new ExecAction(assm.Location, null, dir));
-                ts.RootFolder.RegisterTaskDefinition(taskName, task.Definition);
-            }
-
-            Shutdown();
-        }
-
+		/*
         public static void Shutdown()
         {
             if (Application.MessageLoop)
@@ -202,7 +160,7 @@
                 // Use this since we are a console app
                 Environment.Exit(1);
             }
-        }
+        }*/
 
         public void Dispose()
         {
@@ -264,7 +222,8 @@
                 _listener = null;
             }
 
-            _listenThread.Join(500);
+			if(_listenThread != null)
+	            _listenThread.Join(500);
 
             Dispose();
         }

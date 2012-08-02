@@ -1,4 +1,6 @@
-﻿namespace ArtheaEngine
+﻿using MongoDB.Bson;
+
+namespace ArtheaEngine
 {
     using System;
     using System.Collections.Generic;
@@ -55,6 +57,11 @@
         {
             return x._mString;
         }
+
+		public static implicit operator BsonValue (Argument x)
+		{
+			return x._mString;
+		}
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="Arthea.String"/>.
@@ -153,12 +160,17 @@
         /// <returns>a string</returns>
         public string Next()
         {
-            return Next(true);
+            return Next(' ', true);
         }
+
+		public string Next(char delimiter)
+		{
+			return Next (delimiter, true);
+		}
 
         public string Peek()
         {
-            return Next(false);
+            return Next(' ', false);
         }
 
         public Argument Replace(string orig, string value)
@@ -177,7 +189,7 @@
         /// </summary>
         /// <param name="update">true if this string should be updated</param>
         /// <returns>the rest of the string</returns>
-        private string Next(bool update)
+        private string Next(char delimiter, bool update)
         {
             string arg;
 
@@ -186,7 +198,7 @@
                 return _mString;
             }
 
-            var cEnd = ' ';
+            var cEnd = delimiter;
             int pos, begin = 0;
 
             if (_mString[0] == '\'' || _mString[0] == '"' || _mString[0] == '(')

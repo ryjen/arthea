@@ -36,10 +36,11 @@
 
         #region Methods
 
-        public override void Commit(IDbConnection conn)
+        public override void Commit()
         {
-            foreach (var obj in Loaded)
-                    obj.Value.Save(conn);
+			DbManager.InsertBatch<Object>(Loaded.Values);
+            //foreach (var obj in Loaded)
+              //      obj.Value.Save(conn);
         }
 
         public override void Load(FileReader reader)
@@ -119,7 +120,7 @@
                         item.Values.Add(reader.ReadNumber());
                         item.Values.Add(reader.ReadNumber());
                         item.Values.Add(reader.ReadNumber());
-                        item.Values.Add(Spell.Lookup(reader.ReadWord()));
+                        item.Values.Add(Spell.Lookup(reader.ReadWord()).Name);
                         reader.ReadNumber();
                         break;
 
@@ -129,13 +130,13 @@
 
                         item.Values.Add(reader.ReadNumber());
                         var spell = Spell.Lookup(reader.ReadWord()); // skill lookup
-                        if (spell != null) item.Values.Add(spell);
+                        if (spell != null) item.Values.Add(spell.Name);
                         spell = Spell.Lookup(reader.ReadWord()); // skill lookup
-                        if (spell != null) item.Values.Add(spell);
+                        if (spell != null) item.Values.Add(spell.Name);
                         spell = Spell.Lookup(reader.ReadWord());
-                        if (spell != null) item.Values.Add(spell);
+                        if (spell != null) item.Values.Add(spell.Name);
                         spell = Spell.Lookup(reader.ReadWord());
-                        if (spell != null) item.Values.Add(spell);
+                        if (spell != null) item.Values.Add(spell.Name);
 
                         break;
 
@@ -181,7 +182,7 @@
                         break;
 
                     case ObjectType.Money:
-                        item.Values.Add(Convert.ToDecimal(reader.ReadFlag()));
+                        item.Values.Add(Convert.ToDouble(reader.ReadFlag()));
                         reader.ReadFlag();
                         reader.ReadFlag();
                         reader.ReadFlag();
@@ -243,7 +244,7 @@
                         {
                             var a = new Affect();
                             a.Flag = 0;
-                            a.Extra = 0;
+							a.Extra = null;
                             a.Location = where;
                             a.Modifier = modifier;
                             item.Affects.Add(a);
@@ -259,7 +260,7 @@
                             case 'V':
                                 break;
                             default:
-                                throw new ImportException("Invalid object flag on item " + item.Id);
+                                throw new ImportException("Invalid object flag on item " + item.Keyword ());
                         }
 
                         reader.ReadNumber(); // location

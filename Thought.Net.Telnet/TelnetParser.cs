@@ -540,7 +540,8 @@ namespace Thought.Net.Telnet
             if (buffer == null)
                 throw new ArgumentNullException("buffer");
 
-            socket.Send(buffer);
+			if(socket.Connected)
+	            socket.Send(buffer);
         }
 
         /// <summary>

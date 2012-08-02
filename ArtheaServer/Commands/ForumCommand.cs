@@ -18,10 +18,10 @@ namespace ArtheaServer.Commands
             if (!argument)
             {
                 int i = 1;
-                foreach (var f in Forum.List)
+                foreach (var f in Forum.All())
                 {
                     if(f.ReadableBy(ch))
-                        ch.WriteLine("~R{0:2}> ~G{1}~W: {2}~x", i++, f.Name, f.Description);
+                        ch.WriteLine("~R{0:D2}> ~G{1}~W: {2}~x", i++, f.Name, f.Description);
                 }
             }
         }

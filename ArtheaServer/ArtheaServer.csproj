@@ -54,10 +54,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Xml" />
     <Reference Include="NLog">
-      <HintPath>..\CommonLibraries\Mono\NLog2\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\CommonLibraries\Mono\MySQLConnector\mysql.data.dll</HintPath>
+      <HintPath>..\CommonLibraries\NLog2\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -89,11 +86,8 @@
     <Compile Include="Creation\RoomEditor.cs" />
     <Compile Include="Creation\TextEditor.cs" />
     <Compile Include="TelnetConnection.cs" />
-    <Compile Include="MainForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="MainForm.Designer.cs">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <Compile Include="MainGame.Designer.cs">
+      <DependentUpon>MainGame.cs</DependentUpon>
     </Compile>
     <Compile Include="Creation\Editor.cs" />
     <Compile Include="Program.cs" />
@@ -101,8 +95,8 @@
     <EmbeddedResource Include="ArtheaSplashScreen.resx">
       <DependentUpon>ArtheaSplashScreen.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
-      <DependentUpon>MainForm.cs</DependentUpon>
+    <EmbeddedResource Include="MainGame.resx">
+      <DependentUpon>MainGame.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -119,6 +113,10 @@
       <SubType>Designer</SubType>
     </None>
     <Compile Include="TelnetServer.cs" />
+    <Compile Include="MainGame.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RebootHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArtheaEngine\ArtheaEngine.csproj">

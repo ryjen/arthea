@@ -21,10 +21,16 @@
 
         #region Constructors
 
-        public RoomSection()
+        public RoomSection(RomImporter importer)
         {
+			Importer = importer;
             Loaded = new Dictionary<int, Room>();
             Exits = new Dictionary<Exit, int>();
+        }
+		
+        public RomImporter Importer
+        {
+            get; set;
         }
 
         #endregion Constructors
@@ -43,11 +49,12 @@
             private set;
         }
 
+
         #endregion Properties
 
         #region Methods
 
-        public override void Commit(IDbConnection conn)
+        public override void Commit()
         {
             foreach (var entry in Exits)
             {
@@ -64,10 +71,11 @@
                 exit.ToRoom = toRoom;
             }
 
-                foreach (var entry in Loaded)
+                /*foreach (var entry in Loaded)
                 {
                     entry.Value.Save(conn);
-                }
+                }*/
+			DbManager.InsertBatch<Room>(Loaded.Values);
         }
 
         public override void Load(FileReader reader)
@@ -123,16 +131,16 @@
 
                         var exit = new Exit();
                         exit.Description = reader.ReadString();
-                        exit.Name = reader.ReadString();
+                        exit.Keyword = reader.ReadString();
                         var locks = reader.ReadNumber();
                         var key = reader.ReadNumber();
-                        exit.Key = key;
+						exit.Key = Importer.Objects.Loaded[key];
                         var toRoom = reader.ReadNumber();
                         Exits.Add(exit, toRoom);
-                        if (!string.IsNullOrEmpty(exit.Name))
-                            exit.Name += " " + door;
+                        if (!string.IsNullOrEmpty(exit.Keyword))
+                            exit.Keyword += " " + door;
                         else
-                            exit.Name = door.ToString();
+                            exit.Keyword = door.ToString();
 
                         switch (locks)
                         {

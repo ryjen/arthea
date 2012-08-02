@@ -1,4 +1,9 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -169,22 +174,16 @@
 
     #endregion Enumerations
 
-    public class Object : IEntity<long>, IDisposable, ICloneable, IPersistent
+    public class Object : INamedEntity, IRootLevelDocument, IDisposable, ICloneable
     {
-        #region Fields
-
-        public static readonly HashSet<Object> List = new HashSet<Object>();
-
-        #endregion Fields
-
         #region Constructors
 
         public Object()
         {
-            Values = new List<object>();
+			Id = ObjectId.GenerateNewId().ToString();
+            Values = new List<BsonValue>();
             Contents = new ObservableCollection<Object>();
-            Contents.CollectionChanged += ArtheaHelper.CollectionChangedHandler<Object>((o, a) =>
-            {
+            Contents.AddChangedHandler<Object>((o, a) => {
                 o.Inside = a ? this : null;
             });
             Affects = new ObservableCollection<Affect>();
@@ -199,17 +198,35 @@
             get; set;
         }
 
+		[BsonElement("Area")]
+		[BsonRequired]
+		public string AreaRef {
+			get { return Area == null ? null : Area.Id; }
+			set { Area = Area.Lookup(value); }
+		}
+
+		[BsonIgnore]
         public Area Area
         {
             get; set;
         }
 
+		[BsonIgnore]
         public Character CarriedBy
         {
             get; set;
         }
 
+		[BsonDefaultValue(100f)]
+		[BsonIgnoreIfDefault]
         public float Condition
+        {
+            get; set;
+        }
+
+		[BsonDefaultValue(WearLocation.None)]
+		[BsonIgnoreIfDefaultAttribute]
+		public WearLocation WearLocation
         {
             get; set;
         }
@@ -219,116 +236,122 @@
             get; set;
         }
 
+		[BsonIgnoreIfDefault]
         public decimal Cost
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string Description
         {
             get; set;
         }
 
+		[BsonDefaultValue(ObjectFlag.None)]
+		[BsonIgnoreIfDefault]
         public ObjectFlag Flags
         {
             get; set;
         }
 
-        public long Id
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
         {
             get; set;
         }
 
+		[BsonIgnore]
         public Object Inside
         {
             get; set;
         }
 
+		[BsonIgnoreIfDefault]
         public short Level
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string LongDescr
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string Name
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
+		[BsonElement("Room")]
+		public string RoomRef {
+			get { return Room == null ? null : Room.Id; }
+			set { Room = Room.Lookup (value); }
+		}
+
+		[BsonIgnore]
         public Room Room
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string ShortDescr
         {
             get; set;
         }
 
+		[BsonRequired]
+		[BsonDefaultValue(ObjectType.Trash)]
         public ObjectType Type
         {
             get; set;
         }
 
-        public IList<object> Values
+        public IList<BsonValue> Values
         {
             get; private set;
         }
 
+		[BsonDefaultValue(WearFlag.None)]
+		[BsonIgnoreIfDefault]
         public WearFlag WearFlags
         {
             get; set;
         }
 
-        public WearLocation WearLocation
-        {
-            get;
-            set;
-        }
-
+		[BsonIgnoreIfDefault]
         public float Weight
         {
             get; set;
         }
 
+		
+		public string Keyword ()
+		{
+			if (!World.Objects.ContainsValue (Id)) {
+				return Id;
+			}
+
+			return World.Objects[Id];
+		}
+
+
         #endregion Properties
 
         #region Methods
 
-        public static Object Load(long id)
-        {
-            var obj = new Object();
-            obj.Id = id;
-            obj.Load();
-
-            return obj;
-        }
-
-        public static Object Lookup(string argument)
-        {
-            return List.FirstOrDefault(x => x.Name.HasWord(argument));
-        }
-
-        public static Object Lookup(long id)
-        {
-            return List.FirstOrDefault(x => x.Id == id);
-        }
+		public static Object Lookup (string id)
+		{
+			return DbManager.Lookup<Object> (id);
+		}
 
         public Object Clone()
         {
             return MemberwiseClone() as Object;
-        }
-
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_object");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
         }
 
         public virtual void Dispose()
@@ -338,103 +361,6 @@
         object ICloneable.Clone()
         {
             return this.Clone();
-        }
-
-        public virtual bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_object");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            if (!this.Load(cmd))
-                return false;
-
-            ReadContents(conn);
-            return true;
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-            Id = reader.GetInt64(i++);
-            Condition = reader.GetFloat(i++);
-            Description = reader.GetString(i++);
-            Level = reader.GetInt16(i++);
-            LongDescr = reader.GetString(i++);
-            ShortDescr = reader.GetString(i++);
-            Weight = reader.GetFloat(i++);
-            Name = reader.GetString(i++);
-            Cost = reader.GetDecimal(i++);
-            Flags = reader.GetEnum<ObjectFlag>(i++);
-            WearFlags = reader.GetEnum<WearFlag>(i++);
-            Area = Area.Lookup(reader.GetInt32(i++));
-            Type = reader.GetEnum<ObjectType>(i++);
-
-            byte[] data = reader.GetValue(i++) as byte[];
-
-            if (data == null)
-                return i;
-
-            var ms = new MemoryStream(data);
-            var bf = new BinaryFormatter();
-
-            Values = bf.Deserialize(ms) as IList<object>;
-
-            return i;
-        }
-
-        public void ReadContents(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("select_object_contents");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            using (var reader = cmd.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    var obj = new Object();
-                    obj.MapRow(reader);
-
-                    Contents.Add(obj);
-                }
-            }
-        }
-
-        public virtual bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_object");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@condition", DbType.Single, Condition);
-            cmd.AddParameter("@descr", DbType.String, Description);
-            cmd.AddParameter("@level", DbType.Int16, Level);
-            cmd.AddParameter("@long_descr", DbType.String, LongDescr);
-            cmd.AddParameter("@short_descr", DbType.String, ShortDescr);
-            cmd.AddParameter("@weight", DbType.Single, Weight);
-            cmd.AddParameter("@name", DbType.String, Name);
-            cmd.AddParameter("@cost", DbType.Currency, Cost);
-            cmd.AddParameter("@flags", DbType.String, Flags.ToString());
-            cmd.AddParameter("@wear_Flags", DbType.String, WearFlags.ToString());
-            cmd.AddParameter("@area", DbType.Int64, Area.Id);
-            cmd.AddParameter("@type", DbType.String, Type.ToString());
-
-            var ms = new MemoryStream();
-            var bf = new BinaryFormatter();
-
-            bf.Serialize(ms, Values);
-            cmd.AddParameter("@values", DbType.Binary, ms.ToArray());
-
-            if (Inside != null)
-                cmd.AddParameter("@inside", DbType.Int64, Inside.Id);
-            else
-                cmd.AddParameter("@inside", DbType.Int64, DBNull.Value);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-            {
-                Id = Convert.ToInt64(conn.LastInsertId());
-                List.Add(this);
-            }
-
-            return res;
         }
 
         public virtual string ToString(string format, IFormatProvider formatProvider)

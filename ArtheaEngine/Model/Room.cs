@@ -1,4 +1,10 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Bson.Serialization.Options;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -37,28 +43,23 @@
 
     #endregion Enumerations
 
-    public class Room : IEntity<long>, IPersistent
+    public class Room : INamedEntity, IRootLevelDocument
     {
-        #region Fields
-
-        public static HashSet<Room> List = new HashSet<Room>();
-
-        #endregion Fields
-
         #region Constructors
 
         public Room()
         {
+			Id = ObjectId.GenerateNewId().ToString();
             Characters = new ObservableCollection<Character>();
-            Characters.CollectionChanged += ArtheaHelper.CollectionChangedHandler<Character>((c, a) =>
-                {
-                    c.Room = a ? this : null;
-                });
+            Characters.AddChangedHandler<Character>((c, a) =>
+            {
+                c.Room = a ? this : null;
+            });
             Objects = new ObservableCollection<Object>();
-            Objects.CollectionChanged += ArtheaHelper.CollectionChangedHandler<Object>((o, a) =>
-                {
-                    o.Room = a ? this : null;
-                });
+            Objects.AddChangedHandler<Object>((o, a) =>
+            {
+                o.Room = a ? this : null;
+            });
             Exits = new Dictionary<Direction, Exit>();
         }
 
@@ -66,41 +67,58 @@
 
         #region Properties
 
+		[BsonRequired]
+		[BsonElement("Area")]
+		public string AreaRef {
+			get { return Area == null ? null : Area.Id; }
+
+			set { Area = Area.Lookup (value); }
+		}
+
+		[BsonIgnore]
         public Area Area
         {
             get; set;
         }
 
+		[BsonIgnore]
         public ObservableCollection<Character> Characters
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string Description
         {
             get; set;
         }
 
+		[BsonDictionaryOptions(DictionaryRepresentation.Dynamic)]
         public Dictionary<Direction, Exit> Exits
         {
             get; set;
         }
 
+		[BsonDefaultValue(RoomFlag.None)]
+		[BsonIgnoreIfDefaultAttribute]
         public RoomFlag Flags
         {
             get; set;
         }
 
-        public long Id
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
         {
             get; set;
         }
 
+		[BsonRequired]
         public string Name
         {
             get; set;
         }
 
+		[BsonIgnore]
         public ObservableCollection<Object> Objects
         {
             get; set;
@@ -119,24 +137,6 @@
         #endregion Properties
 
         #region Methods
-
-        public static Room GetDefault()
-        {
-            var room = List.FirstOrDefault();
-
-            if (room != null) return room;
-
-            room = new Room { Name = "Limbo", Description = "You are in darkness.", Terrain = Terrain.Air };
-
-            room.Area = Area.GetDefault();
-
-            return room;
-        }
-
-        public static Room Lookup(long id)
-        {
-            return List.FirstOrDefault(x => x.Id == id);
-        }
 
         public void Act(string format, params object[] args)
         {
@@ -168,19 +168,11 @@
             }
         }
 
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_room");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
-
         public virtual bool Equals(Room obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.Id == Id;
+            return obj.Id.Equals(Id);
         }
 
         public override bool Equals(object obj)
@@ -196,80 +188,20 @@
             return Id.GetHashCode();
         }
 
-        public bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_room");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            using (var reader = cmd.ExecuteReader())
-            {
-
-                if (!reader.Read()) return false;
-
-                MapRow(reader);
-            }
-
-            return true;
-        }
-
-        public void LoadReset(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("select_room_reset");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            using (var reader = cmd.ExecuteReader())
-            {
-                if (reader.Read())
-                {
-
-                    Reset = new Reset(this);
-                    Reset.MapRow(reader);
-                }
-            }
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-
-            Id = reader.GetInt64(i++);
-            Area = Area.Lookup(reader.GetInt32(i++));
-            Name = reader.GetString(i++);
-            Description = reader.GetString(i++);
-            Terrain = reader.GetEnum<Terrain>(i++);
-            Flags = reader.GetEnum<RoomFlag>(i++);
-
-            return i;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_room");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@area", DbType.Int32, Area.Id);
-            cmd.AddParameter("@name", DbType.String, Name);
-            cmd.AddParameter("@descr", DbType.String, Description);
-            cmd.AddParameter("@terrain", DbType.String, Terrain.ToString());
-            cmd.AddParameter("@flags", DbType.String, Flags.ToString());
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-            {
-                Id = Convert.ToInt64(conn.LastInsertId());
-                List.Add(this);
-            }
-
-            if (Reset != null)
-            {
-                Reset.Save(conn);
-            }
-            return res;
-        }
-
         public void Tick()
         {
             if(Reset != null)
                 Reset.Execute();
         }
+
+		public string Keyword ()
+		{
+			if (!World.Rooms.ContainsValue (Id)) {
+				return Id;
+			}
+
+			return World.Rooms[Id];
+		}
 
         public virtual string ToString(string format, IFormatProvider formatProvider)
         {
@@ -286,6 +218,11 @@
                     throw new FormatException("invalid room format");
             }
         }
+
+		public static Room Lookup(string id)
+		{
+			return DbManager.Lookup<Room>(id);
+		}
 
         #endregion Methods
     }

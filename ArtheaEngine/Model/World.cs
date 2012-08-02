@@ -1,4 +1,9 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Driver.Builders;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -12,8 +17,6 @@
 
     using NLog;
 
-    using Object = ArtheaEngine.Model.Object;
-
     #region Enumerations
 
     [Flags]
@@ -24,11 +27,9 @@
 
     #endregion Enumerations
 
-    public partial class World : IEntity<int>, ICloneable, IPersistent
+    public partial class World : INamedEntity, ICloneable, IRootLevelDocument
     {
         #region Fields
-
-        public static readonly HashSet<World> List = new HashSet<World>();
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
@@ -36,50 +37,123 @@
 
         #region Constructors
 
-        static World()
-        {
-            LoadAll();
+        public World ()
+		{
+			Id = ObjectId.GenerateNewId().ToString();
+			Connections = new HashSet<IConnection> ();
+			Players = new ObservableCollection<Player> ();
         }
 
-        public World()
-        {
-            Connections = new HashSet<IConnection>();
-            Areas = new ObservableCollection<Area>();
-            Areas.CollectionChanged += ArtheaHelper.CollectionChangedHandler<Area>((a, n) =>
-                {
-                    a.World = n ? this : null;
-                });
-        }
+		static World ()
+		{
+			Objects = new Dictionary<string, string> ();
+
+			Rooms = new Dictionary<string, string> ();
+
+			NonPlayers = new Dictionary<string, string> ();
+
+			DbManager.Synchronize(new Race[] { new HumanRace(), new DwarfRace() });
+
+			DbManager.Synchronize(new Class[] { new WarriorClass(), new MageClass() });
+
+			var areas = DbManager.GetAll<Area>();
+
+			foreach (var a in areas) {
+
+				var q = Query.EQ ("Area", a.Id);
+
+				long i = 0;
+				foreach(var o in DbManager.Find<Object>(q))
+				{
+					Objects.Add(a.Key + "-" + i, o.Id);
+				}
+
+				i = 0;
+				foreach(var r in DbManager.Find<Room>(q))
+				{
+					Rooms.Add (a.Key + "-" + i, r.Id);
+					a.Rooms.Add (r);
+				}
+
+				i = 0;
+
+				foreach(var npc in DbManager.Find<NonPlayer>(q))
+				{
+					NonPlayers.Add (a.Key + "-" + i, npc.Id);
+				}
+			}
+		}
 
         #endregion Constructors
 
         #region Properties
 
+
+		public static Dictionary<string,string> Objects
+		{
+			get; private set;
+		}
+
+		public static Dictionary<string,string> Rooms
+		{
+			get; private set;
+		}
+
+		public static Dictionary<string,string> NonPlayers
+		{
+			get; private set;
+		}
+		/*
+		[BsonIgnore]
+		public ObservableCollection<Race> Races
+		{
+			get; private set;
+		}
+
+		[BsonIgnore]
+		public ObservableCollection<Class> Classes
+		{
+			get; private set;
+		}
+
+		[BsonIgnore]
         public ObservableCollection<Area> Areas
         {
             get; private set;
-        }
+        }*/
 
+		[BsonIgnore]
+		public ObservableCollection<Player> Players
+		{
+			get; private set;
+		}
+
+		[BsonIgnore]
         public ICollection<IConnection> Connections
         {
             get; private set;
         }
 
+		[BsonDefaultValue(WorldFlag.None)]
+		[BsonIgnoreIfDefault]
         public WorldFlag Flags
         {
             get; set;
         }
 
-        public int Id
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
         {
             get; set;
         }
 
+		[BsonRequired]
         public string Name
         {
             get; set;
         }
 
+		[BsonRequired]
         public short Port
         {
             get; set;
@@ -91,49 +165,65 @@
 
         public static World GetDefault()
         {
-            var world = List.FirstOrDefault(x => x.Port == 3778);
+			if(DbManager.CollectionExists<World>())
+				return DbManager.GetCollection<World>().FindOne();
 
-            if (world != null) return world;
+            /*var world = List.FirstOrDefault(x => x.Port == 3778);
+
+            if (world != null) return world;*/
 
             Log.Info("Created default world");
-            world = new World();
+            var world = new World();
             world.Name = "Arthea";
             world.Port = 3778;
 
-            world.Save();
-
-            List.Add(world);
+			world.Save();
 
             return world;
         }
 
-        public static void LoadAll()
-        {
-            using (var conn = ArtheaHelper.NewConnection())
-            {
-                var cmd = conn.CreateCommand("select_worlds");
+		private static Area FindArea(Argument keyword)
+		{
+			return DbManager.GetCollection<Area>().FindOne(Query.EQ ("Key", keyword.Next('-')));
 
-                using (var reader = cmd.ExecuteReader())
-                {
+		}
 
-                    while (reader.Read())
-                    {
-                        var world = new World();
-                        world.MapRow(reader);
+		public static Account FindAccount (string login)
+		{
+			return DbManager.GetCollection<Account> ().FindOne (Query.EQ ("Login", login));
+		}
 
-                        List.Add(world);
+		public static Object FindObject (Argument keyword)
+		{
+			Area area = FindArea (keyword);
 
-                        Log.Info("Loaded world {0}", world.Name);
-                    }
-                }
+			if(area == null) return null;
 
-                foreach (var world in List)
-                {
+			var q = Query.And (Query.EQ ("Area", area.Id), Query.EQ ("Key", keyword.Next()));
 
-                    world.LoadAreas(conn);
-                }
-            }
-        }
+			return DbManager.GetCollection<Object>().FindOne (q);
+		}
+
+		public static NonPlayer FindNPC (Argument keyword)
+		{
+			Area area = FindArea(keyword);
+
+			if(area == null) return null;
+
+			var q = Query.And(Query.EQ ("Area", area.Id), Query.EQ ("Key", keyword.Next()));
+
+			return DbManager.GetCollection<NonPlayer>().FindOne (q);
+		}
+
+		public static Race FindRace (string keyword)
+		{
+			return DbManager.GetAll<Race>().OfType<PcRace>().FirstOrDefault(x => keyword.IsPrefixOf(x.Name));
+		}
+
+		public static Class FindClass(string keyword)
+		{
+			return DbManager.GetAll<Class>().FirstOrDefault(x => keyword.IsPrefixOf(x.Name));
+		}
 
         // Friendly, type-safe clone method
         public virtual World Clone()
@@ -141,19 +231,11 @@
             // Start with a flat, memberwise copy
             World x = new World();
 
-            x.Id = Id;
+			x.Id = Id;
             x.Name = Name;
             x.Port = Port;
 
             return x;
-        }
-
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_world");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
         }
 
         // Explicit interface method impl -- available for
@@ -165,6 +247,7 @@
             return this.Clone();
         }
 
+		/*
         public bool Load(IDbConnection conn)
         {
             var cmd = conn.CreateCommand("read_world");
@@ -238,7 +321,7 @@
             }
 
             return res;
-        }
+        }*/
 
         public override string ToString()
         {

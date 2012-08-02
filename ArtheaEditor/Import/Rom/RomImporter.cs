@@ -42,7 +42,7 @@
             Helps = new HelpSection();
             Resets = new ResetSection(this);
             Socials = new SocialSection();
-            Rooms = new RoomSection();
+            Rooms = new RoomSection(this);
             Areas = new AreaSection();
             Shops = new ShopSection(this);
             Specials = new SpecialSection();
@@ -115,33 +115,26 @@
 
         public void Commit()
         {
-            using (var conn = ArtheaHelper.NewConnection())
+            try
             {
-                var tx = conn.BeginTransaction();
 
-                try
-                {
+                Areas.Commit();
+                Mobiles.Commit();
+                Objects.Commit();
+                Rooms.Commit();
+                Resets.Commit();
+                Shops.Commit();
+                Helps.Commit();
+                Socials.Commit();
+                Specials.Commit();
 
-                    Areas.Commit(conn);
-                    Mobiles.Commit(conn);
-                    Objects.Commit(conn);
-                    Rooms.Commit(conn);
-                    Resets.Commit(conn);
-                    Shops.Commit(conn);
-                    Helps.Commit(conn);
-                    Socials.Commit(conn);
-                    Specials.Commit(conn);
-
-                    tx.Commit();
-
-                    Log.Info("Commit Complete.");
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex.Message);
-                    tx.Rollback();
-                }
+                Log.Info("Commit Complete.");
             }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message);
+            }
+            
         }
 
         public void Process(FileInfo fileInfo)

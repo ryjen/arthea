@@ -1,4 +1,8 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.Options;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -31,9 +35,9 @@
     {
         #region Constructors
 
-        public Player()
+		public Player() : base()
         {
-            LastNote = new Dictionary<int, DateTime>();
+            LastNote = new Dictionary<BsonValue, DateTime>();
             Prompt = "~R%l/%L ~M%m/%M ~B%e/%E~x";
             CombatPrompt = Prompt;
         }
@@ -42,43 +46,66 @@
 
         #region Properties
 
+		[BsonElement("Account")]
+		[BsonRequired]
+		public string AccountRef {
+			get { return Account == null ? null : Account.Id; }
+			set { Account = ArtheaEngine.Model.Account.Lookup (value); }
+		}
+
+		[BsonIgnore]
         public Account Account
         {
             get; set;
         }
 
+		[BsonDefaultValue(ChannelFlag.None)]
+		[BsonIgnoreIfDefault]
         public ChannelFlag ChannelFlags
         {
             get; set;
         }
 
+		[BsonElement("Class")]
+		[BsonRequired]
+		public string ClassRef {
+			get { return Class == null ? null : Class.Id; }
+			set { Class = Class.Lookup (value); }
+		}
+
+		[BsonIgnore]
         public Class Class
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string CombatPrompt
         {
             get;
             set;
         }
 
-        public Dictionary<int, DateTime> LastNote
+		[BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
+        public Dictionary<BsonValue, DateTime> LastNote
         {
             get; private set;
         }
 
+		[BsonIgnoreIfNull]
         public string Prompt
         {
             get;
             set;
         }
 
+		[BsonIgnoreIfNull]
         public string Title
         {
             get; set;
         }
 
+		[BsonIgnore]
         public override World World
         {
             get { return Account.Connection.World; }
@@ -87,14 +114,6 @@
         #endregion Properties
 
         #region Methods
-
-        public override bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_player");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            return cmd.ExecuteNonQuery() == 1 && base.Delete(conn);
-        }
 
         public void DisplayPrompt()
         {
@@ -159,6 +178,7 @@
             return note.When < LastNote[note.Forum.Id];
         }
 
+		/*
         public override bool Load(IDbConnection conn)
         {
             using (var cmd = conn.CreateCommand("read_player"))
@@ -210,11 +230,6 @@
             return i;
         }
 
-        public override void Page(string buf)
-        {
-            if (Account != null)
-                Account.Page(buf);
-        }
 
         public override bool Save(IDbConnection conn)
         {
@@ -252,6 +267,13 @@
             }
 
             return res;
+        }
+
+		*/
+        public override void Page(string buf)
+        {
+            if (Account != null)
+                Account.Page(buf);
         }
 
         public override void Write(string format, params object[] args)
@@ -295,25 +317,6 @@
             if (Account == null) return;
 
             Account.WriteLine(format, args);
-        }
-
-        private void LoadCarrying(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("select_char_objects");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            var reader = cmd.ExecuteReader();
-
-            while (reader.Read())
-            {
-                var chObj = new CharObj();
-
-                chObj.Character = this;
-
-                chObj.MapRow(reader);
-
-                Carrying.Add(chObj);
-            }
         }
 
         #endregion Methods

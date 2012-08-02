@@ -1,4 +1,10 @@
-﻿namespace ArtheaEngine.Model
+﻿
+using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -11,46 +17,14 @@
 
     using NLog;
 
-    public abstract class Ability : ICloneable, IEntity<int>, ISaveable, ILoadable
+	[BsonKnownTypes(typeof(Skill), typeof(Spell))]
+	[BsonDiscriminator(Required = true, RootClass = true)]
+    public abstract class Ability : ICloneable, INamedEntity, IRootLevelDocument
     {
-        #region Fields
-
-        public static readonly HashSet<Ability> List = new HashSet<Ability>();
-
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-        static readonly object[] Parameters = new object[] { 
-                "@id", DbType.Int32,
-                "@name", DbType.String,
-                "@level", DbType.Int16,
-                "@descr", DbType.String,
-                "@cost", DbType.Currency
-            };
-
-        #endregion Fields
-
-        #region Constructors
-
-        static Ability()
-        {
-            Assembly assm = Assembly.GetExecutingAssembly();
-
-            using (var conn = ArtheaHelper.NewConnection())
-            {
-                foreach (var t in assm.GetTypes())
-                {
-                    if (t.IsSubclassOf(typeof(Ability)))
-                    {
-                        var ability = (Ability)Activator.CreateInstance(t);
-                        if (!ability.Load(conn))
-                            ability.Save(conn);
-                        List.Add(ability);
-                    }
-                }
-            }
-        }
-
-        #endregion Constructors
-
+		public Ability()
+		{	
+			Id = ObjectId.GenerateNewId().ToString();
+		}
         #region Properties
 
         public Money Cost
@@ -63,29 +37,31 @@
             get; set;
         }
 
-        public abstract int Id
-        {
-            get;
-        }
-
         public short Level
         {
             get; set;
         }
 
-        public string Name
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
         {
-            get; set;
+            get; private set;
         }
+
+		public string Name
+		{
+			get; set;
+		}
 
         #endregion Properties
 
         #region Methods
 
-        public static Ability Lookup(int id)
-        {
-            return List.SingleOrDefault(x => x.Id == id);
-        }
+		public static Ability Lookup (string keyword)
+		{
+			return DbManager.Lookup<Ability>(keyword);
+		}
+		                                          
 
         /// <summary>
         ///                     Creates a new object that is a copy of the current instance.
@@ -98,17 +74,9 @@
         {
             var newObject = Activator.CreateInstance(GetType());
 
-            ArtheaHelper.CloneObj(newObject, this);
+            Game.CloneObj(newObject, this);
 
             return newObject;
-        }
-
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_ability");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
         }
 
         public void DisplayOffMsg(object from)
@@ -149,42 +117,6 @@
 
                 room.Act(msg);
             }
-        }
-
-        public bool Load(IDbConnection conn)
-        {
-            using (var cmd = conn.CreateCommand("read_ability"))
-            {
-                cmd.AddParameter("@id", DbType.Int32, Id);
-
-                return this.Load(cmd);
-            }
-        }
-
-        public int MapRow(IDataRecord row)
-        {
-            int i = 0;
-
-            Name = row.GetString(i++);
-            Level = row.GetInt16(i++);
-            Description = row.GetString(i++);
-            Cost = row.GetDecimal(i++);
-
-            return i;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("update_ability");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-            cmd.AddParameter("@name", DbType.String, Name);
-            cmd.AddParameter("@level", DbType.Int16, Level);
-            cmd.AddParameter("@descr", DbType.String, Description);
-            cmd.AddParameter("@cost", DbType.Currency, Cost);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            return res;
         }
 
         protected virtual string GetAbilityMsg(string name)

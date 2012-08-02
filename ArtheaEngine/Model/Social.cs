@@ -1,83 +1,90 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
     using System.Data;
 
-    public partial class Social : IEntity<int>, IPersistent
+    public partial class Social : INamedEntity, IRootLevelDocument
     {
-        #region Fields
-
-        public static readonly HashSet<Social> List = new HashSet<Social>();
-
-        #endregion Fields
-
-        #region Constructors
-
-        static Social()
-        {
-            ReadAll();
-        }
-
-        #endregion Constructors
+		public Social() {
+			
+			Id = ObjectId.GenerateNewId().ToString();
+		}
 
         #region Properties
 
+		[BsonIgnoreIfNull]
         public string CharFound
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string CharNoArg
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string CharNotFound
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string CharObjFound
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string CharSelf
         {
             get; set;
         }
 
-        public int Id
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string Name
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string OthersFound
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string OthersNoArg
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string OthersObjFound
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string OthersSelf
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string VictFound
         {
             get; set;
@@ -87,79 +94,28 @@
 
         #region Methods
 
-        public static bool Interpret(Character ch, Argument argument)
-        {
-            var arg = argument.Peek();
-            /*var context = new ArtheaModel();
+        public static bool Interpret (Character ch, Argument argument)
+		{
+			var arg = argument.Peek ();
 
-            foreach (var s in context.Socials)
-            {
-                if (!s.Name.StartsWith(arg, StringComparison.CurrentCultureIgnoreCase)) continue;
+			var social = Lookup (arg);
 
-                argument.FirstArg();
-                s.Parse(ch, argument);
-                return true;
-            }*/
+			if (social != null) {
+
+				argument.Next();
+
+				social.Parse(ch, argument);
+				return true;
+			}
             return false;
         }
 
-        public static void ReadAll()
-        {
-            using (var conn = ArtheaHelper.NewConnection())
-            {
-                var cmd = conn.CreateCommand("select_socials");
+		public static Social Lookup (String name)
+		{
+			var q = Query.Matches("Name", "/" + name + "*/");
 
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    var s = new Social();
-                    s.MapRow(reader);
-
-                    List.Add(s);
-                }
-            }
-        }
-
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_social");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            return cmd.ExecuteNonQuery()== 1;
-        }
-
-        public bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_social");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            var reader = cmd.ExecuteReader();
-
-            if (!reader.Read()) return false;
-
-            MapRow(reader);
-            return true;
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-
-            Id = reader.GetInt32(i++);
-            CharFound = reader.GetString(i++);
-            CharNoArg = reader.GetString(i++);
-            CharNotFound = reader.GetString(i++);
-            CharObjFound = reader.GetString(i++);
-            CharSelf = reader.GetString(i++);
-            Name = reader.GetString(i++);
-            OthersFound = reader.GetString(i++);
-            OthersNoArg = reader.GetString(i++);
-            OthersObjFound = reader.GetString(i++);
-            OthersSelf = reader.GetString(i++);
-            VictFound = reader.GetString(i++);
-            return i;
-        }
+			return DbManager.GetCollection<Social>().FindOne (q);
+		}
 
         public virtual void Parse(Character ch, Argument argument)
         {
@@ -198,33 +154,6 @@
             victim.Act(VictFound, ch);
             victim.Room.Act(new []{ ch, victim}, OthersFound, ch, victim);
             return;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_social");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-            cmd.AddParameter("@char_found", DbType.String, CharFound);
-            cmd.AddParameter("@char_no_arg", DbType.String, CharNoArg);
-            cmd.AddParameter("@char_not_found", DbType.String, CharNotFound);
-            cmd.AddParameter("@char_obj_found", DbType.String, CharObjFound);
-            cmd.AddParameter("@char_self", DbType.String, CharSelf);
-            cmd.AddParameter("@name", DbType.String, Name);
-            cmd.AddParameter("@others_found", DbType.String, OthersFound);
-            cmd.AddParameter("@others_no_arg", DbType.String, OthersNoArg);
-            cmd.AddParameter("@others_obj_found", DbType.String, OthersObjFound);
-            cmd.AddParameter("@others_self", DbType.String, OthersSelf);
-            cmd.AddParameter("@victim_found", DbType.String, VictFound);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-            {
-                Id = Convert.ToInt32(conn.LastInsertId());
-                List.Add(this);
-            }
-
-            return res;
         }
 
         #endregion Methods

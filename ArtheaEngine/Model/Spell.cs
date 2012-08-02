@@ -1,4 +1,8 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace ArtheaEngine.Model
 {
     using System.Linq;
 
@@ -6,15 +10,13 @@
     {
     }
 
+	[BsonKnownTypes(typeof(HealSpell))]
+	[BsonDiscriminator(Required = true, RootClass = false)]
     public abstract class Spell : Ability
     {
         #region Properties
 
-        public override int Id
-        {
-            get { return 2; }
-        }
-
+		[BsonRequired]
         public int Mana
         {
             get; set;
@@ -22,13 +24,5 @@
 
         #endregion Properties
 
-        #region Methods
-
-        public static Spell Lookup(string name)
-        {
-            return List.FirstOrDefault((a) => a is Spell && a.Name.HasWord(name)) as Spell;
-        }
-
-        #endregion Methods
     }
 }

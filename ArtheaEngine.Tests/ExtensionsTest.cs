@@ -142,9 +142,9 @@
         [Test]
         public void IsEmailTest()
         {
-            Assert.IsFalse(ArtheaHelper.IsEmail("coder78@"));
-            Assert.IsTrue(ArtheaHelper.IsEmail("c0der78@gmail.com"));
-            Assert.IsFalse(ArtheaHelper.IsEmail("@gmail.com"));
+            Assert.IsFalse(Game.IsEmail("coder78@"));
+            Assert.IsTrue(Game.IsEmail("c0der78@gmail.com"));
+            Assert.IsFalse(Game.IsEmail("@gmail.com"));
         }
 
         [Test]
@@ -202,7 +202,7 @@
         [Test]
         public void ToCSVTest()
         {
-            var buf = new StringBuilder();
+            //var buf = new StringBuilder();
 
             var tags = new HashSet<string>();
 

@@ -48,7 +48,7 @@
             _history.Push(new CollectionData(lstCollection.DataSource, _editor));
         }
 
-        public void SetCollection(ICollection items)
+        public void SetCollection(IEnumerable items)
         {
             lstCollection.DataSource = null;
             lstCollection.DataSource = items;

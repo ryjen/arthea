@@ -1,12 +1,12 @@
-﻿namespace ArtheaServer.Commands
+﻿using NLog;
+
+namespace ArtheaServer.Commands
 {
     using System;
     using System.Runtime.Serialization;
 
     using ArtheaEngine;
     using ArtheaEngine.Model;
-
-    using NLog;
 
     public class QuitCommand : Command
     {

@@ -34,12 +34,16 @@
 
         #region Methods
 
-        public override void Commit(IDbConnection conn)
+        public override void Commit()
         {
+			DbManager.InsertBatch<Area>(Loaded);
+
+			/*
             foreach (Area a in Loaded)
-                {
-                    a.Save(conn);
-                }
+            {
+				DbManager.Save(a);
+                //a.Save(conn);
+            }*/
         }
 
         public override void Load(FileReader reader)

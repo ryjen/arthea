@@ -1,4 +1,6 @@
-﻿namespace ArtheaEditor
+﻿using ArtheaEngine;
+
+namespace ArtheaEditor
 {
     using System;
     using System.Collections.Generic;
@@ -30,7 +32,7 @@
         {
             mainEditor.SetEditor(new AreaEditor());
 
-            mainEditor.SetCollection(Area.List.ToList());
+            mainEditor.SetCollection(DbManager.GetAll<Area>());
         }
 
         private void circleToolStripMenuItem_Click(object sender, EventArgs e)

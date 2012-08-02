@@ -1,4 +1,7 @@
-﻿namespace ArtheaEngine
+﻿using MongoDB.Bson;
+using System.Collections.Specialized;
+
+namespace ArtheaEngine
 {
     using System;
     using System.Collections.Generic;
@@ -144,13 +147,14 @@
             return true;
         }
 
+		/*
         public static bool Delete(this ISaveable obj)
         {
-            using (var conn = ArtheaHelper.NewConnection())
+            using (var conn = DbManager.GetDB ())
             {
                 return obj.Delete(conn);
             }
-        }
+        }*/
 
         public static int DisplayLength(this string str)
         {
@@ -344,41 +348,54 @@
             return value.StartsWith(mString, ignoreCase, CultureInfo.CurrentCulture);
         }
 
+		public static bool Save<T> (this T doc) where T:IRootLevelDocument
+		{
+			return DbManager.Save<T>(doc);
+		}
+
+		public static bool Delete<T> (this T doc) where T:IEntity,IRootLevelDocument
+		{
+			return DbManager.Delete<T> (doc);
+		}
+
+		public static T Lookup<T> (this IEnumerable<T> arg, BsonValue id) where T: IEntity
+		{
+			return arg.FirstOrDefault (v => v.Id != null && v.Id.Equals (id));
+		}
+
         public static bool IsPrefixOf(this string mString, string value)
         {
             return IsPrefixOf(mString, value, true);
         }
 
-        public static object LastInsertId(this IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand();
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = "select last_insert_id()";
-
-            var obj = cmd.ExecuteScalar();
-
-            return obj;
-        }
-
-        public static bool Load(this ILoadable obj)
-        {
-            using (var conn = ArtheaHelper.NewConnection())
+		public static void AddChangedHandler<T> (this ObservableCollection<T> value, Action<T,bool> action)
+		{
+			value.CollectionChanged += new NotifyCollectionChangedEventHandler((o, e) =>
             {
-                return obj.Load(conn);
-            }
+	            if (e.NewItems != null)
+	            {
+	                foreach (T r in e.NewItems)
+	                {
+	                    action(r, true);
+	                }
+	            }
+	            if (e.OldItems != null)
+	            {
+	                foreach (T r in e.OldItems)
+	                {
+	                    action(r, false);
+	                }
+	            }
+            });
         }
 
-        public static bool Load(this ILoadable obj, IDbCommand cmd)
-        {
-            using (var reader = cmd.ExecuteReader())
-            {
-                if (!reader.Read()) return false;
-
-                obj.MapRow(reader);
-
-                return true;
-            }
-        }
+		
+		public static void AddAll<T>(this ObservableCollection<T> value, IEnumerable<T> arg)
+		{
+			foreach (var i in arg) {
+				value.Add(i);
+			}
+		}
 
         public static Direction Reverse(this Direction dir)
         {
@@ -396,9 +413,10 @@
             }
         }
 
+		/*
         public static bool Save(this ISaveable obj)
         {
-            using (var conn = ArtheaHelper.NewConnection())
+            using (var conn = DbManager.NewConnection())
             {
                 var tx = conn.BeginTransaction();
 
@@ -411,7 +429,7 @@
 
                 return rval;
             }
-        }
+        }*/
 
         public static string StripColor(this string mString)
         {

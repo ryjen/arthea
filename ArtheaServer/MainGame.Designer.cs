@@ -1,6 +1,6 @@
-﻿namespace ArtheaServer
+namespace ArtheaServer
 {
-    partial class MainForm
+    partial class MainGame
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainGame));
             this.mainMenu = new System.Windows.Forms.MenuStrip();
             this.worldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -89,7 +89,7 @@
             this.notifier.ContextMenuStrip = this.notifierContextMenu;
             this.notifier.Icon = ((System.Drawing.Icon)(resources.GetObject("notifier.Icon")));
             this.notifier.Text = "Arthea Server";
-            this.notifier.Visible = true;
+            //this.notifier.Visible = true;
             this.notifier.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifier_MouseDoubleClick);
             // 
             // notifierContextMenu

@@ -135,6 +135,8 @@
 
         public void DisplayPrompt()
         {
+			if(!Connected) return;
+
             if (HasPage())
             {
                 WriteLine();
@@ -284,41 +286,57 @@
 
         public void Write(string value)
         {
+			if(!Connected) return;
+
             _writer.Write(value);
         }
 
         public void Write(string format, params object[] args)
         {
+			if(!Connected) return;
+
             _writer.Write(format, args);
         }
 
         public void Write(byte[] value)
         {
+			if(!Connected) return;
+
             Client.Write(value, 0, value.Length);
         }
 
         public void Write(object obj)
         {
+			if(!Connected) return;
+
             _writer.Write(obj);
         }
 
         public void WriteLine(string value)
         {
+			if(!Connected) return;
+
             _writer.WriteLine(value);
         }
 
         public void WriteLine(string format, params object[] args)
         {
+			if(!Connected) return;
+
             _writer.WriteLine(format, args);
         }
 
         public void WriteLine()
         {
+			if(!Connected) return;
+
             _writer.WriteLine();
         }
 
         public void WriteLine(object obj)
         {
+			if(!Connected) return;
+
             _writer.WriteLine(obj);
         }
 
@@ -339,15 +357,15 @@
             if (!Account.Password.ToArray().DeepCompare(Encoding.Default.GetBytes(argument)))
             {
 
-                    Write("~CPasswords do not match. Account deletion cancelled.");
-                    SetState(PlayingState);
+                Write("~CPasswords do not match. Account deletion cancelled.");
+                SetState(PlayingState);
 
                 return;
             }
 
             WriteLine("~CSorry to see you go! Safe travels!~x");
 
-            Account.Delete();
+			Account.Delete();
 
             Close();
             Dispose();
@@ -453,41 +471,38 @@
             Header("Available Classes");
 
             WriteLine();
-            foreach (var c in Class.List)
+            foreach (var c in DbManager.GetAll<Class>())
             {
                 WriteLine("~W{0,-10}~C: {1}", c.Name, c.Description);
             }
             WriteLine("~x");
         }
 
-        private void DisplayMotd()
-        {
-            WriteLine("* Don't feed the immortals.");
-            WriteLine();
-            WriteLine("[Hit return to continue]");
+        private void DisplayMotd ()
+		{
+			WriteLine ("* Don't feed the immortals.");
+			WriteLine ();
+			WriteLine ("[Hit return to continue]");
 
-            if (Playing.Room == null)
-            {
-                Playing.Room = Room.GetDefault();
-            }
-            Playing.Room.Characters.Add(Playing);
-            Character.List.Add(Playing);
+			if (Playing.Room == null) {
+				Playing.Room = Area.GetDefault (World).Rooms.First ();
+			} 
+			Playing.Room.Characters.Add (Playing);
+            World.Players.Add(Playing);
             if (Playing.Level == 0)
             {
-                using (var conn = ArtheaHelper.NewConnection())
-                {
-                    if (Convert.ToInt32(conn.CreateCommand("count_players").ExecuteScalar()) == 0)
-                    {
-                        Playing.Level = ArtheaHelper.MaxLevel;
-                        Log.Warn("Setting first player " + Playing.Name + " immortal");
-                        Playing.WriteLine("You are now level " + Playing.Level + "!");
-                        Playing.Save();
-                    }
-                    else
-                    {
-                        Playing.Level = 1;
-                    }
+				if(!DbManager.CollectionExists<Account>())
+				{
+                    Playing.Level = Game.MaxLevel;
+                    Log.Warn("Setting first player " + Playing.Name + " immortal");
+                    Playing.WriteLine("You are now level " + Playing.Level + "!");
+					DbManager.Save(Account);
                 }
+                else
+                {
+                    Playing.Level = 1;
+				}
+                
 
             }
             Server.World.Connections.Add(this);
@@ -505,9 +520,9 @@
 
             WriteLine();
 
-            foreach (var r in Race.List)
+            foreach (var r in DbManager.GetAll<Race>().OfType<PcRace>())
             {
-                WriteLine("~W{0,-10}~C: {1}", r.Name, r.Description);
+				WriteLine("~W{0,-10}~C: {1}", r.Name, r.Description);
             }
 
             WriteLine("~x");
@@ -521,17 +536,20 @@
                 return;
             }
 
-            Account = new Account { Connection = this, Login = argument };
+			Account = World.FindAccount(argument);
 
-            if(Account.Load(argument))
+            if(Account != null)
             {
+				Account.Connection = this;
                 Write("~CPassword:~x ");
                 RequestEchoOff();
                 SetState(GetAccountPassword);
                 return;
             }
 
-            Write("~CWould you like to create an account for ~W{0}~C? (Y/n)~x", argument.Capitalize());
+			Account = new Account(this, argument);
+
+            Write("~CWould you like to create an account for ~W{0}~C? (Y/n)~x", argument);
             SetState(ConfirmNewAccount);
         }
 
@@ -560,7 +578,7 @@
 
         private void GetCharClass(string argument)
         {
-            var cl = Class.Lookup(argument);
+			Class cl = World.FindClass(argument);
 
             if (cl == null)
             {
@@ -569,21 +587,22 @@
             }
             Playing.Class = cl;
 
-            Account.Players.Add(new AccountPlayer { Account = Account, Id = Playing.Id, Name = Playing.Name, Level = Playing.Level });
+            Account.Players.Add(new Account.PlayerInfo { Id = Playing.Id, Name = Playing.Name, Level = Playing.Level });
             DisplayMotd();
             SetState(PlayingState);
         }
 
-        private void GetCharRace(string argument)
-        {
-            var r = Race.List.OfType<PcRace>().FirstOrDefault(r2 => r2.Name.StartsWith(argument));
+        private void GetCharRace (string argument)
+		{
+			var r = World.FindRace (argument);
 
-                if (r == null)
-                {
-                    Write("~CNo such race! Try again:~x ");
-                    return;
-                }
-                Playing.Race = r;
+
+            if (r == null)
+            {
+                Write("~CNo such race! Try again:~x ");
+                return;
+            }
+            Playing.Race = r;
 
             DisplayClasses();
             Write("~CWhat kind of character shall you be?~x ");
@@ -592,7 +611,7 @@
 
         private void GetEmail(string argument)
         {
-            if (!ArtheaHelper.IsEmail(argument))
+            if (!Game.IsEmail(argument))
             {
                 Write("~CPlease enter a valid email address:~x ");
                 return;
@@ -613,7 +632,7 @@
 
             argument = argument.Capitalize();
 
-                if (Character.Lookup<Player>(argument) != null)
+                if (DbManager.Lookup<Player>(argument) != null)
                 {
                     WriteLine("~CThere is already a player with that name.~x");
                     Write("~CPlease enter another name:~x ");
@@ -625,7 +644,7 @@
                               Account = Account,
                               Name = argument,
                           };
-            Character.List.Add(Playing);
+            World.Players.Add(Playing);
 
             Write("~CCreate a character named ~W{0}~C? (Y/n)~x ", Playing.Name);
             SetState(ConfirmNewCharName);
@@ -691,55 +710,42 @@
                 return;
             }
 
-            Playing = Account.Players.ElementAt(option).Load();
+            Playing = Character.Lookup<Player>(Account.Players.ElementAt(option).Id);
+			Playing.Account = Account;
             DisplayMotd();
             SetState(PlayingState);
         }
 
-        private void PlayingState(string argument)
-        {
-            try
-            {
-                if (HasPage())
-                {
-                    ShowPage(argument);
-                    return;
-                }
+        private void PlayingState (string argument)
+		{
+			try {
+				if (HasPage ()) {
+					ShowPage (argument);
+					return;
+				}
 
-                if (Editing != null && Editing.Execute(new Argument(argument)))
-                {
-                    return;
-                }
+				if (Editing != null && Editing.Execute (new Argument (argument))) {
+					return;
+				}
 
-                if (!Command.Interpret(Playing, new Argument(argument)))
-                {
-                    WriteLine("Huh?");
-                }
-            }
-            catch (QuitCommandException)
-            {
-                Playing.Dispose();
-                Playing = null;
-                if (Editing != null)
-                    Editing = null;
-                Close();
+				if (!Command.Interpret (Playing, new Argument (argument))) {
+					WriteLine ("Huh?");
+				}
+			} catch (QuitCommandException) {
+				Playing.Dispose ();
+				Playing = null;
+				if (Editing != null)
+					Editing = null;
+				Close ();
 
-                Dispose();
-            }
-            catch (SocketException)
-            {
-                Log.Warn("{0} disconnected", Client.Parser.Socket.RemoteEndPoint);
-                Close();
-                Dispose();
-            }
-            catch (ShutdownException)
-            {
-                TelnetServer.Shutdown();
-            }
-            catch (RebootException)
-            {
-                TelnetServer.Reboot();
-            }
+				Dispose ();
+			} catch (SocketException) {
+				Log.Warn ("{0} disconnected", Client.Parser.Socket.RemoteEndPoint);
+				Close ();
+				Dispose ();
+			} catch (ProcessControlException e) {
+				e.Execute(Server);
+			}
             catch (Exception ex)
             {
                 Log.Error(ex.Message);

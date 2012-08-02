@@ -30,7 +30,7 @@
 
         public override string Title
         {
-            get { return string.Format("Char Editor - {0}", _data.Id); }
+            get { return string.Format("Character {0}", _data.Id); }
         }
 
         #endregion Properties
@@ -224,10 +224,7 @@
 
         public override void Save()
         {
-            if (_data.Save())
-                _connection.WriteLine("Character saved.");
-            else
-                _connection.WriteLine("Character not saved. See logs for details.");
+			_data.Save();
         }
 
         public override void Show()
@@ -260,7 +257,7 @@
                 cols.Add("~YI) ~CLong Descr: ~W{0}", npc.LongDescr);
                 cols.Add("   ~CArea: ~W{0}", npc.Area.Name);
                 cols.Add("~YJ) ~CFlags: ~W{0}", npc.Flags);
-                cols.Add("~RK) ~CShop: ~W{0}", npc.Shop == null ? "None" : npc.Shop.Id.ToString());
+                cols.Add("~RK) ~CShop: ~W{0}", npc.Shop == null ? "None" : npc.Shop.Id);
             }
 
             cols.Show(_connection.Playing);

@@ -40,12 +40,14 @@
 
         #region Methods
 
-        public override void Commit(IDbConnection conn)
+        public override void Commit()
         {
-            foreach (var npc in Loaded)
+			DbManager.InsertBatch(Loaded.Values);
+
+            /*foreach (var npc in Loaded)
                 {
                     npc.Value.Save(conn);
-                }
+                }*/
         }
 
         public override void Load(FileReader reader)
@@ -89,7 +91,7 @@
                 mob.ShortDescr = reader.ReadString();
                 mob.LongDescr = reader.ReadString();
                 mob.Description = reader.ReadString();
-                mob.Race = Race.List.FirstOrDefault(r => r.Name.HasWord(reader.ReadString()));
+                mob.Race = DbManager.Lookup<Race>(reader.ReadString());
                 if (mob.Race == null)
                     mob.Race = Race.Lookup("unique");
 
