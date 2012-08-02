@@ -1,4 +1,9 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -16,28 +21,11 @@
 
         public DwarfRace()
         {
+			Name = "Dwarf";
+			Description = "A short, stocky race.";
         }
 
         #endregion Constructors
-
-        #region Properties
-
-        public override string Description
-        {
-            get { return "A short, stocky race."; }
-        }
-
-        public override int Id
-        {
-            get { return 2; }
-        }
-
-        public override string Name
-        {
-            get { return "dwarf"; }
-        }
-
-        #endregion Properties
     }
 
     public class HumanRace : PcRace
@@ -46,30 +34,16 @@
 
         public HumanRace()
         {
+			Name = "Human";
+			Description = "The standard race.";
         }
 
         #endregion Constructors
 
-        #region Properties
-
-        public override string Description
-        {
-            get { return "The standard race."; }
-        }
-
-        public override int Id
-        {
-            get { return 1; }
-        }
-
-        public override string Name
-        {
-            get { return "human"; }
-        }
-
-        #endregion Properties
     }
-
+	
+	[BsonKnownTypes(typeof(HumanRace), typeof(DwarfRace))]
+	[BsonDiscriminator(Required = true, RootClass = false)]
     public abstract class PcRace : Race
     {
         #region Constructors
@@ -81,127 +55,58 @@
         #endregion Constructors
     }
 
-    public abstract class Race : IEntity<int>, IPersistent
+	[BsonKnownTypes(typeof(PcRace), typeof(UniqueRace))]
+	[BsonDiscriminator(Required = true, RootClass = true)]
+    public abstract class Race : INamedEntity, IRootLevelDocument
     {
-        #region Fields
-
-        public static readonly HashSet<Race> List = new HashSet<Race>();
-
-        #endregion Fields
-
-        #region Constructors
-
-        static Race()
-        {
-            var assm = Assembly.GetExecutingAssembly();
-
-            using (var conn = ArtheaHelper.NewConnection())
-            {
-                foreach (var t in assm.GetTypes())
-                {
-                    if (!t.IsSubclassOf(typeof(Race)) || t.IsAbstract) continue;
-
-                    var r = (Race)Activator.CreateInstance(t);
-                    if (!r.Load(conn))
-                        r.Save(conn);
-                    List.Add(r);
-                }
-            }
-
-            LogManager.GetCurrentClassLogger().Info("Loaded {0} races", List.Count);
-        }
-
-        public Race()
-        {
-        }
-
-        #endregion Constructors
+		public Race() {
+			
+			Id = ObjectId.GenerateNewId().ToString();
+		}
 
         #region Properties
 
-        public abstract string Description
+		[BsonIgnoreIfNull]
+        public string Description
         {
-            get;
+            get; protected set;
         }
 
-        public abstract int Id
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+		public string Id
         {
-            get;
+            get; protected set;
         }
 
-        public abstract string Name
+		[BsonRequired]
+        public string Name
         {
-            get;
+            get; protected set;
         }
 
         #endregion Properties
 
-        #region Methods
+		public static Race Lookup (string id)
+		{
+			return DbManager.Lookup<Race>(id);
+		}
 
-        public static Race Lookup(string name)
-        {
-            return List.FirstOrDefault((r) => r.Name.IsPrefixOf(name));
-        }
-
-        public static Race Lookup(int id)
-        {
-            return List.FirstOrDefault(r => r.Id == id);
-        }
-
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_race");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
-
-        public bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_race");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            return this.Load(cmd);
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            return 0;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_race");
-
-            cmd.AddParameter("@id", DbType.Int32, Id);
-            cmd.AddParameter("@name", DbType.String, Name);
-            cmd.AddParameter("@descr", DbType.String, Description);
-
-            return cmd.ExecuteNonQuery() > 0;
-        }
-
-        #endregion Methods
+		public static T Lookup<T> (string id) where T:Race
+		{
+			return DbManager.Lookup<T>(id);
+		}
     }
 
     public class UniqueRace : Race
     {
         #region Properties
 
-        public override string Description
-        {
-            get { return "A unique, unknown race."; }
-        }
-
-        public override int Id
-        {
-            get { return 0; }
-        }
-
-        public override string Name
-        {
-            get { return "unique"; }
-        }
-
+		public UniqueRace ()
+		{
+			Name = "unique";
+			Description = "A unique, unknown race.";
+		}
+       
         #endregion Properties
     }
 }

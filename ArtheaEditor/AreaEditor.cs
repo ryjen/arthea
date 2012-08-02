@@ -28,7 +28,6 @@
             AddRow(PropertyHelper<Area>.GetProperty(x => x.Description), new TextField { Multiline = true });
             AddRow(PropertyHelper<Area>.GetProperty(x => x.Credits), new TextField());
             AddRow(PropertyHelper<Area>.GetProperty(x => x.World), new SelectorField());
-            AddRow(PropertyHelper<Area>.GetProperty(x => x.NonPlayers), new CollectionField(new NpcEditor()));
         }
 
         #endregion Methods

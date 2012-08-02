@@ -1,4 +1,7 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Data;
@@ -19,104 +22,72 @@
 
     public class NonPlayer : Character
     {
+		public NonPlayer () : base()
+		{
+		}
+
         #region Properties
 
-        public Area Area
-        {
-            get; set;
+		[BsonRequired]
+		public string AreaRef {
+			get { return Area == null ? null : Area.Id; }
+			set { Area = Area.Lookup (value); }
+		}
+
+		[BsonIgnore]
+        public Area Area 
+		{
+			get; set;
         }
 
+		[BsonDefaultValue(NpcFlag.None)]
+		[BsonIgnoreIfDefault]
         public NpcFlag Flags
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string LongDescr
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public Shop Shop
         {
             get; set;
         }
 
+		[BsonIgnoreIfNull]
         public string ShortDescr
         {
             get; set;
         }
 
+		[BsonIgnore]
         public override World World
         {
-            get { return Area.World; }
+            get { return Area == null ? null : Area.World; }
         }
 
         #endregion Properties
 
         #region Methods
 
-        public static NonPlayer Load(long id)
-        {
-            var npc = new NonPlayer();
-            npc.Id = id;
-            npc.Load();
+		
+		public string Keyword ()
+		{
+			if (!World.NonPlayers.ContainsValue (Id)) {
+				return Id;
+			}
 
-            return npc;
-        }
+			return World.NonPlayers[Id];
+		}
 
-        public override bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_nonplayer");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            return cmd.ExecuteNonQuery() == 1 && base.Delete(conn);
-        }
-
-        public override bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_nonplayer");
-
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            var reader = cmd.ExecuteReader();
-
-            if (!reader.Read()) return false;
-
-            MapRow(reader);
-
-            return true;
-        }
-
-        public override int MapRow(IDataRecord reader)
-        {
-            var i = base.MapRow(reader);
-
-            ShortDescr = reader.GetString(i++);
-            LongDescr = reader.GetString(i++);
-            Area = Area.Lookup(reader.GetInt32(i++));
-
-            return i;
-        }
 
         public override void Page(string buf)
         {
-        }
-
-        public override bool Save(IDbConnection conn)
-        {
-            if (!base.Save(conn))
-                return false;
-
-            var cmd = conn.CreateCommand("save_nonplayer");
-
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@short_descr", DbType.String, ShortDescr);
-            cmd.AddParameter("@long_descr", DbType.String, LongDescr);
-            cmd.AddParameter("@area", DbType.Int32, Area.Id);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            return res;
         }
 
         public override void Write(string format, params object[] args)

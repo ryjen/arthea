@@ -41,7 +41,7 @@
 
         #region Methods
 
-        public override void Commit(IDbConnection conn)
+        public override void Commit()
         {
             foreach (var entry in Loaded)
             {
@@ -58,8 +58,7 @@
 
                 shop.Owner = npc;
 
-                shop.Save(conn);
-                npc.Save(conn);
+				DbManager.Save(npc);
             }
         }
 

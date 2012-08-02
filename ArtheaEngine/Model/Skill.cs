@@ -1,16 +1,14 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace ArtheaEngine.Model
 {
     public class KickSkill : Skill
     {
-        #region Properties
-
-        public override int Id
-        {
-            get { return 1; }
-        }
-
-        #endregion Properties
-
+		public KickSkill ()
+		{
+			Name = "Kick";
+		}
         #region Methods
 
         public override bool CanUse(Character ch)
@@ -26,6 +24,8 @@
         #endregion Methods
     }
 
+	[BsonKnownTypes(typeof(KickSkill))]
+	[BsonDiscriminator(Required = true, RootClass = false)]
     public abstract class Skill : Ability, ICommand
     {
         #region Methods

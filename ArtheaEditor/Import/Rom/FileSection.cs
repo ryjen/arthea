@@ -10,7 +10,7 @@
     {
         #region Methods
 
-        public abstract void Commit(IDbConnection conn);
+        public abstract void Commit();
 
         public abstract void Load(FileReader reader);
 

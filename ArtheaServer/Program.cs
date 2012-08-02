@@ -1,4 +1,6 @@
-﻿namespace ArtheaServer
+﻿using ArtheaEngine;
+
+namespace ArtheaServer
 {
     using System;
     using System.Collections.Generic;
@@ -14,23 +16,20 @@
 
     using Microsoft.VisualBasic.ApplicationServices;
 
-    public class MyApp : WindowsFormsApplicationBase
+    public class ArtheaApp : WindowsFormsApplicationBase
     {
         #region Methods
 
-        protected override void OnCreateMainForm()
-        {
-            Arguments args = new Arguments(CommandLineArgs);
+        protected override void OnCreateMainForm ()
+		{
+			// Do your initialization here
 
-            // Do your initialization here
-
-            if (World.List.Count == 0)
-            {
-                World.GetDefault();
-            }
+			if (!DbManager.CollectionExists<World> ()) {
+				World.GetDefault ();
+			}
 
             // Then create the main form, the splash screen will automatically close
-            this.MainForm = new MainForm(args["transfer"] != null);
+            this.MainForm = new MainGame();
         }
 
         protected override void OnCreateSplashScreen()
@@ -185,7 +184,7 @@
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            new MyApp().Run(args);
+            new ArtheaApp().Run(args);
         }
 
         #endregion Methods

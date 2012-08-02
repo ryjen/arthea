@@ -11,7 +11,7 @@
     {
         #region Fields
 
-        private Reset _data;
+        //private Reset _data;
 
         #endregion Fields
 
@@ -20,7 +20,7 @@
         public ResetEditor(TelnetConnection conn, Reset reset)
             : base(conn)
         {
-            _data = reset;
+            //_data = reset;
         }
 
         #endregion Constructors

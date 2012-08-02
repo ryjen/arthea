@@ -1,4 +1,8 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.ObjectModel;
@@ -14,9 +18,10 @@
 
     using NLog;
 
-    public class Reset : IEntity<long>, IPersistent
+    public class Reset : IEntity
     {
         #region Fields
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         NonPlayer lastNPC;
         Object lastOBJ;
@@ -27,6 +32,7 @@
 
         public Reset(Room room)
         {
+			Id = ObjectId.GenerateNewId().ToString();
             Room = room;
         }
 
@@ -34,16 +40,19 @@
 
         #region Properties
 
+		[BsonRequired]
         public string Code
         {
             get; set;
         }
 
-        public long Id
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
         {
             get; set;
         }
 
+		[BsonIgnore]
         public Room Room
         {
             get; set;
@@ -53,15 +62,6 @@
 
         #region Methods
 
-        public virtual bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_reset");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@room", DbType.Int64, Room.Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
-
         public void EchoReset(string msg)
         {
             foreach (var ch in Room.Characters)
@@ -69,24 +69,30 @@
         }
 
         //long id, WearLocation loc)
-        public void EquipReset(string[] args)
-        {
-            if (lastNPC == null) return;
+        public void EquipReset (string[] args)
+		{
+			if (lastNPC == null || args.Length < 2)
+				return;
 
-            long id = long.Parse(args[1]);
+			WearLocation loc = (WearLocation)Enum.Parse (typeof(WearLocation), args [2], true);
 
-            WearLocation loc = (WearLocation) Enum.Parse(typeof(WearLocation), args[2], true);
+			lastOBJ = World.FindObject (args [1]);
+
+			if (lastOBJ == null) {
+				Log.Error ("object {0} not found for reset {1}", lastOBJ, Id);
+				return;
+			}
 
             foreach (var co in lastNPC.Carrying)
             {
                 if (co.WearLocation == loc) return;
             }
 
-            lastOBJ = Object.Load(id);
+			lastOBJ.WearLocation = loc;
 
-            lastNPC.Carrying.Add(new CharObj { Object = lastOBJ, Character = lastNPC, WearLocation = loc });
+			lastOBJ.CarriedBy = lastNPC;
 
-            lastOBJ.CarriedBy = lastNPC;
+            lastNPC.Carrying.Add(lastOBJ);
         }
 
         public void Execute()
@@ -118,139 +124,123 @@
             }
         }
 
-        public void GiveReset(string[] args)
-        {
-            long id = long.Parse(args[1]);
+        public void GiveReset (string[] args)
+		{
+			
+			if (lastNPC == null || args.Length == 0)
+				return;
+			
+			int max = 1;
+			int count = 0;
 
-            int max = 1;
-            int count = 0;
+			if (args.Length > 2) {
+				max = int.Parse (args [2]);
+			}
 
-            if (args.Length > 2)
+			lastOBJ = World.FindObject (args [1]);
+
+			if (lastOBJ == null) {
+				Log.Error ("object {0} was not found for reset {1}", args[1], Id);
+				return;
+			}
+
+            foreach (Object o in lastNPC.Carrying)
             {
-                max = int.Parse(args[2]);
-            }
-
-            if (lastNPC == null) return;
-
-            foreach (CharObj o in lastNPC.Carrying)
-            {
-                if (o.Object.Id == id) count++;
+                if (o.Equals (lastOBJ) ) count++;
             }
 
             if (count >= max) return;
 
-            lastOBJ= Object.Load(id);
 
-            lastNPC.Carrying.Add(new CharObj { Object = lastOBJ, Character = lastNPC, WearLocation = WearLocation.None });
+            lastNPC.Carrying.Add(lastOBJ);
             lastOBJ.CarriedBy = lastNPC;
         }
 
-        public virtual bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_reset");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@room", DbType.Int64, Room.Id);
+        public void NpcReset (string[] args)
+		{
+			if(args.Length == 0)
+				return;
 
-            return this.Load(cmd);
-        }
+			int max = 1;
+			int count = 0;
 
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
+			if (args.Length > 2) {
+				max = int.Parse (args [2]);
+			}
 
-            Id = reader.GetInt64(i++);
-            Code = reader.GetString(i++);
+			lastNPC = World.FindNPC(args[1]);
 
-            return i;
-        }
-
-        public void NpcReset(string[] args)
-        {
-            int max = 1;
-            int count = 0;
-
-            long id = long.Parse(args[1]);
-
-            if (args.Length > 2)
-            {
-                max = int.Parse(args[2]);
-            }
+			if (lastNPC == null) {
+				Log.Error ("No such npc {0} for reset {1}", args[1], Id);
+				return;
+			}
 
             foreach (Character ch in Room.Characters)
             {
-                if (ch.Id == id) count++;
+                if (ch.Equals(lastNPC)) count++;
             }
 
             if (count >= max) return;
-
-            lastNPC = NonPlayer.Load(id);
 
             Room.Characters.Add(lastNPC);
         }
 
-        public void ObjReset(string[] args)
-        {
-            long id = long.Parse(args[1]);
+        public void ObjReset (string[] args)
+		{
+			if(args.Length == 0) return;
 
-            int max = 1;
-            int count = 0;
+			int max = 1;
+			int count = 0;
 
-            if (args.Length > 2)
-            {
-                max = int.Parse(args[2]);
-            }
+			if (args.Length > 2) {
+				max = int.Parse (args [2]);
+			}
+			
+			lastOBJ = World.FindObject(args[1]);
+			
+			if (lastOBJ == null) {
+				Log.Error ("Invalid object '{0}' for reset {1}", args[1], Id);
+				return;
+			}
 
             foreach (Object o in Room.Objects)
             {
-                if (o.Id == id) count++;
+                if (o.Equals(lastOBJ)) count++;
             }
 
             if (count >= max) return;
-
-            lastOBJ = Object.Load(id);
 
             Room.Objects.Add(lastOBJ);
         }
 
-        public void PutReset(string[] args)
-        {
-            long id = long.Parse(args[1]);
-            int max = 1;
-            int count = 0;
+        public void PutReset (string[] args)
+		{
+			if(lastOBJ == null || args.Length == 0)
+				return;
 
-            if (lastOBJ == null) return;
+			int max = 1;
+			int count = 0;
 
-            if (args.Length > 2)
-            {
-                max = int.Parse(args[2]);
-            }
+			if (args.Length > 2) {
+				max = int.Parse (args [2]);
+			}
+
+			var newObj = World.FindObject(args[1]);
+
+			if (newObj == null) {
+				Log.Error ("Invalid object '{0}' for reset {1}", args[1], Id);
+				return;
+			}
 
             foreach (Object o in lastOBJ.Contents)
             {
-                if (o.Id == id) count++;
+                if (o.Equals(newObj)) count++;
             }
 
             if (count >= max) return;
 
-            var newObj = Object.Load(id);
-
             lastOBJ.Contents.Add(newObj);
             newObj.Inside = lastOBJ;
-        }
-
-        public virtual bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_reset");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@code", DbType.String, Code);
-            cmd.AddParameter("@room", DbType.Int64, Room.Id);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-                Id = Convert.ToInt64(conn.LastInsertId());
-
-            return res;
         }
 
         #endregion Methods

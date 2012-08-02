@@ -13,9 +13,7 @@
     {
         #region Methods
 
-        bool Load(IDbConnection conn);
-
-        int MapRow(IDataRecord reader);
+        bool Load();
 
         #endregion Methods
     }
@@ -28,9 +26,9 @@
     {
         #region Methods
 
-        bool Delete(IDbConnection conn);
+        bool Delete();
 
-        bool Save(IDbConnection conn);
+        bool Save();
 
         #endregion Methods
     }

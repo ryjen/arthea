@@ -105,10 +105,10 @@
 
         public override void Save()
         {
-            if (_data.Save())
+            /*if (DbManager.Save (_data))
                 _connection.WriteLine("Room saved.");
             else
-                _connection.WriteLine("Room not saved. See logs for details.");
+                _connection.WriteLine("Room not saved. See logs for details.");*/
         }
 
         public override void Show()
@@ -124,7 +124,7 @@
             cols.Add("~YC) ~CTerrain: ~W{0}~x", _data.Terrain.ToString());
             cols.Add("~YD) ~CFlags: ~W{0}~x", _data.Flags);
             cols.Add("~RE) ~CExits: ~W{0} exits~x", _data.Exits.Count);
-            cols.Add("~RF) ~CReset: ~W{0}~x", _data.Reset == null ? "none" : _data.Reset.Id.ToString());
+            cols.Add("~RF) ~CReset: ~W{0}~x", _data.Reset == null ? "none" : _data.Reset.Id);
 
             cols.Show(_connection.Playing);
         }

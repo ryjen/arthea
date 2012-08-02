@@ -1,4 +1,6 @@
-﻿namespace ArtheaEditor
+﻿using ArtheaEngine;
+
+namespace ArtheaEditor
 {
     using System;
     using System.Windows.Forms;
@@ -37,7 +39,7 @@
             {
                 // Do your initialization here
 
-                if (World.List.Count == 0)
+                if (!DbManager.CollectionExists<World>())
                 {
                     World.GetDefault();
                 }

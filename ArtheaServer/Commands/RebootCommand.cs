@@ -15,7 +15,7 @@
         #region Constructors
 
         public RebootCommand()
-            : base("reboot", "Reboots the server.", ArtheaHelper.Immortal)
+            : base("reboot", "Reboots the server.", Game.Immortal)
         {
         }
 
@@ -25,7 +25,7 @@
 
         public override bool CanUse(Character ch)
         {
-            return ch.Level >= ArtheaHelper.Immortal;
+            return ch.Level >= Game.Immortal;
         }
 
         public override void Execute(Character ch, Argument argument)

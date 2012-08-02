@@ -1,4 +1,9 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -21,19 +26,30 @@
 
     #endregion Enumerations
 
-    public class Account : ISaveable, IWritable, IEntity<long>, ILoadable
+    public class Account : IWritable, IRootLevelDocument
     {
         #region Constructors
 
-        public Account()
+		static Account ()
+		{
+			var accounts = DbManager.GetCollection<Account>();
+			accounts.EnsureIndex(IndexKeys.Ascending("Email"), IndexOptions.SetUnique(true));
+			accounts.EnsureIndex(IndexKeys.Ascending("Login"), IndexOptions.SetUnique(true));
+		}
+
+        public Account(IConnection connection, string login)
         {
-            Players = new List<AccountPlayer>();
+			Id = ObjectId.GenerateNewId().ToString();
+			Connection = connection;
+			Login = login;
+			Players = new ObservableCollection<PlayerInfo>();
         }
 
         #endregion Constructors
 
         #region Properties
 
+		[BsonIgnore]
         public virtual IConnection Connection
         {
             get; set;
@@ -49,10 +65,11 @@
             get; set;
         }
 
-        public long Id
-        {
-            get; set;
-        }
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+		public string Id {
+			get;
+			set;
+		}
 
         public string Login
         {
@@ -64,7 +81,26 @@
             get; set;
         }
 
-        public List<AccountPlayer> Players
+		public class PlayerInfo
+		{
+			[BsonId]
+			public string Id
+			{
+				get; set; 
+			}
+
+			public string Name
+			{
+				get; set;
+			}
+
+			public int Level
+			{
+				get; set;
+			}
+		}
+
+        public ObservableCollection<PlayerInfo> Players
         {
             get; set;
         }
@@ -73,114 +109,9 @@
 
         #region Methods
 
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_account");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
-
-        public bool Load(string login)
-        {
-            using (var conn = ArtheaHelper.NewConnection())
-            {
-                try
-                {
-                    using (var cmd = conn.CreateCommand("select_account_by_login"))
-                    {
-                        cmd.AddParameter("@login", DbType.String, Login);
-
-                        if (!this.Load(cmd))
-                            return false;
-                    }
-
-                    LoadPlayerInfo(conn);
-
-                    return true;
-
-                }
-                catch(Exception ex)
-                {
-                    LogManager.GetCurrentClassLogger().Error(ex.Message);
-                }
-
-                return false;
-            }
-        }
-
-        public bool Load(IDbConnection conn)
-        {
-            using (var cmd = conn.CreateCommand("read_account"))
-            {
-                cmd.AddParameter("@id", DbType.Int64, Id);
-
-                if (!this.Load(cmd))
-                    return false;
-
-            }
-
-            LoadPlayerInfo(conn);
-
-            return true;
-        }
-
-        public void LoadPlayerInfo(IDbConnection conn)
-        {
-            using (var cmd = conn.CreateCommand("select_account_players"))
-            {
-                cmd.AddParameter("@id", DbType.Int64, Id);
-
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    AccountPlayer p = new AccountPlayer();
-
-                    p.MapRow(reader);
-                    p.Account = this;
-
-                    Players.Add(p);
-                }
-            }
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-
-            Id = reader.GetInt64(i++);
-            Login = reader.GetString(i++);
-            var buf = new byte[255];
-            var len = reader.GetBytes(i++, 0, buf, 0, 255);
-            Password = new byte[len];
-            Array.Copy(buf, Password, len);
-            Email = reader.GetString(i++);
-            Flags = reader.GetEnum<AccountFlag>(i++);
-            return i;
-        }
-
         public virtual void Page(string buf)
         {
             Connection.Page(buf);
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_account");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@login",DbType.String, Login);
-            cmd.AddParameter("@passwd", DbType.Binary, Password);
-            cmd.AddParameter("@email", DbType.String, Email);
-            cmd.AddParameter("@flags", DbType.String, Flags.ToString());
-
-            var res = cmd.ExecuteNonQuery() > 0;
-            if (Id == 0 && res)
-            {
-                Id = Convert.ToInt64(conn.LastInsertId());
-            }
-
-            return res;
         }
 
         public virtual void Write(string format, params object[] args)
@@ -213,64 +144,11 @@
             Connection.WriteLine(format, args);
         }
 
-        #endregion Methods
-    }
 
-    public class AccountPlayer
-    {
-        #region Properties
-
-        public Account Account
-        {
-            get; set;
-        }
-
-        public long Id
-        {
-            get; set;
-        }
-
-        public DateTime LastLogin
-        {
-            get; set;
-        }
-
-        public short Level
-        {
-            get; set;
-        }
-
-        public string Name
-        {
-            get; set;
-        }
-
-        #endregion Properties
-
-        #region Methods
-
-        public Player Load()
-        {
-            var p = new Player();
-            p.Id = Id;
-            p.Account = Account;
-
-            if (!p.Load())
-                return null;
-
-            return p;
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            var i = 0;
-
-            Id = reader.GetInt64(i++);
-            Name = reader.GetString(i++);
-            Level = reader.GetInt16(i++);
-            //p.LastLogin = reader.GetDateTime(3);
-            return i;
-        }
+		public static Account Lookup (string id)
+		{
+			return DbManager.Lookup<Account> (id);
+		}
 
         #endregion Methods
     }

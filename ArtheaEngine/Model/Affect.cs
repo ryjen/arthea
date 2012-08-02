@@ -1,4 +1,7 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Data;
@@ -27,16 +30,15 @@
 
     #endregion Enumerations
 
-    public class Affect : ISaveable, IEntity<long>, ILoadable, IFormattable
+    public class Affect : IEntity, IFormattable
     {
+		public Affect()
+		{	
+			Id = ObjectId.GenerateNewId().ToString();
+		}
         #region Properties
 
         public int Duration
-        {
-            get; set;
-        }
-
-        public int Extra
         {
             get; set;
         }
@@ -46,7 +48,8 @@
             get; set;
         }
 
-        public long Id
+		[BsonId]
+        public string Id
         {
             get; set;
         }
@@ -61,17 +64,14 @@
             get; set;
         }
 
+		public string Extra {
+			get;
+			set;
+		}
+
         #endregion Properties
 
         #region Methods
-
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_affect");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
 
         public override bool Equals(object obj)
         {
@@ -88,6 +88,7 @@
             return ((int)Flag) + Modifier + Duration + (int)Location;
         }
 
+		/*
         public bool Load(IDbConnection conn)
         {
             using (var cmd = conn.CreateCommand("read_affect"))
@@ -128,7 +129,7 @@
                 Id = Convert.ToInt64(conn.LastInsertId());
 
             return res;
-        }
+        }*/
 
         public override string ToString()
         {
@@ -141,24 +142,22 @@
             else
                 temp = string.Empty;
 
-            var ability = Ability.Lookup(Extra);
-
             return string.Format("Spell {0}{1} for {2} hours.",
-                                 (ability == null ? "unknown" : ability.Name), temp, Duration);
+                                 (Extra == null ? "unknown" : Ability.Lookup(Extra).Name), temp, Duration);
         }
 
         public string ToString(string format, IFormatProvider formatProvider)
         {
             if (string.IsNullOrEmpty(format) || format == "F")
             {
-                Ability what = null;
+				Ability ability = Ability.Lookup(Extra);
 
                 var buf = new StringBuilder();
                 buf.Append("Affects ");
                 if(Flag != AffectFlag.None)
                     buf.Append(Flag);
-                else if((what = Ability.Lookup(Extra)) != null)
-                    buf.Append(what.Name);
+                else if(ability != null)
+                    buf.Append(ability.Name);
                 else
                     buf.Append("unknown");
                 if(Location != AffectLocation.None)

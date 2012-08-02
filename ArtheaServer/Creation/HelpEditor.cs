@@ -71,7 +71,7 @@
 
         public override void Save()
         {
-            _data.Save();
+			_data.Save();
         }
 
         public override void Show()

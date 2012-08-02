@@ -1,4 +1,12 @@
-﻿namespace ArtheaEngine.Model
+﻿using MongoDB.Bson;
+using MongoDB.Driver.Builders;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson.Serialization.IdGenerators;
+
+namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
@@ -11,37 +19,21 @@
 
     using NLog;
 
-    public class Area : IEntity<int>, ISaveable, ILoadable, IFormattable, ITickable
+    public class Area : INamedEntity, IFormattable, ITickable, IRootLevelDocument
     {
-        #region Fields
-
-        public static readonly HashSet<Area> List = new HashSet<Area>();
-
-        #endregion Fields
-
         #region Constructors
 
         public Area()
         {
-            Rooms = new ObservableCollection<Room>();
-            Rooms.CollectionChanged += ArtheaHelper.CollectionChangedHandler<Room>((r, a) =>
-            {
-                r.Area = a ? this : null;
-            });
-            Objects = new ObservableCollection<Object>();
-            Objects.CollectionChanged += ArtheaHelper.CollectionChangedHandler<Object>((o, a) =>
-                {
-                    o.Area = a ? this : null;
-                });
-
-            NonPlayers = new ObservableCollection<NonPlayer>();
-            NonPlayers.CollectionChanged += ArtheaHelper.CollectionChangedHandler<NonPlayer>((n, a) =>
-                {
-                    n.Area = a ? this : null;
-                });
-
-            TickInterval = ArtheaHelper.Randomizer.Next(90000, 120000);
+			
+			Id = ObjectId.GenerateNewId().ToString();
+            TickInterval = Game.Rand.Next(90000, 120000);
+			Rooms = new ObservableCollection<Room>();
+			Rooms.AddChangedHandler( (r,a) => {
+				r.Area = a ? this : null;
+			});
         }
+
 
         #endregion Constructors
 
@@ -57,28 +49,24 @@
             get; set;
         }
 
-       // [Key]
-        public int Id
-        {
-            get; set;
+		[BsonIgnore]
+		public ObservableCollection<Room> Rooms
+		{
+			get; private set;
+		}
+
+		public string Key
+		{
+			get; set;
+		}
+		
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id
+		{
+			get; set;
         }
 
         public string Name
-        {
-            get; set;
-        }
-
-        public ObservableCollection<NonPlayer> NonPlayers
-        {
-            get; set;
-        }
-
-        public ObservableCollection<Object> Objects
-        {
-            get; set;
-        }
-
-        public ObservableCollection<Room> Rooms
         {
             get; set;
         }
@@ -89,6 +77,16 @@
             set;
         }
 
+		[BsonRequired]
+		public string WorldRef {
+			get { return World.Id; }
+			set 
+			{
+				World = DbManager.Lookup<World>(value);
+			}
+		}
+
+		[BsonIgnore]
         public World World
         {
             get; set;
@@ -98,22 +96,39 @@
 
         #region Methods
 
-        public static Area GetDefault()
-        {
-            var area = List.FirstOrDefault(a => a.Name == "Limbo");
+        public static Area GetDefault (World world)
+		{
+			Area area;
 
-            if (area != null) return area;
+			if (DbManager.CollectionExists<Area> ()) {
+				area = DbManager.GetCollection<Area> ().FindOne ();
 
-            area = new Area { Name = "Limbo", Credits = "Arthea", World = World.GetDefault() };
+				area.Rooms.AddAll (DbManager.Find<Room>(Query.EQ ("Area", area.Id)));
+
+				return area;
+			}
+
+            area = new Area() { Key = "limbo", World = world, Name = "Limbo", Credits = "Arthea"};
+
+			var room = new Room { Area = area, Name = "Limbo", Description = "You are in darkness.", Terrain = Terrain.Air };
+        
+			area.Rooms.Add(room);
+
+			//World.GetDefault().Areas.Add (area);
+
+			area.Save();
+
+			room.Save();
 
             return area;
         }
 
-        public static Area Lookup(int id)
+        public static Area Lookup(string keyword)
         {
-            return List.FirstOrDefault(x => x.Id == id);
+            return DbManager.Lookup<Area>(keyword);
         }
 
+		/*
         public bool Delete(IDbConnection conn)
         {
             var cmd = conn.CreateCommand("delete_area");
@@ -231,7 +246,7 @@
             }
 
             return res;
-        }
+        }*/
 
         public void Tick()
         {

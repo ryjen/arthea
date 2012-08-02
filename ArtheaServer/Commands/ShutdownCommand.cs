@@ -15,7 +15,7 @@
         #region Constructors
 
         public ShutdownCommand()
-            : base("shutdown", "Shuts down the server", ArtheaHelper.MaxLevel)
+            : base("shutdown", "Shuts down the server", Game.MaxLevel)
         {
         }
 
@@ -25,7 +25,7 @@
 
         public override bool CanUse(Character ch)
         {
-            return ch.Level >= ArtheaHelper.MaxLevel;
+            return ch.Level >= Game.MaxLevel;
         }
 
         public override void Execute(Character ch, Argument argument)

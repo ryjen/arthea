@@ -75,18 +75,20 @@
     </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="NLog">
-      <HintPath>..\CommonLibraries\Mono\NLog2\NLog.dll</HintPath>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\CommonLibraries\MongoDB\MongoDB.Bson.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data">
-      <HintPath>..\CommonLibraries\Mono\MySQLConnector\mysql.data.dll</HintPath>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\CommonLibraries\MongoDB\MongoDB.Driver.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\CommonLibraries\NLog2\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Columns.cs" />
     <Compile Include="Combat.cs" />
     <Compile Include="Dice.cs" />
-    <Compile Include="IPersistent.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Model\Forum.cs" />
     <Compile Include="Model\Note.cs" />
@@ -96,7 +98,6 @@
     <Compile Include="Argument.cs" />
     <Compile Include="Model\Account.cs" />
     <Compile Include="Model\Area.cs" />
-    <Compile Include="ArtheaHelper.cs" />
     <Compile Include="Model\Character.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="Model\Help.cs" />
@@ -124,6 +125,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="UpdateManager.cs" />
+    <Compile Include="DbManager.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="PropertyHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

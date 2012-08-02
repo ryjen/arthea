@@ -32,7 +32,7 @@
 
         public override string Title
         {
-            get { return string.Format("Exit Editor - {0}", _data.Id); }
+            get { return string.Format("Exit Editor - {0}", _data.Keyword); }
         }
 
         #endregion Properties
@@ -48,7 +48,7 @@
 
             if (arg.Is("A") || arg.Is("name"))
             {
-                _data.Name = argument;
+                _data.Keyword = argument;
                 Show();
                 return true;
             }
@@ -77,16 +77,15 @@
 
             if (arg.Is("D") || arg.Is("key"))
             {
-                Object obj;
-                long id;
+				Object key;
 
-                if (!long.TryParse(argument, out id) || (obj = Object.Lookup(id)) == null)
+                if ((key = Object.Lookup(argument)) == null || key.Type != ObjectType.Key)
                 {
                     WriteLine("Invalid key object.");
                     return true;
                 }
 
-                _data.Key = obj.Id;
+                _data.Key = key;
                 Show();
                 return true;
             }
@@ -95,7 +94,7 @@
 
         public override void Save()
         {
-            _data.Save();
+
         }
 
         public override void Show()
@@ -104,16 +103,16 @@
 
             var cols = new ColumnList(2);
 
-            cols.Add("   ~CId: ~W{0}", _data.Id);
+            cols.Add("   ~CId: ~W{0}", _data.Keyword);
             cols.Add("   ~CTo Room: ~W{0}", _data.ToRoom);
             cols.Add("   ~CFrom Room: ~W{0}", _data.Room);
             cols.Add("   ~CDirection: ~W{0}", _data.Direction);
-            cols.Add("~YA) ~CName: ~W{0}", _data.Name);
+            cols.Add("~YA) ~CName: ~W{0}", _data.Keyword);
 
             cols.Add(2, TextEditor.Preview("~YB) ~CDescription", _data.Description, _connection.ScreenWidth));
 
             cols.Add("~YC) ~CFlags: ~W{0}", _data.Flags);
-            cols.Add("~YD) ~CKey: ~W{0}", _data.Key == null ? "None" : string.Format("{0} ({1})", _data.Key.Value, Object.Lookup(_data.Key.Value).Name));
+            cols.Add("~YD) ~CKey: ~W{0}", _data.Key == null ? "None" : string.Format("{0} ({1})", _data.Key.Id, _data.Key.Name));
         }
 
         #endregion Methods

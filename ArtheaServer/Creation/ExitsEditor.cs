@@ -47,7 +47,7 @@
         {
             var arg = argument.Next();
              Room room;
-             long id;
+             //long id;
              Direction dir;
              string arg2;
              Exit exit;
@@ -71,14 +71,16 @@
                      return true;
                  }
 
-                 if (!long.TryParse(argument, out id) || (room = Room.Lookup(id)) == null)
+				Room r;
+
+                 if (!World.Rooms.ContainsKey(argument) || (r = Room.Lookup(World.Rooms[argument])) == null )
                  {
                      WriteLine("~CInvalid room to link to.");
                      return true;
                  }
 
                  exit = new Exit();
-                 exit.ToRoom = room;
+				exit.ToRoom = r;
                  exit.Room = _data;
 
                  _exits.Add(dir, exit);
@@ -104,7 +106,7 @@
                  }
 
                  var revRoom = new Room();
-
+				 
                  exit = new Exit();
                  exit.ToRoom = revRoom;
                  exit.Room = _data;
@@ -138,7 +140,7 @@
                      return true;
                  }
 
-                 if (!long.TryParse(argument, out id) || (room = Room.Lookup(id)) == null)
+                 if ((room = Room.Lookup(argument)) == null)
                  {
                      WriteLine("~CInvalid room to add exit to.");
                      return true;
@@ -223,7 +225,7 @@
 
              foreach (var entry in _exits)
              {
-                 WriteLine("~W{0}) ~CExit to ~W{1}~C ({2})", entry.Key, entry.Value.ToRoom.Id, entry.Value.ToRoom.Name);
+                 WriteLine("~W{0}) ~CExit to ~W{1}~C ({2})", entry.Key, entry.Value.ToRoom.Keyword(), entry.Value.ToRoom.Name);
              }
         }
 

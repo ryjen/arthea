@@ -30,7 +30,7 @@
 
         public override string Title
         {
-            get { return string.Format("Affect Editor - {0}", _data.Id); }
+			get { return string.Format("Affect {0}", _data.Id); }
         }
 
         #endregion Properties
@@ -104,17 +104,17 @@
                  return true;
              }
 
-             if(arg.Is("E") || arg.Is("extra"))
+             if(arg.Is("E") || arg.Is("ability"))
              {
-                 int extra;
+                 Ability extra = Ability.Lookup(argument);
 
-                 if(!int.TryParse(argument, out extra))
+                 if(extra == null)
                  {
                      WriteLine("~CInvalid number.");
                      return true;
                  }
 
-                 _data.Extra = extra;
+                 _data.Extra = argument;
                  Show();
                  return true;
              }
@@ -123,7 +123,7 @@
 
         public override void Save()
         {
-            _data.Save();
+
         }
 
         public override void Show()
@@ -137,7 +137,7 @@
              cols.Add("~YB) ~CModifier: ~W{0}", _data.Modifier);
              cols.Add("~YC) ~CDuration: ~W{0}", _data.Duration);
              cols.Add("~YD) ~CFlag: ~W{0}", _data.Flag);
-             cols.Add("~YE) ~CExtra: ~W{0}", _data.Extra);
+             cols.Add("~YE) ~Ability: ~W{0}", _data.Extra == null ? "none" : Ability.Lookup(_data.Extra).Name);
 
              cols.Show(_connection);
         }

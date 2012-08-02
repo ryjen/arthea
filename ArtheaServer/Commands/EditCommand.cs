@@ -17,7 +17,7 @@
         #region Constructors
 
         public CreateCommand()
-            : base("create", "creates an entity", ArtheaHelper.MaxLevel)
+            : base("create", "creates an entity", Game.MaxLevel)
         {
         }
 
@@ -87,7 +87,7 @@
         #region Constructors
 
         public EditCommand()
-            : base("edit", "edits entities in the world", ArtheaHelper.MaxLevel)
+            : base("edit", "edits entities in the world", Game.MaxLevel)
         {
         }
 
