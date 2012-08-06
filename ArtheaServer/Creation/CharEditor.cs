@@ -231,10 +231,11 @@
         {
             Reset();
 
-            ColumnList cols = new ColumnList(2);
+            ColumnFormatter cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
             cols.Add("~YA) ~CName: ~W{0}", _data.Name);
-            cols.Add(2, TextEditor.Preview("~YB) ~CDescription", _data.Description, _connection.ScreenWidth));
+			cols.SetSpan (2);
+			cols.Add(TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
             cols.Add("~YC) ~CSize: ~W{0}", _data.Size);
             cols.Add("~YD) ~CPosition: ~W{0}", _data.Position);
             cols.Add("~YE) ~CSex: ~W{0}", _data.Sex);
@@ -260,7 +261,7 @@
                 cols.Add("~RK) ~CShop: ~W{0}", npc.Shop == null ? "None" : npc.Shop.Id);
             }
 
-            cols.Show(_connection.Playing);
+			_connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods

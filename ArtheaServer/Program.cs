@@ -24,7 +24,7 @@ namespace ArtheaServer
 		{
 			// Do your initialization here
 
-			if (!DbManager.CollectionExists<World> ()) {
+			if (DbManager.Count<World> () == 0) {
 				World.GetDefault ();
 			}
 

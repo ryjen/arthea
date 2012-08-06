@@ -50,6 +50,7 @@ namespace ArtheaEngine.Model
         public Room()
         {
 			Id = ObjectId.GenerateNewId().ToString();
+			Key = new AreaKey();
             Characters = new ObservableCollection<Character>();
             Characters.AddChangedHandler<Character>((c, a) =>
             {
@@ -67,18 +68,14 @@ namespace ArtheaEngine.Model
 
         #region Properties
 
-		[BsonRequired]
-		[BsonElement("Area")]
-		public string AreaRef {
-			get { return Area == null ? null : Area.Id; }
-
-			set { Area = Area.Lookup (value); }
-		}
-
 		[BsonIgnore]
-        public Area Area
-        {
-            get; set;
+		public Area Area {
+			get {
+				return Key.Area;
+			}
+			set {
+				Key.Area = value;
+			}
         }
 
 		[BsonIgnore]
@@ -124,6 +121,12 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
+		[BsonRequired]
+		public AreaKey Key
+		{
+			get; set;
+		}
+
         public Reset Reset
         {
             get; set;
@@ -137,6 +140,17 @@ namespace ArtheaEngine.Model
         #endregion Properties
 
         #region Methods
+
+		
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+		
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
 
         public void Act(string format, params object[] args)
         {
@@ -193,15 +207,6 @@ namespace ArtheaEngine.Model
             if(Reset != null)
                 Reset.Execute();
         }
-
-		public string Keyword ()
-		{
-			if (!World.Rooms.ContainsValue (Id)) {
-				return Id;
-			}
-
-			return World.Rooms[Id];
-		}
 
         public virtual string ToString(string format, IFormatProvider formatProvider)
         {

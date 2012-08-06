@@ -25,6 +25,11 @@
             _buf.Append(buf);
         }
 
+		public void Page (StringBuilder buf)
+		{
+			_buf.Append (buf);
+		}
+
         public override string ToString()
         {
             return _buf.ToString();

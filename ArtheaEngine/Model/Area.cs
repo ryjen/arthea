@@ -78,6 +78,7 @@ namespace ArtheaEngine.Model
         }
 
 		[BsonRequired]
+		[BsonElement("World")]
 		public string WorldRef {
 			get { return World.Id; }
 			set 
@@ -96,21 +97,31 @@ namespace ArtheaEngine.Model
 
         #region Methods
 
+		
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+		
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
         public static Area GetDefault (World world)
 		{
 			Area area;
 
-			if (DbManager.CollectionExists<Area> ()) {
-				area = DbManager.GetCollection<Area> ().FindOne ();
+			if (DbManager.Count<Area> () != 0) {
+				area = DbManager.Query<Area> ().First ();
 
-				area.Rooms.AddAll (DbManager.Find<Room>(Query.EQ ("Area", area.Id)));
+				area.Rooms.AddAll (DbManager.Query<Room>().Where(r => r.Key.AreaRef.Equals (area.Id)));
 
 				return area;
 			}
 
             area = new Area() { Key = "limbo", World = world, Name = "Limbo", Credits = "Arthea"};
 
-			var room = new Room { Area = area, Name = "Limbo", Description = "You are in darkness.", Terrain = Terrain.Air };
+			var room = new Room { Area = area, Name = "Limbo", Key = "limbo-1", Description = "You are in darkness.", Terrain = Terrain.Air };
         
 			area.Rooms.Add(room);
 

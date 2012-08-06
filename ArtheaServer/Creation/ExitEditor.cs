@@ -101,7 +101,7 @@
         {
             Reset();
 
-            var cols = new ColumnList(2);
+            var cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
             cols.Add("   ~CId: ~W{0}", _data.Keyword);
             cols.Add("   ~CTo Room: ~W{0}", _data.ToRoom);
@@ -109,10 +109,12 @@
             cols.Add("   ~CDirection: ~W{0}", _data.Direction);
             cols.Add("~YA) ~CName: ~W{0}", _data.Keyword);
 
-            cols.Add(2, TextEditor.Preview("~YB) ~CDescription", _data.Description, _connection.ScreenWidth));
+            cols.SetSpan(2).Add (TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
 
             cols.Add("~YC) ~CFlags: ~W{0}", _data.Flags);
             cols.Add("~YD) ~CKey: ~W{0}", _data.Key == null ? "None" : string.Format("{0} ({1})", _data.Key.Id, _data.Key.Name));
+
+			_connection.Page (cols.GetBuffer());
         }
 
         #endregion Methods

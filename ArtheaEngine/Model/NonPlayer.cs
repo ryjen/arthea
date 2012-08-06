@@ -24,20 +24,25 @@ namespace ArtheaEngine.Model
     {
 		public NonPlayer () : base()
 		{
+			Key = new AreaKey();
 		}
 
         #region Properties
 
 		[BsonRequired]
-		public string AreaRef {
-			get { return Area == null ? null : Area.Id; }
-			set { Area = Area.Lookup (value); }
+		public AreaKey Key
+		{
+			get; set;
 		}
 
 		[BsonIgnore]
-        public Area Area 
-		{
-			get; set;
+		public Area Area {
+			get {
+				return Key.Area;
+			}
+			set {
+				Key.Area = value;
+			}
         }
 
 		[BsonDefaultValue(NpcFlag.None)]
@@ -75,20 +80,13 @@ namespace ArtheaEngine.Model
 
         #region Methods
 
-		
-		public string Keyword ()
-		{
-			if (!World.NonPlayers.ContainsValue (Id)) {
-				return Id;
-			}
-
-			return World.NonPlayers[Id];
-		}
-
-
         public override void Page(string buf)
         {
         }
+
+		public override void Page (StringBuilder buf)
+		{
+		}
 
         public override void Write(string format, params object[] args)
         {

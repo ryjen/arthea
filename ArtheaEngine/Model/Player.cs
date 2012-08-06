@@ -114,6 +114,14 @@ namespace ArtheaEngine.Model
         #endregion Properties
 
         #region Methods
+		
+		public override bool Save ()
+		{
+			if(Account != null)
+				Account.Save();
+
+			return base.Save();
+		}
 
         public void DisplayPrompt()
         {
@@ -275,6 +283,12 @@ namespace ArtheaEngine.Model
             if (Account != null)
                 Account.Page(buf);
         }
+
+		public override void Page (StringBuilder buf)
+		{
+			if(Account != null)
+				Account.Page(buf);
+		}
 
         public override void Write(string format, params object[] args)
         {

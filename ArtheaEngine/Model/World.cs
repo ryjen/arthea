@@ -2,6 +2,7 @@
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Driver.Builders;
+using System.Text.RegularExpressions;
 
 namespace ArtheaEngine.Model
 {
@@ -56,30 +57,22 @@ namespace ArtheaEngine.Model
 
 			DbManager.Synchronize(new Class[] { new WarriorClass(), new MageClass() });
 
-			var areas = DbManager.GetAll<Area>();
+			foreach (var a in DbManager.Query<Area>()) {
 
-			foreach (var a in areas) {
-
-				var q = Query.EQ ("Area", a.Id);
-
-				long i = 0;
-				foreach(var o in DbManager.Find<Object>(q))
+				foreach(var o in DbManager.Query<Object>().Where (x => x.Key.AreaRef == a.Id))
 				{
-					Objects.Add(a.Key + "-" + i, o.Id);
+					Objects.Add(a.Key+"-"+o.Key, o.Id);
 				}
 
-				i = 0;
-				foreach(var r in DbManager.Find<Room>(q))
+				foreach(var r in DbManager.Query<Room>().Where (x => x.Key.AreaRef == a.Id))
 				{
-					Rooms.Add (a.Key + "-" + i, r.Id);
+					Rooms.Add (a.Key+"-"+r.Key, r.Id);
 					a.Rooms.Add (r);
 				}
 
-				i = 0;
-
-				foreach(var npc in DbManager.Find<NonPlayer>(q))
+				foreach(var npc in DbManager.Query<NonPlayer>().Where (x => x.Key.AreaRef == a.Id))
 				{
-					NonPlayers.Add (a.Key + "-" + i, npc.Id);
+					NonPlayers.Add (a.Key+"-"+npc.Key, npc.Id);
 				}
 			}
 		}
@@ -103,6 +96,7 @@ namespace ArtheaEngine.Model
 		{
 			get; private set;
 		}
+
 		/*
 		[BsonIgnore]
 		public ObservableCollection<Race> Races
@@ -165,8 +159,8 @@ namespace ArtheaEngine.Model
 
         public static World GetDefault()
         {
-			if(DbManager.CollectionExists<World>())
-				return DbManager.GetCollection<World>().FindOne();
+			if(DbManager.Count<World>() != 0)
+				return DbManager.Query<World>().First();
 
             /*var world = List.FirstOrDefault(x => x.Port == 3778);
 
@@ -181,48 +175,57 @@ namespace ArtheaEngine.Model
 
             return world;
         }
-
-		private static Area FindArea(Argument keyword)
+		
+		public bool Save ()
 		{
-			return DbManager.GetCollection<Area>().FindOne(Query.EQ ("Key", keyword.Next('-')));
-
+			return DbManager.Save (this);
+		}
+		
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
 		}
 
 		public static Account FindAccount (string login)
 		{
-			return DbManager.GetCollection<Account> ().FindOne (Query.EQ ("Login", login));
+			return DbManager.Query<Account> ().Where (x => x.Login.Equals (login)).FirstOrDefault();
 		}
 
-		public static Object FindObject (Argument keyword)
+		public static Object FindObject (string keyword)
 		{
-			Area area = FindArea (keyword);
-
-			if(area == null) return null;
-
-			var q = Query.And (Query.EQ ("Area", area.Id), Query.EQ ("Key", keyword.Next()));
-
-			return DbManager.GetCollection<Object>().FindOne (q);
+			if(!Objects.ContainsKey(keyword))
+				return null;
+			return DbManager.Lookup<Object>(Objects[keyword]);
 		}
 
-		public static NonPlayer FindNPC (Argument keyword)
+		public static NonPlayer FindNPC (string keyword)
 		{
-			Area area = FindArea(keyword);
-
-			if(area == null) return null;
-
-			var q = Query.And(Query.EQ ("Area", area.Id), Query.EQ ("Key", keyword.Next()));
-
-			return DbManager.GetCollection<NonPlayer>().FindOne (q);
+			if(!NonPlayers.ContainsKey(keyword))
+				return null;
+			return DbManager.Lookup<NonPlayer>(NonPlayers[keyword]);
 		}
+
+
+		public static Room FindRoom (string keyword)
+		{
+			if(!Rooms.ContainsKey(keyword))
+				return null;
+			return DbManager.Lookup<Room>(Rooms[keyword]);
+		}
+
 
 		public static Race FindRace (string keyword)
 		{
-			return DbManager.GetAll<Race>().OfType<PcRace>().FirstOrDefault(x => keyword.IsPrefixOf(x.Name));
+			var regex = new Regex("^" + keyword, RegexOptions.IgnoreCase);
+
+			return DbManager.Query<Race>().Where(x => regex.IsMatch(x.Name)).FirstOrDefault();
 		}
 
 		public static Class FindClass(string keyword)
 		{
-			return DbManager.GetAll<Class>().FirstOrDefault(x => keyword.IsPrefixOf(x.Name));
+			var regex = new Regex("^" + keyword, RegexOptions.IgnoreCase);
+
+			return DbManager.Query<Class>().Where(x => regex.IsMatch(x.Name)).FirstOrDefault();
 		}
 
         // Friendly, type-safe clone method

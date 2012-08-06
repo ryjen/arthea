@@ -36,7 +36,7 @@
 
         public override void Commit()
         {
-			DbManager.InsertBatch<Social>(Loaded);
+			DbManager.Save<Social>(Loaded);
 
             //foreach (var s in Loaded)
               //  s.Save(conn);

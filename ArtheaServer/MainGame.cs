@@ -42,7 +42,7 @@
         {
             InitializeComponent();
 
-            foreach (var entry in DbManager.GetAll<World>())
+            foreach (var entry in DbManager.Query<World>())
             {
 				var saved = RebootHelper.Recover(entry);
 

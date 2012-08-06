@@ -180,7 +180,7 @@
         {
             Reset();
 
-            ColumnList cols = new ColumnList(2);
+            ColumnFormatter cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
             cols.Add("   ~CArea: ~W{0}", _data.Area.Name);
             cols.Add("   ~CId: ~W{0}", _data.Id);
@@ -188,7 +188,7 @@
             cols.Add("~YB) ~CName: ~W{0}", _data.Name);
             cols.Add("~YC) ~CShort Descr: ~W{0}", _data.ShortDescr);
             cols.Add("~YD) ~CLong Descr: ~W{0}", _data.LongDescr);
-            cols.Add(2, TextEditor.Preview("~YE) ~CDescription", _data.Description, _connection.ScreenWidth));
+            cols.SetSpan(cols.GetSize()).Add(TextEditor.Preview("~YE) ~CDescription", _data.Description, cols.Width));
             cols.Add("~YF) ~CLevel: ~W{0}", _data.Level);
             cols.Add("~YG) ~CWeight: ~W{0}", _data.Weight);
             cols.Add("~YH) ~CCost: ~W{0}", _data.Cost);
@@ -197,7 +197,7 @@
 
             cols.Add("~RK) Affects: ~W{0}~C affects", _data.Affects.Count);
 
-            cols.Show(_connection.Playing);
+			_connection.Page (cols.GetBuffer());
         }
 
         #endregion Methods

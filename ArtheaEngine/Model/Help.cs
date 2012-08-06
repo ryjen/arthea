@@ -74,6 +74,16 @@ namespace ArtheaEngine.Model
 
         #region Methods
 
+		
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+		
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
         public static Help Lookup(string id)
         {
 			return DbManager.Lookup<Help>(id);

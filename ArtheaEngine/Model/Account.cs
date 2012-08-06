@@ -32,7 +32,7 @@ namespace ArtheaEngine.Model
 
 		static Account ()
 		{
-			var accounts = DbManager.GetCollection<Account>();
+			var accounts = DbManager.Collection<Account>();
 			accounts.EnsureIndex(IndexKeys.Ascending("Email"), IndexOptions.SetUnique(true));
 			accounts.EnsureIndex(IndexKeys.Ascending("Login"), IndexOptions.SetUnique(true));
 		}
@@ -42,7 +42,7 @@ namespace ArtheaEngine.Model
 			Id = ObjectId.GenerateNewId().ToString();
 			Connection = connection;
 			Login = login;
-			Players = new ObservableCollection<PlayerInfo>();
+			Players = new List<string>();
         }
 
         #endregion Constructors
@@ -81,29 +81,22 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
-		public class PlayerInfo
-		{
-			[BsonId]
-			public string Id
-			{
-				get; set; 
-			}
-
-			public string Name
-			{
-				get; set;
-			}
-
-			public int Level
-			{
-				get; set;
-			}
-		}
-
-        public ObservableCollection<PlayerInfo> Players
+        public List<string> Players
         {
             get; set;
         }
+
+		
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
+
 
         #endregion Properties
 
@@ -113,6 +106,11 @@ namespace ArtheaEngine.Model
         {
             Connection.Page(buf);
         }
+
+		public virtual void Page (StringBuilder buf)
+		{
+			Connection.Page (buf);
+		}
 
         public virtual void Write(string format, params object[] args)
         {

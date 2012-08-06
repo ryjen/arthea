@@ -8,6 +8,8 @@
 
         void Page(string buf);
 
+		void Page(StringBuilder buf);
+
         void Write(string format, params object[] args);
 
         void Write(byte[] value);

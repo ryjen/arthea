@@ -6,6 +6,8 @@ using MongoDB.Driver;
 using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Driver.Builders;
+using MongoDB.Driver.Linq;
+using System.Linq;
 
 namespace ArtheaEngine
 {
@@ -23,56 +25,73 @@ namespace ArtheaEngine
 			private set;
 		}
 
-		internal static MongoCollection<T> GetCollection<T>() where T: IRootLevelDocument {
-			return Instance.GetCollection<T>(typeof(T).Name);
+		private static Type GetBaseType (Type type)
+		{
+			Type baseType = type;
+			var rootDoc = typeof(IRootLevelDocument);
+
+			for (var temp = type.BaseType; temp != null; temp = temp.BaseType) {
+				if(!rootDoc.IsAssignableFrom(temp))
+					break;
+				baseType = temp;
+			}
+
+			return baseType;
 		}
 
-		public static void InsertBatch<T> (IEnumerable<T> data) where T: IRootLevelDocument
+		/**
+		 * Internal to prevent outside sources from creating new documents
+		 */
+		internal static MongoCollection<T> Collection<T>() where T: IRootLevelDocument {
+			return Instance.GetCollection<T>(GetBaseType(typeof(T)).Name);
+		}
+
+		public static IQueryable<T> Query<T> () where T: IRootLevelDocument
 		{
-			GetCollection<T>().InsertBatch(data);
+			return Instance.GetCollection<T> (typeof(T).Name).AsQueryable ();
+		}
+
+		public static void Save<T> (IEnumerable<T> data) where T: IRootLevelDocument
+		{
+			Collection<T>().InsertBatch(data);
+		}
+
+		public static bool Save<T> (T data) where T: IRootLevelDocument
+		{
+			return Collection<T>().Save(data).Ok;
 		}
 
 		public static long Count<T> () where T: IRootLevelDocument
 		{
-			return GetCollection<T> ().Count ();
-		}
-		public static bool CollectionExists<T>() where T:IRootLevelDocument
-		{
-			return Instance.CollectionExists (typeof(T).Name);
+			return Collection<T> ().Count ();
 		}
 
 		public static T Lookup<T> (string id) where T:IRootLevelDocument
 		{
-			return GetCollection<T>().FindOneById(id);
+			return Collection<T>().FindOneById(id);
 		}
 
-		public static MongoCursor<T> GetAll<T> () where T:IRootLevelDocument
+		public static A LookupAs<T,A> (string id) where T:IRootLevelDocument
 		{
-			return GetCollection<T> ().FindAll ();
+			return Collection<T>().FindOneByIdAs<A>(id);
 		}
 
 		public static bool Delete<T> (T e) where T : IEntity, IRootLevelDocument
 		{
-			return GetCollection<T>().Remove(Query.EQ ("Id", e.Id)).Ok;
+			return Collection<T>().Remove(Query.EQ ("_id", e.Id)).Ok;
 		}
 
-		internal static IEnumerable<T> Find<T> (IMongoQuery query) where T:IRootLevelDocument
+		/*public static bool Save<T>(T e) where T:IRootLevelDocument
 		{
-			return GetCollection<T>().Find (query);
-		}
+			return Collection<T>().Save(e).Ok;
+		}*/
 
-		public static bool Save<T>(T e) where T:IRootLevelDocument
+		public static IQueryable<T> Synchronize<T> (IEnumerable<T> collection) where T:IRootLevelDocument
 		{
-			return GetCollection<T>().Save(e).Ok;
-		}
-
-		
-		public static IEnumerable<T> Synchronize<T> (IEnumerable<T> collection) where T:IRootLevelDocument
-		{
-			if (!CollectionExists<T> () || Count<T>() == 0) {
-				GetCollection<T> ().InsertBatch (collection);
+			if (Count<T>() == 0) {
+				Collection<T> ().InsertBatch (collection);
 			}
-			return GetCollection<T>().FindAll();
+			return Collection<T>().AsQueryable();
 		}
 
 	}

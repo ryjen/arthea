@@ -28,7 +28,7 @@
         private readonly StreamReader _reader;
         private readonly ColorWriter _writer;
 
-        private string _pageBuf;
+        private StringBuilder _pageBuf;
         private int _pagePos;
         private byte _passwordCount;
         private StateHandler _state;
@@ -141,7 +141,7 @@
             {
                 WriteLine();
                 Write("({0}%) (H)elp, (R)efresh page, (P)revious page, or hit ENTER: ",
-                    100 * _pageBuf.CountLines(_pagePos) / _pageBuf.CountLines());
+                    100 * _pageBuf.ToString().CountLines(_pagePos) / _pageBuf.ToString ().CountLines());
             }
             if (Editing != null)
             {
@@ -183,14 +183,24 @@
         {
             if (HasPage())
             {
-                _pageBuf += buf;
+                _pageBuf.Append(buf);
             }
             else
             {
-                _pageBuf = buf.ToString();
+				_pageBuf.Append(buf);
                 ShowPage(string.Empty);
             }
         }
+
+		public void Page (StringBuilder buf)
+		{
+			if (HasPage ()) {
+				_pageBuf.Append (buf);
+			} else {
+				_pageBuf = buf;
+				ShowPage (string.Empty);
+			}
+		}
 
         /// <summary>
         /// Requests the client does not echo.
@@ -271,11 +281,11 @@
                 return;
             }
 
-            var length = _pageBuf.GetLineCountLength(_pagePos, ScreenHeight - 1);
+            var length = _pageBuf.ToString ().GetLineCountLength(_pagePos, ScreenHeight - 1);
 
             if (length > 0)
             {
-                Write(_pageBuf.Substring(_pagePos, length));
+                Write(_pageBuf.ToString ().Substring(_pagePos, length));
             }
             else
             {
@@ -452,10 +462,11 @@
             WriteLine("~Y(E)~Cxit game");
             WriteLine();
             int i = 0;
-            for (i = 0; i < Account.Players.Count; i++)
+            foreach(var pId in Account.Players)
             {
-                var p = Account.Players.ElementAt(i);
-                WriteLine(" ~Y{0}) ~W{1} ~C(lvl {2})~x", i + 1, p.Name, p.Level);
+				var info = Character.Lookup(pId);
+
+                WriteLine(" ~Y{0}) ~W{1} ~C(lvl {2})~x", i + 1, info.Name, info.Level);
             }
             if (i != 0)
                 WriteLine();
@@ -471,7 +482,7 @@
             Header("Available Classes");
 
             WriteLine();
-            foreach (var c in DbManager.GetAll<Class>())
+            foreach (var c in DbManager.Query<Class>())
             {
                 WriteLine("~W{0,-10}~C: {1}", c.Name, c.Description);
             }
@@ -491,12 +502,12 @@
             World.Players.Add(Playing);
             if (Playing.Level == 0)
             {
-				if(!DbManager.CollectionExists<Account>())
+				if(DbManager.Count<Account>() == 0)
 				{
                     Playing.Level = Game.MaxLevel;
                     Log.Warn("Setting first player " + Playing.Name + " immortal");
                     Playing.WriteLine("You are now level " + Playing.Level + "!");
-					DbManager.Save(Account);
+					Account.Save();
                 }
                 else
                 {
@@ -520,7 +531,7 @@
 
             WriteLine();
 
-            foreach (var r in DbManager.GetAll<Race>().OfType<PcRace>())
+            foreach (var r in DbManager.Query<Race>().OfType<PcRace>())
             {
 				WriteLine("~W{0,-10}~C: {1}", r.Name, r.Description);
             }
@@ -587,7 +598,7 @@
             }
             Playing.Class = cl;
 
-            Account.Players.Add(new Account.PlayerInfo { Id = Playing.Id, Name = Playing.Name, Level = Playing.Level });
+            Account.Players.Add(Playing.Id);
             DisplayMotd();
             SetState(PlayingState);
         }
@@ -710,7 +721,7 @@
                 return;
             }
 
-            Playing = Character.Lookup<Player>(Account.Players.ElementAt(option).Id);
+            Playing = Character.Lookup<Player>(Account.Players[option]);
 			Playing.Account = Account;
             DisplayMotd();
             SetState(PlayingState);
@@ -737,7 +748,6 @@
 				if (Editing != null)
 					Editing = null;
 				Close ();
-
 				Dispose ();
 			} catch (SocketException) {
 				Log.Warn ("{0} disconnected", Client.Parser.Socket.RemoteEndPoint);

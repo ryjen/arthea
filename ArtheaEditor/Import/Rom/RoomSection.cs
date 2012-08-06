@@ -75,7 +75,7 @@
                 {
                     entry.Value.Save(conn);
                 }*/
-			DbManager.InsertBatch<Room>(Loaded.Values);
+			DbManager.Save<Room>(Loaded.Values);
         }
 
         public override void Load(FileReader reader)

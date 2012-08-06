@@ -26,6 +26,11 @@
         {
         }
 
+		public override string ToString ()
+		{
+			return string.Format ("{0}+{1}", Count, Bonus);
+		}
+
         #endregion Constructors
 
         #region Properties
@@ -99,7 +104,7 @@
         {
             if (faceCount <= 0)
             {
-                throw new ArgumentOutOfRangeException("faceCount", "Dice must have one or more faces.");
+                throw new ArgumentException("faceCount", "Dice must have one or more faces.");
             }
 
             FaceCount = faceCount;

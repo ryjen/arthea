@@ -3,13 +3,16 @@ using MongoDB.Driver.Builders;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 
+using System.Linq;
+using System.Text.RegularExpressions;
+
 namespace ArtheaEngine.Model
 {
     using System;
     using System.Collections.Generic;
     using System.Data;
 
-    public partial class Social : INamedEntity, IRootLevelDocument
+    public class Social : INamedEntity, IRootLevelDocument
     {
 		public Social() {
 			
@@ -93,6 +96,16 @@ namespace ArtheaEngine.Model
         #endregion Properties
 
         #region Methods
+		
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+		
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
 
         public static bool Interpret (Character ch, Argument argument)
 		{
@@ -112,9 +125,9 @@ namespace ArtheaEngine.Model
 
 		public static Social Lookup (String name)
 		{
-			var q = Query.Matches("Name", "/" + name + "*/");
+			var regex = new Regex("^" + name, RegexOptions.IgnoreCase);
 
-			return DbManager.GetCollection<Social>().FindOne (q);
+			return DbManager.Query<Social>().Where(x => regex.IsMatch(x.Name)).FirstOrDefault();
 		}
 
         public virtual void Parse(Character ch, Argument argument)

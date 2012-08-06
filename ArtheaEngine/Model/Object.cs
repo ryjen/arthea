@@ -181,7 +181,8 @@ namespace ArtheaEngine.Model
         public Object()
         {
 			Id = ObjectId.GenerateNewId().ToString();
-            Values = new List<BsonValue>();
+			Key = new AreaKey();
+            Values = new List<object>();
             Contents = new ObservableCollection<Object>();
             Contents.AddChangedHandler<Object>((o, a) => {
                 o.Inside = a ? this : null;
@@ -198,17 +199,14 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
-		[BsonElement("Area")]
-		[BsonRequired]
-		public string AreaRef {
-			get { return Area == null ? null : Area.Id; }
-			set { Area = Area.Lookup(value); }
-		}
-
 		[BsonIgnore]
-        public Area Area
-        {
-            get; set;
+		public Area Area {
+			get {
+				return Key.Area;
+			}
+			set {
+				Key.Area = value;
+			}
         }
 
 		[BsonIgnore]
@@ -311,7 +309,13 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
-        public IList<BsonValue> Values
+		[BsonRequired]
+		public AreaKey Key {
+			get;
+			set;
+		}
+
+        public IList<object> Values
         {
             get; private set;
         }
@@ -329,21 +333,19 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
-		
-		public string Keyword ()
-		{
-			if (!World.Objects.ContainsValue (Id)) {
-				return Id;
-			}
-
-			return World.Objects[Id];
-		}
-
-
         #endregion Properties
 
         #region Methods
-
+		
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+		
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
 		public static Object Lookup (string id)
 		{
 			return DbManager.Lookup<Object> (id);

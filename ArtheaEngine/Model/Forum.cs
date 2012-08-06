@@ -120,8 +120,18 @@ namespace ArtheaEngine.Model
 
 		public static IEnumerable<Forum> All ()
 		{
-			return DbManager.GetCollection<Forum>().FindAll();
+			return DbManager.Query<Forum>();
 
+		}
+
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+
+		public bool Delete()
+		{
+			return DbManager.Delete(this);
 		}
 
         public bool ReadableBy(Character ch)
