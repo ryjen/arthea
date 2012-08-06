@@ -183,6 +183,17 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
+		[BsonElement("Race")]
+		public string RaceRef {
+			get {
+				return Race.Id;
+			}
+			set {
+				Race = Race.Lookup (value);
+			}
+		}
+
+		[BsonIgnore]
         public Race Race
         {
             get; set;
@@ -234,11 +245,20 @@ namespace ArtheaEngine.Model
 
 		public static T Lookup<T> (string id) where T:Character
 		{
-			return DbManager.Lookup<T> (id);
+			return DbManager.LookupAs<Character,T> (id);
 		}
 
         #region Methods
-
+		
+		public virtual bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+		
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
         public void Act(string format, params object[] args)
         {
             WriteLine(string.Format(new ActionFormatter(this), format, args));
@@ -359,6 +379,8 @@ namespace ArtheaEngine.Model
 		*/
 
         public abstract void Page(string buf);
+
+		public abstract void Page(StringBuilder buf);
 
         public override string ToString()
         {

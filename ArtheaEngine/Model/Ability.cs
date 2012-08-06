@@ -61,6 +61,16 @@ namespace ArtheaEngine.Model
 		{
 			return DbManager.Lookup<Ability>(keyword);
 		}
+
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
 		                                          
 
         /// <summary>

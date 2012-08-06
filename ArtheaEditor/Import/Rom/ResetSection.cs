@@ -62,7 +62,7 @@
                                 continue;
                             }
                             buf.Append("npc(");
-                            buf.Append(Importer.Mobiles.Loaded[temp.arg1].Keyword());
+                            buf.Append(Importer.Mobiles.Loaded[temp.arg1].Key);
                             buf.Append(",");
                             buf.Append(temp.arg4); // max room
                             buf.Append(")\n");
@@ -75,7 +75,7 @@
                             }
 
                             buf.Append("obj(");
-                            buf.Append(Importer.Objects.Loaded[temp.arg1].Keyword());
+                            buf.Append(Importer.Objects.Loaded[temp.arg1].Key);
                             buf.Append(")\n");
                             break;
                         case 'D':
@@ -103,7 +103,7 @@
                                             + sub.arg1);
                                 }
                                 buf.Append("put(");
-                                buf.Append(Importer.Objects.Loaded[sub.arg1].Keyword());
+                                buf.Append(Importer.Objects.Loaded[sub.arg1].Key);
                                 buf.Append(")\n");
                                 break;
                             case 'G':
@@ -113,7 +113,7 @@
                                             + sub.arg1);
                                 }
                                 buf.Append("give(");
-                                buf.Append(Importer.Objects.Loaded[sub.arg1].Keyword());
+                                buf.Append(Importer.Objects.Loaded[sub.arg1].Key);
                                 buf.Append(")\n");
                                 break;
                             case 'E':
@@ -123,7 +123,7 @@
                                             + sub.arg1);
                                 }
                                 buf.Append("equip(");
-                                buf.Append(Importer.Objects.Loaded[sub.arg1].Keyword());
+                                buf.Append(Importer.Objects.Loaded[sub.arg1].Key);
                                 buf.Append(")\n");
                                 break;
                         }
@@ -135,7 +135,7 @@
 
                     room.Reset = reset;
 
-					DbManager.Save(room);
+				room.Save();
                 }
         }
 

@@ -36,7 +36,7 @@
 
         public override void Commit()
         {
-			DbManager.InsertBatch<Area>(Loaded);
+			DbManager.Save<Area>(Loaded);
 
 			/*
             foreach (Area a in Loaded)

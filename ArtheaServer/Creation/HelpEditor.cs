@@ -78,13 +78,13 @@
         {
             Reset();
 
-            ColumnList cols = new ColumnList(2);
+            ColumnFormatter cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
             cols.Add("~YA) ~CKeywords: ~W{0}~x", _data.Keywords.ToCSV());
 
-            cols.Add(2, TextEditor.Preview("~YB) Text", _data.Text, _connection.ScreenWidth));
+            cols.SetSpan (2).Add(TextEditor.Preview("~YB) Text", _data.Text, cols.Width));
 
-            cols.Show(_connection.Playing);
+			_connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods

@@ -51,6 +51,15 @@ namespace ArtheaEngine.Model
 			return DbManager.Lookup<Class>(keyword);
         }
 
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
+		}
         #endregion Methods
     }
 

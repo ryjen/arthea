@@ -27,7 +27,7 @@
 
 			Player p = ch as Player;
 
-			p.Save();
+			ch.Save();
 
 			p.Account.Save();
 

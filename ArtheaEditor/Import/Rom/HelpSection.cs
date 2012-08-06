@@ -36,7 +36,7 @@
 
         public override void Commit()
         {
-			DbManager.InsertBatch<Help>(Loaded);
+			DbManager.Save<Help>(Loaded);
 
             //foreach (Help help in Loaded)
               //      help.Save(conn);

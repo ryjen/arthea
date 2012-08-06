@@ -115,18 +115,19 @@
         {
             Reset();
 
-            var cols = new ColumnList(2);
+            var cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
             cols.Add("   ~CId: ~W{0}", _data.Id);
             cols.Add("   ~CArea: ~W{0}", _data.Area.Name);
             cols.Add("~YA) ~CName: ~W{0}~x", _data.Name);
-            cols.Add(2, TextEditor.Preview("~YB) ~CDescription", _data.Description, _connection.ScreenWidth));
+			cols.SetSpan(2);
+			cols.Add (TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
             cols.Add("~YC) ~CTerrain: ~W{0}~x", _data.Terrain.ToString());
             cols.Add("~YD) ~CFlags: ~W{0}~x", _data.Flags);
             cols.Add("~RE) ~CExits: ~W{0} exits~x", _data.Exits.Count);
             cols.Add("~RF) ~CReset: ~W{0}~x", _data.Reset == null ? "none" : _data.Reset.Id);
 
-            cols.Show(_connection.Playing);
+			_connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods

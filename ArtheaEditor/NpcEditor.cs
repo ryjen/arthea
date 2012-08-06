@@ -20,7 +20,7 @@
         {
             base.OnLoad(e);
 
-            AddRow(PropertyHelper<NonPlayer>.GetProperty(x => x.Keyword()), new TextField { ReadOnly = true });
+            AddRow(PropertyHelper<NonPlayer>.GetProperty(x => x.Key), new TextField { ReadOnly = true });
             AddRow(PropertyHelper<NonPlayer>.GetProperty(x => x.Name), new TextField());
             AddRow(PropertyHelper<NonPlayer>.GetProperty(x => x.Description), new TextField { Multiline = true });
         }

@@ -86,7 +86,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Columns.cs" />
     <Compile Include="Combat.cs" />
     <Compile Include="Dice.cs" />
     <Compile Include="Extensions.cs" />
@@ -128,6 +127,7 @@
     <Compile Include="DbManager.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="PropertyHelper.cs" />
+    <Compile Include="ColumnFormatter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />

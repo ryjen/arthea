@@ -117,6 +117,7 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="RebootHelper.cs" />
+    <Compile Include="Commands\ScoreCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArtheaEngine\ArtheaEngine.csproj">

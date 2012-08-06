@@ -93,7 +93,18 @@ namespace ArtheaEngine.Model
 
 		public static T Lookup<T> (string id) where T:Race
 		{
-			return DbManager.Lookup<T>(id);
+			return DbManager.LookupAs<Race,T>(id);
+		}
+		
+		public bool Save ()
+		{
+			return DbManager.Save (this);
+		}
+
+		
+		public bool Delete ()
+		{
+			return DbManager.Delete (this);
 		}
     }
 

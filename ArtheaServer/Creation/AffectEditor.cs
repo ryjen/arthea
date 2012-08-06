@@ -1,4 +1,4 @@
-﻿namespace ArtheaServer.Creation
+namespace ArtheaServer.Creation
 {
     using System;
     using System.Collections.Generic;
@@ -130,7 +130,7 @@
         {
             Reset();
 
-             var cols = new ColumnList(2);
+             var cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
              cols.Add("   ~CId: ~W{0}", _data.Id);
              cols.Add("~YA) ~CLocation: ~W{0}", _data.Location);
@@ -139,7 +139,7 @@
              cols.Add("~YD) ~CFlag: ~W{0}", _data.Flag);
              cols.Add("~YE) ~Ability: ~W{0}", _data.Extra == null ? "none" : Ability.Lookup(_data.Extra).Name);
 
-             cols.Show(_connection);
+			_connection.Page (cols.GetBuffer());
         }
 
         #endregion Methods

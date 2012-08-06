@@ -225,7 +225,7 @@
 
              foreach (var entry in _exits)
              {
-                 WriteLine("~W{0}) ~CExit to ~W{1}~C ({2})", entry.Key, entry.Value.ToRoom.Keyword(), entry.Value.ToRoom.Name);
+                 WriteLine("~W{0}) ~CExit to ~W{1}~C ({2})", entry.Key, entry.Value.ToRoom.Key, entry.Value.ToRoom.Name);
              }
         }
 

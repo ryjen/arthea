@@ -32,7 +32,7 @@ namespace ArtheaEditor
         {
             mainEditor.SetEditor(new AreaEditor());
 
-            mainEditor.SetCollection(DbManager.GetAll<Area>());
+            mainEditor.SetCollection(DbManager.Query<Area>());
         }
 
         private void circleToolStripMenuItem_Click(object sender, EventArgs e)

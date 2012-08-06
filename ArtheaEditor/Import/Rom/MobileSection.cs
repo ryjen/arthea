@@ -42,7 +42,7 @@
 
         public override void Commit()
         {
-			DbManager.InsertBatch(Loaded.Values);
+			DbManager.Save(Loaded.Values);
 
             /*foreach (var npc in Loaded)
                 {

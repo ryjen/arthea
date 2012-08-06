@@ -19,16 +19,11 @@ namespace ArtheaEngine
 
     public static class Extensions
     {
-        #region Methods
 
-        public static void AddParameter(this IDbCommand cmd, string name, DbType type, object value)
-        {
-            var p = cmd.CreateParameter();
-            p.ParameterName = name;
-            p.DbType = type;
-            p.Value = value;
-            cmd.Parameters.Add(p);
-        }
+		private static readonly string ColorRegex = Color.Code +
+			"[!@#$%]*[GRCBYMDWNgrcbymdwxn?*" + Color.Code + "]";
+
+        #region Methods
 
         /// <summary>
         /// Makes the readable.
@@ -83,7 +78,7 @@ namespace ArtheaEngine
 
         public static string Center(this string mString, int width)
         {
-            var margin = (width/2.0f) - (mString.DisplayLength()/2.0f);
+			var margin = (width/2.0f) - (mString.DisplayLength()/2.0f);
             var buf = new StringBuilder();
             buf.Append(' ', (int) Math.Floor(margin));
             buf.Append(mString);
@@ -122,15 +117,6 @@ namespace ArtheaEngine
             return count;
         }
 
-        public static IDbCommand CreateCommand(this IDbConnection conn, string procedure)
-        {
-            var cmd = conn.CreateCommand();
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.CommandText = procedure;
-
-            return cmd;
-        }
-
         public static bool DeepCompare<T>(this T[] orig, T[] passwd)
             where T : IEquatable<T>
         {
@@ -147,20 +133,23 @@ namespace ArtheaEngine
             return true;
         }
 
-		/*
-        public static bool Delete(this ISaveable obj)
-        {
-            using (var conn = DbManager.GetDB ())
-            {
-                return obj.Delete(conn);
-            }
-        }*/
-
-        public static int DisplayLength(this string str)
+        /*public static int DisplayLength(this string str)
         {
             return str.StripColor().Length;
-        }
+        }*/
 
+		public static int DisplayLength (this string mString)
+		{
+			int len = mString.Length;
+
+			var matches = Regex.Matches (mString, ColorRegex);
+
+			foreach (Match m in matches) {
+				len -= m.Length;
+			}
+
+			return len;
+		}
         public static T Get<T>(this IEnumerable<T> list, Predicate<T> pred)
         {
             foreach (var t in list)
@@ -348,17 +337,12 @@ namespace ArtheaEngine
             return value.StartsWith(mString, ignoreCase, CultureInfo.CurrentCulture);
         }
 
-		public static bool Save<T> (this T doc) where T:IRootLevelDocument
-		{
-			return DbManager.Save<T>(doc);
-		}
-
-		public static bool Delete<T> (this T doc) where T:IEntity,IRootLevelDocument
+		/*public static bool Delete<T> (this T doc) where T:IEntity,IRootLevelDocument
 		{
 			return DbManager.Delete<T> (doc);
-		}
+		}*/
 
-		public static T Lookup<T> (this IEnumerable<T> arg, BsonValue id) where T: IEntity
+		public static T Lookup<T> (this IEnumerable<T> arg, string id) where T: IEntity
 		{
 			return arg.FirstOrDefault (v => v.Id != null && v.Id.Equals (id));
 		}
@@ -413,30 +397,11 @@ namespace ArtheaEngine
             }
         }
 
-		/*
-        public static bool Save(this ISaveable obj)
-        {
-            using (var conn = DbManager.NewConnection())
-            {
-                var tx = conn.BeginTransaction();
-
-                bool rval =  obj.Save(conn);
-
-                if (rval == false)
-                    tx.Rollback();
-                else
-                    tx.Commit();
-
-                return rval;
-            }
-        }*/
-
         public static string StripColor(this string mString)
         {
-            return Regex.Replace(mString, Color.Code +
-                                          "[!@#$%]*[GRCBYMDWNgrcbymdwxn?*" + Color.Code + "]", string.Empty);
+            return Regex.Replace(mString, ColorRegex, string.Empty);
         }
-
+	
         public static string ToCSV(this ISet<string> Tags)
         {
             var buf = new StringBuilder();

@@ -107,6 +107,11 @@
             _connection.Page(buf);
         }
 
+		public void Page (StringBuilder buf)
+		{
+			_connection.Page (buf);
+		}
+
         public virtual void Prompt()
         {
             if (this is TextEditor)
@@ -165,13 +170,14 @@
         protected void ShowValidEnumValues<T>()
         {
             WriteLine("~CValid values are:~W");
-            var cols = new ColumnList(5);
+            var cols = new ColumnFormatter(5,_connection.ScreenWidth);
+
             foreach(var n in Enum.GetNames(typeof(T)))
             {
                 cols.Add(n);
             }
 
-            cols.Show(_connection);
+			_connection.Page (cols.GetBuffer());
         }
 
         #endregion Methods

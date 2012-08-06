@@ -38,7 +38,7 @@
 
         public override void Commit()
         {
-			DbManager.InsertBatch<Object>(Loaded.Values);
+			DbManager.Save<Object>(Loaded.Values);
             //foreach (var obj in Loaded)
               //      obj.Value.Save(conn);
         }
@@ -260,7 +260,7 @@
                             case 'V':
                                 break;
                             default:
-                                throw new ImportException("Invalid object flag on item " + item.Keyword ());
+                                throw new ImportException("Invalid object flag on item " + item.Key);
                         }
 
                         reader.ReadNumber(); // location

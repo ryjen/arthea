@@ -58,7 +58,7 @@
 
                 shop.Owner = npc;
 
-				DbManager.Save(npc);
+				npc.Save();
             }
         }
 
