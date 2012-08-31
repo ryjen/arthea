@@ -1,16 +1,16 @@
-﻿using MongoDB.Bson;
+﻿using System;
+using System.Data;
+using System.Data.Odbc;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+
+using NLog;
 
 namespace ArtheaEngine.Model
 {
-    using System;
-    using System.Data;
-    using System.Data.Odbc;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
-
-    using NLog;
 
     #region Enumerations
 

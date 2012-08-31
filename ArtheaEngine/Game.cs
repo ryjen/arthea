@@ -1,20 +1,20 @@
 ﻿using System.Collections.ObjectModel;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Configuration;
+using System.Data;
+using System.Data.Linq;
+using System.Data.Odbc;
+using System.Globalization;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ArtheaEngine
 {
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.Configuration;
-    using System.Data;
-    using System.Data.Linq;
-    using System.Data.Odbc;
-    using System.Globalization;
-    using System.Linq.Expressions;
-    using System.Reflection;
-    using System.Text;
-    using System.Text.RegularExpressions;
 
     public static class Game
     {

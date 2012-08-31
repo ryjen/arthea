@@ -1,21 +1,21 @@
 ﻿using MongoDB.Bson;
 using System.Collections.Specialized;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
+using System.Data.Common;
+using System.Data.Linq.Mapping;
+using System.Data.Odbc;
+using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+
+using ArtheaEngine.Model;
 
 namespace ArtheaEngine
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Data;
-    using System.Data.Common;
-    using System.Data.Linq.Mapping;
-    using System.Data.Odbc;
-    using System.Globalization;
-    using System.Linq;
-    using System.Text;
-    using System.Text.RegularExpressions;
-
-    using ArtheaEngine.Model;
 
     public static class Extensions
     {
@@ -141,6 +141,8 @@ namespace ArtheaEngine
 		public static int DisplayLength (this string mString)
 		{
 			int len = mString.Length;
+
+			if(len == 0) return 0;
 
 			var matches = Regex.Matches (mString, ColorRegex);
 

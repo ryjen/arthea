@@ -1,18 +1,18 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Data;
+using System.Linq;
+using System.Text;
+
+using NLog;
 
 namespace ArtheaEngine.Model
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Collections.Specialized;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-
-    using NLog;
 
     #region Enumerations
 

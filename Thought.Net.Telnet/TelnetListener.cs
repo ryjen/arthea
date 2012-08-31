@@ -274,7 +274,7 @@ namespace Thought.Net.Telnet
         /// </summary>
         protected void OnStarted()
         {
-            var handler = started;
+            //var handler = started;
             if (started != null)
             {
                 started(this, new EventArgs());
@@ -286,7 +286,7 @@ namespace Thought.Net.Telnet
         /// </summary>
         protected void OnStarting()
         {
-            var handler = starting;
+            //var handler = starting;
             if (starting != null)
             {
                 starting(this, new EventArgs());

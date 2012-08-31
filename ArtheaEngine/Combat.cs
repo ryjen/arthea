@@ -1,12 +1,13 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
 
-    using ArtheaEngine.Model;
+using ArtheaEngine.Model;
+
+namespace ArtheaEngine
+{
 
     public class Combat : ITickable
     {
@@ -50,13 +51,45 @@
 
         #region Methods
 
+		private static int[] GetAttacks(Dice d1, Dice d2)
+		{
+			Collection<int> values = new Collection<int>();
+			var roll1 = d1.Roll();
+			var roll2 = d2.Roll();
+			
+			foreach (var a in roll1)
+			{
+				foreach (var b in roll2)
+				{
+					if (a > b)
+						values.Add(a);
+				}
+			}
+			return values.ToArray();
+		}
+
+		public static int GetDamage(Dice d1, Dice d2)
+		{
+			int value = 0;
+
+			foreach (var a in d1.Roll())
+			{
+				foreach (var b in d2.Roll())
+				{
+					if (a > b)
+						value += a;
+				}
+			}
+			return value;
+		}
+
         public void Attack(Character victim)
         {
-            int[] attacks = _thisChar.Attack.RollAgainst(victim.Defense);
+			int[] attacks = GetAttacks(_thisChar.Attack, victim.Defense);
 
             foreach (var bonus in attacks)
             {
-                var damage = _thisChar.Attack.RollAgainstValue(victim.Defense);
+                var damage = GetDamage(_thisChar.Attack, victim.Defense);
 
                 damage += bonus;
 
@@ -101,7 +134,7 @@
 
             for (var i = 0; i < counterAttacks; i++)
             {
-                var damage = victim.Attack.RollAgainstValue(_thisChar.Defense);
+                var damage = GetDamage(victim.Attack, _thisChar.Defense);
                 _thisChar.Vitals.Life -= damage;
 
                 DamMessage(victim, damage, true);

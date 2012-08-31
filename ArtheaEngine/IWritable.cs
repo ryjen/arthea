@@ -1,7 +1,8 @@
-﻿namespace ArtheaEngine
-{
-    using System.Text;
+﻿
+using System.Text;
 
+namespace ArtheaEngine
+{
     public interface IWritable
     {
         #region Methods

@@ -1,23 +1,30 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text;
 
-    using ArtheaEngine.Model;
-	
+using ArtheaEngine.Model;
+
+namespace ArtheaEngine
+{
+
 	[Flags]
-	public enum ColumnBorderType {
+	public enum ColumnBorder {
 		None, Left, Right 
 	}
 
-	public enum ColumnAlignType {
+	public enum ColumnAlign {
 		Left, Center, Right
 	}
 		
     public class Column
     {
+		public Column()
+		{
+			BorderText = '#';
+			BorderColor = "~B~!B";
+		}
+
         #region Properties
 
         public object Content
@@ -30,6 +37,15 @@
             get; set;
         }
 
+		public char BorderText {
+			get;
+			set;
+		}
+
+		public string BorderColor {
+			get;
+			set;
+		}
         #endregion Properties
 
         #region Methods
@@ -39,12 +55,27 @@
             return Content == null ? string.Empty : Content.ToString();
         }
 
-		public ColumnBorderType Border
+		public virtual string ToString (int columnWidth)
+		{
+			var text = ToString ();
+
+			switch (Align) {
+			case ColumnAlign.Left:
+			default:
+				return text;
+			case ColumnAlign.Center:
+				return text.PadLeft ((columnWidth - text.DisplayLength ()) / 2 + text.DisplayLength ());
+			case ColumnAlign.Right:
+				return text.PadLeft (columnWidth - text.DisplayLength () + text.DisplayLength ());
+			}
+		}
+
+		public ColumnBorder Border
 		{
 			get; set;
 		}
 
-		public ColumnAlignType Align
+		public ColumnAlign Align
 		{
 			get; set;
 		}
@@ -53,21 +84,21 @@
 		{
 			StringBuilder buf = new StringBuilder ();
 
-			bool right = (Border & ColumnBorderType.Right) == ColumnBorderType.Right;
+			bool right = (Border & ColumnBorder.Right) == ColumnBorder.Right;
 
-			if ((Border & ColumnBorderType.Left) == ColumnBorderType.Left) {
-				buf.Append ("~!B ~x ");
+			if ((Border & ColumnBorder.Left) == ColumnBorder.Left) {
+				buf.Append (BorderColor).Append (BorderText).Append("~x ");
 				size -= 2;
 			}
 
 			if (right) {
-				size -= 1;
+				size -= 2;
 			}
 
-			buf.AppendFormat ("~W{{0,-{0}}}", size);
+			buf.AppendFormat ("{{0,-{0}}}", size);
 
 			if(right)
-				buf.Append("~!B ~x");
+				buf.Append (' ').Append (BorderColor).Append(BorderText).Append ("~x");
 
 			return buf.ToString();
 		}
@@ -79,9 +110,47 @@
 	{
 		public override string Format (int size)
 		{
+			return string.Format ("{{0,-{0}}}~x", size);
+		}
 
-			return string.Format ("~W~!B{{0,-{0}}}~x", size);
+		public override string ToString (int columnWidth)
+		{
+			var text = ToString ();
+			var buf = new StringBuilder();
 
+			switch (Align) {
+			case ColumnAlign.Left:
+			default:
+				int mod = string.IsNullOrEmpty(text) ? 0 : 3;
+				
+				buf.Append(BorderColor);
+				if(mod > 0) {
+					buf.Append(BorderText);
+					buf.Append("~W ");
+					buf.Append(text);
+					buf.Append(' ');
+					buf.Append(BorderColor);
+				}
+				buf.Append(BorderText, columnWidth-text.DisplayLength()-mod);
+				return buf.ToString();
+			case ColumnAlign.Center:
+				mod = string.IsNullOrEmpty(text) ? 0 : 1;
+				buf.Append(BorderColor);
+				buf.Append(BorderText, (columnWidth - text.DisplayLength ()) / 2-mod);
+				if(mod > 0)
+					buf.Append("~W ").Append(text).Append(' ');
+				buf.Append(BorderColor);
+				buf.Append(BorderText, (columnWidth-text.DisplayLength())/2-mod);
+				return buf.ToString();
+			case ColumnAlign.Right:
+				mod = string.IsNullOrEmpty(text) ? 0 : 3;
+				buf.Append(BorderColor);
+				buf.Append(BorderText, columnWidth - text.DisplayLength ()-mod);
+				if(mod > 0)
+					buf.Append("~W ").Append(text).Append(' ');
+				buf.Append (BorderColor).Append(BorderText);
+				return buf.ToString();
+			}
 		}
 	}
 
@@ -94,14 +163,19 @@
 	 */
     public class ColumnFormatter
     {
+		private static readonly char DefaultBorderText = '#';
+		private static readonly string DefaultBorderColor = "~B~!B";
+
         #region Fields
 
         private Row _currRow;
         private List<Row> _rows = new List<Row>();
         private int _savedSize;
 		int _nextSpan = 1;
-		ColumnBorderType _border = ColumnBorderType.None;
-		ColumnAlignType _align = ColumnAlignType.Left;
+		ColumnBorder _border = ColumnBorder.None;
+		ColumnAlign _align = ColumnAlign.Left;
+		char _borderText = DefaultBorderText;
+		string _borderColor = DefaultBorderColor;
 
         #endregion Fields
 
@@ -154,7 +228,7 @@
 
         public ColumnFormatter Add(object content)
         {
-            var c = new Column { Border = _border, Span = _nextSpan, Align = _align, Content = content };
+            var c = new Column { Border = _border, BorderText = _borderText, BorderColor = _borderColor, Span = _nextSpan, Align = _align, Content = content };
 
             AddColumn(c);
 
@@ -166,28 +240,28 @@
         {
             var tmp = string.Format(format, values);
 
-             AddColumn(new Column { Border = _border, Span = _nextSpan, Align = _align, Content = tmp });
+             AddColumn(new Column { Border = _border, BorderText = _borderText, BorderColor = _borderColor, Span = _nextSpan, Align = _align, Content = tmp });
 
 			return this;
         }
 
         public ColumnFormatter AddHeader(object content)
         {
-            AddColumn(new Header { Span = _currRow.Size, Align = _align, Content = content });
+            AddColumn(new Header { Span = _currRow.Size, BorderText = _borderText, BorderColor = _borderColor, Align = _align, Content = content });
 
 			return this;
         }
 
 		public ColumnFormatter AddHeader()
 		{
-			AddColumn(new Header { Span = _currRow.Size });
+			AddColumn(new Header { Span = _currRow.Size,BorderText = _borderText, BorderColor = _borderColor });
 
 			return this;
 		}
 
 		public ColumnFormatter AddHeader (int span, object content)
 		{
-			AddColumn (new Header { Span = span, Align = _align, Content = content });
+			AddColumn (new Header { Span = span, Align = _align, BorderText = _borderText, BorderColor = _borderColor, Content = content });
 
 			return this;
 		}
@@ -224,26 +298,50 @@
 			return this;
         }
 
-		public ColumnBorderType GetBorder ()
+		public ColumnBorder GetBorder ()
 		{
 			return _border;
 		}
 
-		public ColumnFormatter SetBorder (ColumnBorderType border)
+		public ColumnFormatter SetBorder (ColumnBorder border)
 		{
 			_border = border;
 
 			return this;
 		}
 
-		public ColumnFormatter SetAlign (ColumnAlignType align)
+		public ColumnFormatter SetBorderText (char text)
+		{
+			_borderText = text;
+
+			return this;
+		}
+
+		public ColumnFormatter SetBorderColor (string color)
+		{
+			_borderColor = color;
+
+			return this;
+		}
+
+		public char GetBorderText ()
+		{
+			return _borderText;
+		}
+
+		public string GetBorderColor ()
+		{
+			return _borderColor;
+		}
+
+		public ColumnFormatter SetAlign (ColumnAlign align)
 		{
 			_align = align;
 
 			return this;
 		}
 
-		public ColumnAlignType GetAlign ()
+		public ColumnAlign GetAlign ()
 		{
 			return _align;
 		}
@@ -296,27 +394,14 @@
 
 					var format = c.Format(columnWidth);
 
-					switch(c.Align)
-					{
-					case ColumnAlignType.Left:
-                    	buf.AppendFormat(format, text);
-						break;
-					case ColumnAlignType.Center:
-						buf.AppendFormat(format, text.PadLeft((columnWidth-text.DisplayLength())/2+text.DisplayLength()));
-						break;
-					case ColumnAlignType.Right:
-						buf.AppendFormat(format, text.PadLeft(columnWidth - text.DisplayLength()-1+text.DisplayLength()));
-						break;
-					}
+					buf.AppendFormat(format, c.ToString(columnWidth));
+				
                 }
 				buf.AppendLine();
             }
 			return buf;
         }
 
-		/*
-		 * {~W~!B                            Markanth                                            ~x}
-		 */
 		public override string ToString ()
 		{
 			return GetBuffer ().ToString();
@@ -330,8 +415,8 @@
         private void AddColumn(Column c)
         {
 			_nextSpan = 1;
-			_border = ColumnBorderType.None;
-			_align = ColumnAlignType.Left;
+			_border = ColumnBorder.None;
+			_align = ColumnAlign.Left;
 
             if (!_currRow.Add(c))
             {
@@ -348,6 +433,7 @@
     /// <summary>
     /// Handles displaying text in columns
     /// </summary>
+	/*
     public static class Columns
     {
         #region Fields
@@ -414,7 +500,7 @@
         }
 
         #endregion Methods
-    }
+    }*/
 
     public class Row
     {

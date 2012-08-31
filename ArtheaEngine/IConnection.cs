@@ -1,8 +1,9 @@
-﻿namespace ArtheaEngine
-{
-    using System;
+﻿using System;
 
-    using ArtheaEngine.Model;
+using ArtheaEngine.Model;
+
+namespace ArtheaEngine
+{
 
     #region Enumerations
 

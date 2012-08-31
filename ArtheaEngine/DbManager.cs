@@ -8,6 +8,8 @@ using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Driver.Linq;
 using System.Linq;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace ArtheaEngine
 {
@@ -80,11 +82,6 @@ namespace ArtheaEngine
 		{
 			return Collection<T>().Remove(Query.EQ ("_id", e.Id)).Ok;
 		}
-
-		/*public static bool Save<T>(T e) where T:IRootLevelDocument
-		{
-			return Collection<T>().Save(e).Ok;
-		}*/
 
 		public static IQueryable<T> Synchronize<T> (IEnumerable<T> collection) where T:IRootLevelDocument
 		{
