@@ -2,19 +2,19 @@
 using MongoDB.Driver;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+
+using NLog;
 
 namespace ArtheaEngine.Model
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Collections.Specialized;
-    using System.Data;
-    using System.Linq;
-    using System.Reflection;
-    using System.Text;
-
-    using NLog;
 
     #region Enumerations
 
@@ -198,7 +198,9 @@ namespace ArtheaEngine.Model
         /// <param name="player">The player.</param>
         public void ShowNoteListTo(Player player)
         {
-            StringCollection columns = new StringCollection();
+			ColumnFormatter columns = new ColumnFormatter(2, player);
+
+            //StringCollection columns = new StringCollection();
 
             var count = 0;
 
@@ -213,7 +215,9 @@ namespace ArtheaEngine.Model
                 count++;
             }
 
-            Columns.Show(player, 2, columns);
+            //Columns.Show(player, 2, columns);
+
+			player.Page(columns);
         }
 
         /// <summary>

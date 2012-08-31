@@ -1,16 +1,16 @@
-﻿using MongoDB.Bson;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Odbc;
+using System.Linq;
+using System.Reflection;
+using MongoDB.Bson;
 using MongoDB.Driver.Builders;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace ArtheaEngine.Model
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Data.Odbc;
-    using System.Linq;
-    using System.Reflection;
 
 	[BsonKnownTypes(typeof(WarriorClass), typeof(MageClass))]
 	[BsonDiscriminator(Required = true, RootClass = true)]

@@ -1,15 +1,16 @@
-﻿namespace ArtheaEditor.Import.Rom
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+
+using ArtheaEngine;
+using ArtheaEngine.Model;
+
+using NLog;
+
+namespace ArtheaEditor.Import.Rom
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Linq;
-    using System.Text;
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-
-    using NLog;
 
     public class AreaSection : FileSection
     {

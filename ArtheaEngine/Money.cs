@@ -1,8 +1,9 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Globalization;
+﻿
+using System;
+using System.Globalization;
 
+namespace ArtheaEngine
+{
     #region Enumerations
 
     public enum Currency

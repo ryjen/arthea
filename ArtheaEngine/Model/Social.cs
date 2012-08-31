@@ -5,12 +5,12 @@ using MongoDB.Bson.Serialization.IdGenerators;
 
 using System.Linq;
 using System.Text.RegularExpressions;
+using System;
+using System.Collections.Generic;
+using System.Data;
 
 namespace ArtheaEngine.Model
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Data;
 
     public class Social : INamedEntity, IRootLevelDocument
     {

@@ -1,13 +1,14 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text;
-    using System.Timers;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Timers;
 
-    using ArtheaEngine.Model;
+using ArtheaEngine.Model;
+
+namespace ArtheaEngine
+{
 
     public interface ITickable
     {

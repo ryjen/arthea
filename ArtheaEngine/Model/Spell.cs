@@ -2,10 +2,10 @@
 using MongoDB.Driver.Builders;
 using MongoDB.Bson.Serialization.Attributes;
 
+using System.Linq;
+
 namespace ArtheaEngine.Model
 {
-    using System.Linq;
-
     public class HealSpell : Spell
     {
     }

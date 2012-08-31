@@ -1,9 +1,10 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
-    using ArtheaEngine.Model;
+using ArtheaEngine.Model;
+
+namespace ArtheaEngine
+{
 
     public interface ICommand
     {

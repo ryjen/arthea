@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using ArtheaEngine.Model;
 using System.Linq;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace ArtheaEngine
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
 
     public interface IEntity
     {

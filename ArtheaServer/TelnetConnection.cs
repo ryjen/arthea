@@ -465,8 +465,8 @@
             foreach(var pId in Account.Players)
             {
 				var info = Character.Lookup(pId);
-
-                WriteLine(" ~Y{0}) ~W{1} ~C(lvl {2})~x", i + 1, info.Name, info.Level);
+				if(info != null)
+	                WriteLine(" ~Y{0}) ~W{1} ~C(lvl {2})~x", i + 1, info.Name, info.Level);
             }
             if (i != 0)
                 WriteLine();

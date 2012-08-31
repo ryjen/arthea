@@ -1,9 +1,10 @@
-﻿namespace ArtheaEngine.Tests
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace ArtheaEngine.Tests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
 
     public class TestWriter : IWritable
     {

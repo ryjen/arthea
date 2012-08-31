@@ -1,30 +1,53 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Text;
+﻿using System.Collections;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.IO;
+using MongoDB.Bson.Serialization.Serializers;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
 
-    public class Dice : Collection<Die>
+namespace ArtheaEngine
+{
+
+	[BsonSerializer(typeof(DiceSerializer))]
+    public class Dice : IEnumerable<Die>
     {
+		Die[] _dice;
+
         #region Constructors
 
-        public Dice(int count, int faces)
+		public Dice (int count)
+		{
+			_dice = new Die[count];
+			for (int i = 0; i < count; i++)
+				_dice [i] = new Die ();
+		}
+
+        public Dice(int count, int sides)
         {
-            while (count-- > 0)
-                Add(new Die(faces));
+			_dice = new Die[count];
+			for(int i = 0; i < count; i++)
+                _dice[i] = new Die(sides);
         }
 
         public Dice(params Die[] dice)
         {
-            foreach (var d in dice)
-                Add(d);
+			_dice = new Die[dice.Length];
+			for(int i = 0; i < dice.Length; i++)
+				_dice[i] = dice[i].Clone();
         }
 
-        public Dice()
-        {
-        }
+		internal Dice (IEnumerable<Die> dice)
+		{
+			_dice = new Die[dice.Count ()];
+			int i = 0;
+			foreach (var d in dice) {
+				_dice [i++] = d;
+			}
+		}
 
 		public override string ToString ()
 		{
@@ -40,9 +63,43 @@
             get; set;
         }
 
+		public int Count {
+			get {
+				return _dice.Length;
+			}
+		}
+
+		public bool IsSynchronized {
+			get {
+				return _dice.IsSynchronized;
+			}
+		}
+
+		public object SyncRoot {
+			get {
+				return _dice.SyncRoot;
+			}
+		}
+
         #endregion Properties
 
         #region Methods
+
+		public void CopyTo (Array to, long index)
+		{
+			_dice.CopyTo(to, index);
+		}
+
+		public IEnumerator<Die> GetEnumerator ()
+		{
+			foreach (Die d in _dice) //this does not work because _list is private
+				yield return d;
+		}
+
+		IEnumerator IEnumerable.GetEnumerator ()
+		{
+			return _dice.GetEnumerator ();
+		}
 
         public int[] Roll()
         {
@@ -50,76 +107,71 @@
 
             for (int index = 0; index < values.Length; index++)
             {
-                values[index] = Items[index].Roll();
+                values[index] = _dice[index].Roll();
             }
             return values;
         }
 
-        public int[] RollAgainst(Dice dice)
-        {
-            Collection<int> values = new Collection<int>();
-            var roll1 = Roll();
-            var roll2 = dice.Roll();
+		#endregion
 
-            foreach (var a in roll1)
-            {
-                foreach (var b in roll2)
-                {
-                    if (a >= b)
-                        values.Add(a);
-                }
-            }
-            return values.ToArray();
-        }
-
-        public int RollAgainstValue(Dice dice)
-        {
-            int value = 0;
-
-            foreach (var a in Roll())
-            {
-                foreach (var b in dice.Roll())
-                {
-                    if (a >= b)
-                        value += a;
-                }
-            }
-            return value;
-        }
-
-        #endregion Methods
     }
 
-    public class Die
+	public class DiceSerializer : IBsonSerializer
+	{
+		EnumerableSerializer<Die> ser = new EnumerableSerializer<Die>();
+
+		public object Deserialize (BsonReader bsonReader, Type nominalType, Type actualType, IBsonSerializationOptions options)
+		{
+			if (nominalType != typeof(Dice)) throw new ArgumentException("Cannot serialize anything but dice");
+			var e = (IEnumerable<Die>)ser.Deserialize(bsonReader, typeof(IEnumerable<Die>), options);
+			return new Dice(e);
+		}
+		
+		public object Deserialize (BsonReader bsonReader, Type nominalType, IBsonSerializationOptions options) {
+			if (nominalType != typeof(Dice)) throw new ArgumentException("Cannot serialize anything but dice");
+			var e = (IEnumerable<Die>) ser.Deserialize(bsonReader, nominalType, options);
+			return new Dice(e);
+		}
+		
+		public IBsonSerializationOptions GetDefaultSerializationOptions () {
+			return ser.GetDefaultSerializationOptions();
+		}
+
+		public void Serialize (BsonWriter bsonWriter, Type nominalType, object value, IBsonSerializationOptions options) {
+			if (nominalType != typeof(Dice)) throw new ArgumentException("Cannot serialize anything but dice");
+			ser.Serialize(bsonWriter, typeof(IEnumerable<Die>), value, options);
+		}
+	}
+
+    public class Die : ICloneable
     {
         #region Fields
 
-        private static Random rand = new Random();
+        private static readonly Random rand = new Random();
 
         #endregion Fields
 
         #region Constructors
 
-        public Die(int faceCount)
+		public Die () : this(6)
+		{
+		}
+
+        public Die(int sides)
         {
-            if (faceCount <= 0)
+            if (sides <= 0)
             {
-                throw new ArgumentException("faceCount", "Dice must have one or more faces.");
+                throw new ArgumentException("sides", "Dice must have one or more sides.");
             }
 
-            FaceCount = faceCount;
+            Sides = sides;
         }
 
         #endregion Constructors
 
         #region Properties
 
-        public int FaceCount
-        {
-            get; set;
-        }
-
-        public int Value
+        public int Sides
         {
             get; set;
         }
@@ -130,9 +182,18 @@
 
         public int Roll()
         {
-            Value = rand.Next(1, FaceCount + 1);
-            return Value;
+            return rand.Next(1, Sides + 1);
         }
+
+		public Die Clone()
+		{
+			return new Die(Sides);
+		}
+
+		object ICloneable.Clone()   
+		{
+			return Clone();
+		}
 
         #endregion Methods
     }

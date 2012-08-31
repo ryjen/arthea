@@ -2,109 +2,21 @@
 using MongoDB.Driver.Builders;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+
+using ArtheaEngine;
+
+using NLog;
 
 namespace ArtheaEngine.Model
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Collections.Specialized;
-    using System.Data;
-    using System.IO;
-    using System.Linq;
-    using System.Runtime.Serialization.Formatters.Binary;
-
-    using ArtheaEngine;
-
-    using NLog;
-
-    /*
-    public class TrashObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Trash; }
-        }
-    }
-
-    public class ScrollObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Scroll; }
-        }
-    }
-
-    public class PillObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Pill; }
-        }
-    }
-
-    public class PotionObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Potion; }
-        }
-    }
-
-    public class WandObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Wand; }
-        }
-    }
-
-    public class StaffObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Staff; }
-        }
-    }
-
-    public class DrinkContainerObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.DrinkContainer; }
-        }
-    }
-
-    public class ContainerObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Container; }
-        }
-    }
-
-    public class FurnitureObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Furniture; }
-        }
-    }
-    public class ArmorObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Armor; }
-        }
-    }
-
-    public class WeaponObject : Object
-    {
-        public override ObjectType Type
-        {
-            get { return ObjectType.Weapon; }
-        }
-    }*/
 
     #region Enumerations
 
