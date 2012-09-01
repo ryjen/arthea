@@ -15,156 +15,183 @@ namespace ArtheaEngine.Tests
     {
         #region Methods
 
+		[Test]
+		public void ConstructorTest ()
+		{
+			var m = new Currency(53, 6432);
+
+			Assert.AreEqual(643253, m.Value);
+
+			Assert.AreEqual (3, m.Copper);
+
+			Assert.AreEqual(53, m.Silver);
+
+			Assert.AreEqual(6432, m.Gold);
+
+			Assert.AreEqual(6, m.Platinum);
+
+		}
+
         [Test]
         public void AddTest()
         {
-            var m = new Money(3.5m);
+			var m = new Currency(50, 6543);
 
-            m += 0.5m;
+            m.Silver += 50;
 
-            Assert.IsTrue(m == 4.0m);
+            Assert.AreEqual(654400UL, m);
 
-            m += new Money(1.5m);
+            m += new Currency(50, 1);
 
-            Assert.IsTrue(m == new Money(5.5m));
+            Assert.AreEqual(m, 654550UL);
 
-            Assert.IsFalse(m == 1.4m);
+			Assert.AreNotEqual(140UL, m);
+
+			m += new Currency(0, 200);
+
+			Assert.AreEqual(674550UL, m);
         }
 
         [Test]
         public void CopperTest()
         {
-            var m = new Money(-3.54m);
+            var m = new Currency(31, 1);
 
-            Assert.AreEqual(m.Copper(), -4);
+			Assert.AreEqual(1, m.Copper);
 
-            m = -m;
+            m.Silver -= 1;
 
-            Assert.AreEqual(m.Copper(), 4);
+			Assert.AreEqual(0, m.Copper);
 
-            m -= 0.04m;
+			m.Silver = 152;
 
-            Assert.AreEqual(m.Copper(), 0);
+			Assert.AreEqual(2, m.Copper);
+
+			Assert.AreEqual(252, m.Value);
         }
+
+		[Test]
+		public void PlatinumTest ()
+		{
+			var m = new Currency(54, 4503);
+
+			Assert.AreEqual (4, m.Platinum);
+
+			m.Gold -= 600;
+
+			Assert.AreEqual(3, m.Platinum);
+
+		}
 
         [Test]
         public void DecrementTest()
         {
-            var m = new Money(3.5m);
+            var m = new Currency(50, 3);
 
-            Assert.IsTrue(m-- == 3.5m);
+			Assert.AreEqual(350, m--);
 
-            Assert.IsFalse(--m == 3.5m);
+			Assert.AreNotEqual(350, --m);
 
-            Assert.IsTrue(m == 3.48m);
+			Assert.AreEqual(348, m);
         }
 
         [Test]
         public void DivideTest()
         {
-            var m = new Money(3.5m);
+            var m = new Currency(0, 4);
 
-            m /= 1.5m;
+			m /= 2;
 
-            Assert.IsTrue(m == 2.33m);
+            Assert.AreEqual(200, m);
         }
 
         [Test]
         public void EqualsTest()
         {
-            var m = new Money(3.5m);
+            var m = new Currency(50, 3);
 
-            Assert.IsTrue(m.Equals(3.5m));
+            Assert.IsTrue(m.Equals(350));
 
-            Assert.IsFalse(m.Equals(5.3m));
+            Assert.IsFalse(m.Equals(530));
         }
 
         [Test]
         public void GoldTest()
         {
-            var m = new Money(3.54m);
+            var m = new Currency(54, 3);
 
-            Assert.AreEqual(m.Gold(), 3);
+            Assert.AreEqual(3, m.Gold);
 
-            m = -m;
-
-            Assert.AreEqual(m.Gold(), -3);
         }
 
         [Test]
         public void IncrementTest()
         {
-            var m = new Money(3.5m);
+            var m = new Currency(50, 3);
 
-            Assert.IsTrue(m++ == 3.5m);
+			Assert.AreEqual(350, m++);
 
-            Assert.IsTrue(++m == 3.52m);
+			Assert.AreEqual(352, ++m);
 
-            Assert.IsFalse(m == 2.49m);
+			Assert.AreNotEqual(249, m);
         }
 
         [Test]
         public void MultiplyTest()
         {
-            var m = new Money(3.5m);
+            var m = new Currency(50, 3);
 
-            m *= 1.5m;
+            m *= 2;
 
-            Assert.IsTrue(m == 5.25m);
+            Assert.AreEqual(700, m.Value);
         }
 
         [Test]
         public void SilverTest()
         {
-            var m = new Money(3.54m);
+            var m = new Currency(54, 3);
 
-            Assert.AreEqual(m.Silver(), 54);
+            Assert.AreEqual(54, m.Silver);
 
-            m -= 0.5m;
+            m -= new Currency(20, 0);
 
-            Assert.AreEqual(m.Silver(), 4);
+            Assert.AreEqual(34, m.Silver);
+
+			m.Silver = 35;
+
+			Assert.AreEqual(35, m.Silver);
         }
 
         [Test]
         public void SubtractTest()
         {
-            var m = new Money(3.5m);
+            var m = new Currency(50, 3);
 
-            m -= 0.5m;
+            m -= new Currency(50, 0);
 
-            Assert.IsTrue(m == 3.0m);
+			Assert.AreEqual(300, m);
 
-            m -= new Money(1.5m);
+            m -= new Currency(50, 1);
 
-            Assert.IsTrue(m == new Money(1.5m));
+            Assert.AreEqual(150, m.Value);
 
-            Assert.IsFalse(m == 2.5m);
+            Assert.AreNotEqual(250, m.Value);
         }
 
         [Test]
         public void ToStringTest()
         {
-            var m = new Money(3.54m);
+			var m = new Currency(54, 85453);
 
-            Assert.AreEqual(m.ToString(), "$3.54");
+			Assert.AreEqual("$85,453.54", m.ToString());
 
-            Assert.AreEqual(m.ToString("C"), "$354");
+			Assert.AreEqual("$0.04", m.ToString("C"));
 
-            Assert.AreEqual(m.ToString("S"), "$35.4");
+			Assert.AreEqual("$0.54", m.ToString("S"));
 
-            Assert.AreEqual(m.ToString("G"), "$3.54");
-        }
+			Assert.AreEqual("$85,453.54", m.ToString("G"));
 
-        [Test]
-        public void ValueAsTest()
-        {
-            var m = new Money(3.54m);
-
-            Assert.AreEqual(m.ValueAs(Currency.Gold), 3.54m);
-
-            Assert.AreEqual(m.ValueAs(Currency.Silver), 35.4m);
-
-            Assert.AreEqual(m.ValueAs(Currency.Copper), 354m);
+			Assert.AreEqual ("$85.45", m.ToString("P"));
         }
 
         #endregion Methods

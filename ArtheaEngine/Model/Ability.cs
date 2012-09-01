@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -27,7 +27,7 @@ namespace ArtheaEngine.Model
 		}
         #region Properties
 
-        public Money Cost
+        public Currency Cost
         {
             get; set;
         }

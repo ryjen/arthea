@@ -397,6 +397,7 @@ namespace ArtheaEngine
 					buf.AppendFormat(format, c.ToString(columnWidth));
 				
                 }
+				
 				buf.AppendLine();
             }
 			return buf;

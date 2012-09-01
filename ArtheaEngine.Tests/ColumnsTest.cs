@@ -46,7 +46,7 @@ namespace ArtheaEngine.Tests
 
             _writer.Clear();
 
-			_writer.WriteLine(_cols.ToString());
+			_writer.Write(_cols.ToString());
 
             Assert.AreEqual(_buf.ToString(), _writer.ToString());
 

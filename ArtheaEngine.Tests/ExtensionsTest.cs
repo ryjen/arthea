@@ -82,11 +82,11 @@ namespace ArtheaEngine.Tests
 
             int pos = str.GetLineCountLength(2);
 
-            Assert.AreEqual(pos, 10);
+            Assert.AreEqual(6+(Environment.NewLine.Length*2), pos);
 
             pos = str.GetLineCountLength(6);
 
-            Assert.AreEqual(pos, 17);
+            Assert.AreEqual(11+(Environment.NewLine.Length*3), pos);
         }
 
         [Test]
