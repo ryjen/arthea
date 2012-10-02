@@ -16,38 +16,73 @@ using NLog;
 
 namespace ArtheaEngine.Model
 {
-
+	/// <summary>
+	/// Ability.
+	/// </summary>
 	[BsonKnownTypes(typeof(Skill), typeof(Spell))]
 	[BsonDiscriminator(Required = true, RootClass = true)]
     public abstract class Ability : ICloneable, INamedEntity, IRootLevelDocument
     {
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.Ability"/> class.
+		/// </summary>
 		public Ability()
 		{	
 			Id = ObjectId.GenerateNewId().ToString();
 		}
         #region Properties
 
+		/// <summary>
+		/// Gets or sets the cost.
+		/// </summary>
+		/// <value>
+		/// The cost.
+		/// </value>
         public Currency Cost
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the description.
+		/// </summary>
+		/// <value>
+		/// The description.
+		/// </value>
         public string Description
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the level.
+		/// </summary>
+		/// <value>
+		/// The level.
+		/// </value>
         public short Level
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets the identifier.
+		/// </summary>
+		/// <value>
+		/// The identifier.
+		/// </value>
 		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id
         {
             get; private set;
         }
 
+		/// <summary>
+		/// Gets the name.
+		/// </summary>
+		/// <value>
+		/// The name.
+		/// </value>
 		public string Name
 		{
 			get; set;
@@ -57,16 +92,28 @@ namespace ArtheaEngine.Model
 
         #region Methods
 
+		/// <summary>
+		/// Lookup the specified keyword.
+		/// </summary>
+		/// <param name='keyword'>
+		/// Keyword.
+		/// </param>
 		public static Ability Lookup (string keyword)
 		{
 			return DbManager.Lookup<Ability>(keyword);
 		}
 
+		/// <summary>
+		/// Save this instance.
+		/// </summary>
 		public bool Save ()
 		{
 			return DbManager.Save (this);
 		}
 
+		/// <summary>
+		/// Delete this instance.
+		/// </summary>
 		public bool Delete ()
 		{
 			return DbManager.Delete (this);
@@ -89,6 +136,12 @@ namespace ArtheaEngine.Model
             return newObject;
         }
 
+		/// <summary>
+		/// Displaies the off message.
+		/// </summary>
+		/// <param name='from'>
+		/// From.
+		/// </param>
         public void DisplayOffMsg(object from)
         {
             string msg;

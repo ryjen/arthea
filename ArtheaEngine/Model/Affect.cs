@@ -14,11 +14,17 @@ namespace ArtheaEngine.Model
 
     #region Enumerations
 
+	/// <summary>
+	/// Affect flag.
+	/// </summary>
     public enum AffectFlag : long
     {
         None
     }
 
+	/// <summary>
+	/// Affect location.
+	/// </summary>
     public enum AffectLocation
     {
         None,
@@ -30,6 +36,9 @@ namespace ArtheaEngine.Model
 
     #endregion Enumerations
 
+	/// <summary>
+	/// Affect.
+	/// </summary>
     public class Affect : IEntity, IFormattable
     {
 		public Affect()
@@ -38,32 +47,68 @@ namespace ArtheaEngine.Model
 		}
         #region Properties
 
+		/// <summary>
+		/// Gets or sets the duration.
+		/// </summary>
+		/// <value>
+		/// The duration.
+		/// </value>
         public int Duration
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the flag.
+		/// </summary>
+		/// <value>
+		/// The flag.
+		/// </value>
         public AffectFlag Flag
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets the identifier.
+		/// </summary>
+		/// <value>
+		/// The identifier.
+		/// </value>
 		[BsonId]
         public string Id
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the location.
+		/// </summary>
+		/// <value>
+		/// The location.
+		/// </value>
         public AffectLocation Location
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the modifier.
+		/// </summary>
+		/// <value>
+		/// The modifier.
+		/// </value>
         public int Modifier
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the extra.
+		/// </summary>
+		/// <value>
+		/// The extra.
+		/// </value>
 		public string Extra {
 			get;
 			set;
@@ -73,6 +118,16 @@ namespace ArtheaEngine.Model
 
         #region Methods
 
+		/// <summary>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="ArtheaEngine.Model.Affect"/>.
+		/// </summary>
+		/// <param name='obj'>
+		/// The <see cref="System.Object"/> to compare with the current <see cref="ArtheaEngine.Model.Affect"/>.
+		/// </param>
+		/// <returns>
+		/// <c>true</c> if the specified <see cref="System.Object"/> is equal to the current
+		/// <see cref="ArtheaEngine.Model.Affect"/>; otherwise, <c>false</c>.
+		/// </returns>
         public override bool Equals(object obj)
         {
             var a = obj as Affect;
@@ -83,54 +138,23 @@ namespace ArtheaEngine.Model
             return Flag == a.Flag && Modifier == a.Modifier && Location == a.Location;
         }
 
+		/// <summary>
+		/// Serves as a hash function for a <see cref="ArtheaEngine.Model.Affect"/> object.
+		/// </summary>
+		/// <returns>
+		/// A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.
+		/// </returns>
         public override int GetHashCode()
         {
             return ((int)Flag) + Modifier + Duration + (int)Location;
         }
 
-		/*
-        public bool Load(IDbConnection conn)
-        {
-            using (var cmd = conn.CreateCommand("read_affect"))
-            {
-                cmd.AddParameter("@id", DbType.Int64, Id);
-
-                return this.Load(cmd);
-            }
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-
-            Id = reader.GetInt64(i++);
-            Location = reader.GetEnum<AffectLocation>(i++);
-            Flag = reader.GetEnum<AffectFlag>(i++);
-            Modifier = reader.GetInt16(i++);
-            Duration = reader.GetInt16(i++);
-            Extra = reader.GetInt32(i++);
-
-            return i;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_affect");
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@loc", DbType.String, Location.ToString());
-            cmd.AddParameter("@flag", DbType.String, Flag.ToString());
-            cmd.AddParameter("@mod", DbType.Int32, Modifier);
-            cmd.AddParameter("@dur", DbType.Int32, Duration);
-            cmd.AddParameter("@extra", DbType.Int32, Extra);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-                Id = Convert.ToInt64(conn.LastInsertId());
-
-            return res;
-        }*/
-
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Model.Affect"/>.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Model.Affect"/>.
+		/// </returns>
         public override string ToString()
         {
             string temp;
@@ -146,6 +170,18 @@ namespace ArtheaEngine.Model
                                  (Extra == null ? "unknown" : Ability.Lookup(Extra).Name), temp, Duration);
         }
 
+		/// <summary>
+		/// Tos the string.
+		/// </summary>
+		/// <returns>
+		/// The string.
+		/// </returns>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='formatProvider'>
+		/// Format provider.
+		/// </param>
         public string ToString(string format, IFormatProvider formatProvider)
         {
             if (string.IsNullOrEmpty(format) || format == "F")

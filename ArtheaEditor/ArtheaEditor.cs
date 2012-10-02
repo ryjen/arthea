@@ -1,23 +1,22 @@
 ﻿using ArtheaEngine;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
+using ArtheaEditor.Import.Rom;
+
+using ArtheaEngine.Model;
+
+using Object = ArtheaEngine.Model.Object;
 
 namespace ArtheaEditor
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Windows.Forms;
 
-    using ArtheaEditor.Import.Rom;
-
-    using ArtheaEngine.Model;
-
-    using Object = ArtheaEngine.Model.Object;
-
-    public partial class EditorForm : Form
+    public partial class ArtheaEditor : Form
     {
         #region Constructors
 
-        public EditorForm()
+		public ArtheaEditor()
         {
             InitializeComponent();
 
@@ -32,7 +31,7 @@ namespace ArtheaEditor
         {
             mainEditor.SetEditor(new AreaEditor());
 
-            mainEditor.SetCollection(DbManager.Query<Area>());
+            mainEditor.SetCollection(DbManager.Query<Area>().ToList());
         }
 
         private void circleToolStripMenuItem_Click(object sender, EventArgs e)

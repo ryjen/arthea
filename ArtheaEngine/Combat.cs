@@ -8,7 +8,9 @@ using ArtheaEngine.Model;
 
 namespace ArtheaEngine
 {
-
+	/// <summary>
+	/// Combat.
+	/// </summary>
     public class Combat : ITickable
     {
         #region Fields
@@ -19,6 +21,15 @@ namespace ArtheaEngine
 
         #region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Combat"/> class.
+		/// </summary>
+		/// <param name='ch'>
+		/// Ch.
+		/// </param>
+		/// <param name='victims'>
+		/// Victims.
+		/// </param>
         public Combat(Character ch, params Character[] victims)
         {
             _thisChar = ch;
@@ -31,17 +42,35 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets or sets the speed.
+		/// </summary>
+		/// <value>
+		/// The speed.
+		/// </value>
         public int Speed
         {
             get;
             set;
         }
 
+		/// <summary>
+		/// Gets the tick interval.
+		/// </summary>
+		/// <value>
+		/// The tick interval.
+		/// </value>
         public int TickInterval
         {
             get { return Speed; }
         }
 
+		/// <summary>
+		/// Gets the victims.
+		/// </summary>
+		/// <value>
+		/// The victims.
+		/// </value>
         public ISet<Character> Victims
         {
             get; private set;
@@ -68,7 +97,7 @@ namespace ArtheaEngine
 			return values.ToArray();
 		}
 
-		public static int GetDamage(Dice d1, Dice d2)
+		private static int GetDamage(Dice d1, Dice d2)
 		{
 			int value = 0;
 
@@ -83,6 +112,12 @@ namespace ArtheaEngine
 			return value;
 		}
 
+		/// <summary>
+		/// Attack the specified victim.
+		/// </summary>
+		/// <param name='victim'>
+		/// Victim.
+		/// </param>
         public void Attack(Character victim)
         {
 			int[] attacks = GetAttacks(_thisChar.Attack, victim.Defense);
@@ -107,6 +142,9 @@ namespace ArtheaEngine
             CounterAttack(victim, attacks.Length);
         }
 
+		/// <summary>
+		/// Displaies the prompt.
+		/// </summary>
         public void DisplayPrompt()
         {
             if (_thisChar is Player)
@@ -115,6 +153,9 @@ namespace ArtheaEngine
             }
         }
 
+		/// <summary>
+		/// Tick this instance.
+		/// </summary>
         public void Tick()
         {
             foreach (var victim in Victims)

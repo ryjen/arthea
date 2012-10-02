@@ -11,6 +11,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtheaEditor", "ArtheaEdito
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArtheaEngine.Tests", "ArtheaEngine.Tests\ArtheaEngine.Tests.csproj", "{B470B426-F8F2-4AF0-8677-C9C93A27A2AA}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0E374C94-E8A1-4EEF-898D-C1D9AAB126E8}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,6 +42,8 @@ Global
 		{BDE17C69-A398-4FFD-B8B1-2454066ED64E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDE17C69-A398-4FFD-B8B1-2454066ED64E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDE17C69-A398-4FFD-B8B1-2454066ED64E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = ArtheaServer\ArtheaServer.csproj

@@ -11,7 +11,7 @@ namespace ArtheaEngine.Tests
 {
 
     [TestFixture]
-    public class MoneyTest
+    public class CurrencyTest
     {
         #region Methods
 
@@ -30,6 +30,13 @@ namespace ArtheaEngine.Tests
 
 			Assert.AreEqual(6, m.Platinum);
 
+			m = new Currency(35.454);
+
+			Assert.AreEqual(35, m.Gold);
+
+			Assert.AreEqual(45, m.Silver);
+
+			Assert.AreEqual(3545, m.Value);
 		}
 
         [Test]

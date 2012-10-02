@@ -7,18 +7,29 @@ using ArtheaEngine.Model;
 
 namespace ArtheaEngine
 {
-
+	/// <summary>
+	/// Column border.
+	/// </summary>
 	[Flags]
 	public enum ColumnBorder {
 		None, Left, Right 
 	}
 
+	/// <summary>
+	/// Column align.
+	/// </summary>
 	public enum ColumnAlign {
 		Left, Center, Right
 	}
 		
+	/// <summary>
+	/// Column.
+	/// </summary>
     public class Column
     {
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Column"/> class.
+		/// </summary>
 		public Column()
 		{
 			BorderText = '#';
@@ -27,21 +38,45 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets or sets the content.
+		/// </summary>
+		/// <value>
+		/// The content.
+		/// </value>
         public object Content
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the span.
+		/// </summary>
+		/// <value>
+		/// The span.
+		/// </value>
         public int Span
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the border text.
+		/// </summary>
+		/// <value>
+		/// The border text.
+		/// </value>
 		public char BorderText {
 			get;
 			set;
 		}
 
+		/// <summary>
+		/// Gets or sets the color of the border.
+		/// </summary>
+		/// <value>
+		/// The color of the border.
+		/// </value>
 		public string BorderColor {
 			get;
 			set;
@@ -50,11 +85,26 @@ namespace ArtheaEngine
 
         #region Methods
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Column"/>.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Column"/>.
+		/// </returns>
         public override string ToString()
         {
             return Content == null ? string.Empty : Content.ToString();
         }
 
+		/// <summary>
+		/// Tos the string.
+		/// </summary>
+		/// <returns>
+		/// The string.
+		/// </returns>
+		/// <param name='columnWidth'>
+		/// Column width.
+		/// </param>
 		public virtual string ToString (int columnWidth)
 		{
 			var text = ToString ();
@@ -70,16 +120,34 @@ namespace ArtheaEngine
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the border.
+		/// </summary>
+		/// <value>
+		/// The border.
+		/// </value>
 		public ColumnBorder Border
 		{
 			get; set;
 		}
 
+		/// <summary>
+		/// Gets or sets the align.
+		/// </summary>
+		/// <value>
+		/// The align.
+		/// </value>
 		public ColumnAlign Align
 		{
 			get; set;
 		}
 
+		/// <summary>
+		/// Format the specified size.
+		/// </summary>
+		/// <param name='size'>
+		/// Size.
+		/// </param>
 		public virtual string Format (int size)
 		{
 			StringBuilder buf = new StringBuilder ();
@@ -106,13 +174,31 @@ namespace ArtheaEngine
         #endregion Methods
     }
 
+	/// <summary>
+	/// Header column.
+	/// </summary>
 	public class Header : Column
 	{
+		/// <summary>
+		/// Format the specified size.
+		/// </summary>
+		/// <param name='size'>
+		/// Size.
+		/// </param>
 		public override string Format (int size)
 		{
 			return string.Format ("{{0,-{0}}}~x", size);
 		}
 
+		/// <summary>
+		/// Tos the string.
+		/// </summary>
+		/// <returns>
+		/// The string.
+		/// </returns>
+		/// <param name='columnWidth'>
+		/// Column width.
+		/// </param>
 		public override string ToString (int columnWidth)
 		{
 			var text = ToString ();
@@ -181,6 +267,15 @@ namespace ArtheaEngine
 
         #region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.ColumnFormatter"/> class.
+		/// </summary>
+		/// <param name='columns'>
+		/// Columns.
+		/// </param>
+		/// <param name='width'>
+		/// Width.
+		/// </param>
         public ColumnFormatter(int columns, int width)
         {
             _currRow = new Row(columns);
@@ -190,6 +285,15 @@ namespace ArtheaEngine
             _rows.Add(_currRow);
         }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.ColumnFormatter"/> class.
+		/// </summary>
+		/// <param name='columns'>
+		/// Columns.
+		/// </param>
+		/// <param name='width'>
+		/// Width.
+		/// </param>
 		public ColumnFormatter (int columns, object width) : this(columns, GetWidthFromObject(width))
 		{
 		}
@@ -216,6 +320,12 @@ namespace ArtheaEngine
 			throw new ArgumentException("cannot determine width from object");
 		}
 
+		/// <summary>
+		/// Gets the width.
+		/// </summary>
+		/// <value>
+		/// The width.
+		/// </value>
 		public int Width
 		{
 			get; 
@@ -226,6 +336,12 @@ namespace ArtheaEngine
 
         #region Methods
 
+		/// <summary>
+		/// Add the specified content.
+		/// </summary>
+		/// <param name='content'>
+		/// Content.
+		/// </param>
         public ColumnFormatter Add(object content)
         {
             var c = new Column { Border = _border, BorderText = _borderText, BorderColor = _borderColor, Span = _nextSpan, Align = _align, Content = content };
@@ -236,6 +352,15 @@ namespace ArtheaEngine
 
         }
 
+		/// <summary>
+		/// Add the specified format and values.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='values'>
+		/// Values.
+		/// </param>
         public ColumnFormatter Add(string format, params object[] values)
         {
             var tmp = string.Format(format, values);
@@ -245,6 +370,15 @@ namespace ArtheaEngine
 			return this;
         }
 
+		/// <summary>
+		/// Adds the header.
+		/// </summary>
+		/// <returns>
+		/// The header.
+		/// </returns>
+		/// <param name='content'>
+		/// Content.
+		/// </param>
         public ColumnFormatter AddHeader(object content)
         {
             AddColumn(new Header { Span = _currRow.Size, BorderText = _borderText, BorderColor = _borderColor, Align = _align, Content = content });
@@ -252,6 +386,12 @@ namespace ArtheaEngine
 			return this;
         }
 
+		/// <summary>
+		/// Adds the header.
+		/// </summary>
+		/// <returns>
+		/// The header.
+		/// </returns>
 		public ColumnFormatter AddHeader()
 		{
 			AddColumn(new Header { Span = _currRow.Size,BorderText = _borderText, BorderColor = _borderColor });
@@ -259,6 +399,18 @@ namespace ArtheaEngine
 			return this;
 		}
 
+		/// <summary>
+		/// Adds the header.
+		/// </summary>
+		/// <returns>
+		/// The header.
+		/// </returns>
+		/// <param name='span'>
+		/// Span.
+		/// </param>
+		/// <param name='content'>
+		/// Content.
+		/// </param>
 		public ColumnFormatter AddHeader (int span, object content)
 		{
 			AddColumn (new Header { Span = span, Align = _align, BorderText = _borderText, BorderColor = _borderColor, Content = content });
@@ -266,11 +418,23 @@ namespace ArtheaEngine
 			return this;
 		}
 
+		/// <summary>
+		/// Restores the size.
+		/// </summary>
+		/// <returns>
+		/// The size.
+		/// </returns>/
         public ColumnFormatter RestoreSize()
         {
             return SetSize(_savedSize);
         }
 
+		/// <summary>
+		/// Saves the size.
+		/// </summary>
+		/// <returns>
+		/// The size.
+		/// </returns>
         public ColumnFormatter SaveSize()
         {
             _savedSize = _currRow.Size;
@@ -278,11 +442,26 @@ namespace ArtheaEngine
 			return this;
         }
 
+		/// <summary>
+		/// Gets the size.
+		/// </summary>
+		/// <returns>
+		/// The size.
+		/// </returns>
 		public int GetSize ()
 		{
 			return _currRow.Size;
 		}
 
+		/// <summary>
+		/// Sets the size.
+		/// </summary>
+		/// <returns>
+		/// The size.
+		/// </returns>
+		/// <param name='size'>
+		/// Size.
+		/// </param>
         public ColumnFormatter SetSize(int size)
         {
             if (_currRow.GetSpan() == 0)
@@ -298,11 +477,26 @@ namespace ArtheaEngine
 			return this;
         }
 
+		/// <summary>
+		/// Gets the border.
+		/// </summary>
+		/// <returns>
+		/// The border.
+		/// </returns>
 		public ColumnBorder GetBorder ()
 		{
 			return _border;
 		}
 
+		/// <summary>
+		/// Sets the border.
+		/// </summary>
+		/// <returns>
+		/// The border.
+		/// </returns>
+		/// <param name='border'>
+		/// Border.
+		/// </param>
 		public ColumnFormatter SetBorder (ColumnBorder border)
 		{
 			_border = border;
@@ -310,6 +504,15 @@ namespace ArtheaEngine
 			return this;
 		}
 
+		/// <summary>
+		/// Sets the border text.
+		/// </summary>
+		/// <returns>
+		/// The border text.
+		/// </returns>
+		/// <param name='text'>
+		/// Text.
+		/// </param>
 		public ColumnFormatter SetBorderText (char text)
 		{
 			_borderText = text;
@@ -317,6 +520,15 @@ namespace ArtheaEngine
 			return this;
 		}
 
+		/// <summary>
+		/// Sets the color of the border.
+		/// </summary>
+		/// <returns>
+		/// The border color.
+		/// </returns>
+		/// <param name='color'>
+		/// Color.
+		/// </param>
 		public ColumnFormatter SetBorderColor (string color)
 		{
 			_borderColor = color;
@@ -324,16 +536,37 @@ namespace ArtheaEngine
 			return this;
 		}
 
+		/// <summary>
+		/// Gets the border text.
+		/// </summary>
+		/// <returns>
+		/// The border text.
+		/// </returns>
 		public char GetBorderText ()
 		{
 			return _borderText;
 		}
 
+		/// <summary>
+		/// Gets the color of the border.
+		/// </summary>
+		/// <returns>
+		/// The border color.
+		/// </returns>
 		public string GetBorderColor ()
 		{
 			return _borderColor;
 		}
 
+		/// <summary>
+		/// Sets the align.
+		/// </summary>
+		/// <returns>
+		/// The align.
+		/// </returns>
+		/// <param name='align'>
+		/// Align.
+		/// </param>
 		public ColumnFormatter SetAlign (ColumnAlign align)
 		{
 			_align = align;
@@ -341,16 +574,37 @@ namespace ArtheaEngine
 			return this;
 		}
 
+		/// <summary>
+		/// Gets the align.
+		/// </summary>
+		/// <returns>
+		/// The align.
+		/// </returns>
 		public ColumnAlign GetAlign ()
 		{
 			return _align;
 		}
 
+		/// <summary>
+		/// Gets the span.
+		/// </summary>
+		/// <returns>
+		/// The span.
+		/// </returns>
 		public int GetSpan ()
 		{
 			return _nextSpan == -1 ? _currRow.Size : _nextSpan;
 		}
 
+		/// <summary>
+		/// Sets the span.
+		/// </summary>
+		/// <returns>
+		/// The span.
+		/// </returns>
+		/// <param name='span'>
+		/// Span.
+		/// </param>
 		public ColumnFormatter SetSpan (int span)
 		{
 			_nextSpan = span == -1 ? _currRow.Size : span;
@@ -358,6 +612,12 @@ namespace ArtheaEngine
 			return this;
 		}
 
+		/// <summary>
+		/// Gets the buffer.
+		/// </summary>
+		/// <returns>
+		/// The buffer.
+		/// </returns>
         public StringBuilder GetBuffer()
         {
 			StringBuilder buf = new StringBuilder();
@@ -403,11 +663,20 @@ namespace ArtheaEngine
 			return buf;
         }
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.ColumnFormatter"/>.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.ColumnFormatter"/>.
+		/// </returns>
 		public override string ToString ()
 		{
 			return GetBuffer ().ToString();
 		}
 
+		/// <param name='cols'>
+		/// Cols.
+		/// </param>
 		public static implicit operator string(ColumnFormatter cols)
 		{
 			return cols.ToString();
@@ -430,79 +699,9 @@ namespace ArtheaEngine
         #endregion Methods
     }
 
-
-    /// <summary>
-    /// Handles displaying text in columns
-    /// </summary>
-	/*
-    public static class Columns
-    {
-        #region Fields
-
-        /// <summary>
-        /// The default width for a column
-        /// </summary>
-        public static readonly ushort DefaultWidth = 80;
-
-        #endregion Fields
-
-        #region Methods
-
-        /// <summary>
-        /// Shows the specified player.
-        /// </summary>
-        /// <param name="player">The player.</param>
-        /// <param name="columns">The columns.</param>
-        /// <param name="objects">The objects.</param>
-        public static void Show(Player player, ushort columns, IList objects)
-        {
-            Show(player, columns, GetPlayerDefaultWidth(player, columns), objects);
-        }
-
-        /// <summary>
-        /// Displays a list of objects in columns
-        /// </summary>
-        /// <param name="player">the player viewing the columns</param>
-        /// <param name="columns">the number of columns</param>
-        /// <param name="width">the width of a column</param>
-        /// <param name="objects">the list of objects to display in the columns as an array</param>
-        public static void Show(IWritable player, ushort columns, ushort width, IList objects)
-        {
-            StringBuilder buf = new StringBuilder();
-
-            for(var i = 0; i < objects.Count; )
-            {
-                var text = objects[i].ToString();
-
-                var format = string.Format("{{0,-{0}}}", width + (text.Length - text.DisplayLength()));
-
-                buf.AppendFormat(format, text);
-
-                ++i;
-
-                if (text.DisplayLength() >= width || (i % columns) == 0 || i == objects.Count)
-                {
-                    buf.AppendLine();
-                }
-            }
-
-            player.Page(buf.ToString());
-        }
-
-        /// <summary>
-        /// Gets the width of the player default.
-        /// </summary>
-        /// <param name="player">The player.</param>
-        /// <param name="columns">The columns.</param>
-        /// <returns></returns>
-        private static ushort GetPlayerDefaultWidth(Player player, ushort columns)
-        {
-            return (ushort)(player.Account.Connection.ScreenWidth / columns);
-        }
-
-        #endregion Methods
-    }*/
-
+	/// <summary>
+	/// A column Row.
+	/// </summary>
     public class Row
     {
         #region Fields
@@ -513,6 +712,12 @@ namespace ArtheaEngine
 
         #region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Row"/> class.
+		/// </summary>
+		/// <param name='size'>
+		/// Size.
+		/// </param>
         public Row(int size)
         {
             Size = size;
@@ -522,6 +727,12 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets or sets the size.
+		/// </summary>
+		/// <value>
+		/// The size.
+		/// </value>
         public int Size
         {
             get; set;
@@ -531,6 +742,12 @@ namespace ArtheaEngine
 
         #region Methods
 
+		/// <summary>
+		/// Add the specified c.
+		/// </summary>
+		/// <param name='c'>
+		/// C.
+		/// </param>
         public bool Add(Column c)
         {
             if (GetSpan() >= Size)
@@ -539,6 +756,12 @@ namespace ArtheaEngine
             _columns.Add(c);
             return true;
         }
+		/// <summary>
+		/// Gets the span.
+		/// </summary>
+		/// <returns>
+		/// The span.
+		/// </returns>
 
         public int GetSpan()
         {
