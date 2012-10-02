@@ -11,8 +11,6 @@ using System.Text.RegularExpressions;
 
 using ArtheaEngine;
 
-using LuaInterface;
-
 using NLog;
 
 namespace ArtheaEngine.Model

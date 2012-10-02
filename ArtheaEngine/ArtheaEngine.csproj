@@ -49,9 +49,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="LuaInterface">
-      <HintPath>Libraries\LuaInterface.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -70,9 +67,6 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="lua51">
-      <HintPath>Libraries\lua51.dll</HintPath>
-    </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="MongoDB.Bson">
@@ -83,6 +77,9 @@
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\CommonLibraries\NLog2\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="Jint">
+      <HintPath>Libraries\Jint.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -117,17 +114,16 @@
     <Compile Include="Model\Skill.cs" />
     <Compile Include="Model\Spell.cs" />
     <Compile Include="Model\Reset.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Include="UpdateManager.cs" />
     <Compile Include="DbManager.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="PropertyHelper.cs" />
     <Compile Include="ColumnFormatter.cs" />
     <Compile Include="Currency.cs" />
+    <Compile Include="Scripting\IScript.cs" />
+    <Compile Include="Scripting\NPCScript.cs" />
+    <Compile Include="Scripting\ScriptContext.cs" />
+    <Compile Include="Scripting\ArtheaScript.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
@@ -175,12 +171,6 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -189,4 +179,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Scripting\" />
+  </ItemGroup>
 </Project>

@@ -45,7 +45,7 @@ namespace ArtheaEditor
                 }
 
                 // Then create the main form, the splash screen will automatically close
-                this.MainForm = new EditorForm();
+                this.MainForm = new ArtheaEditor();
             }
 
             protected override void OnCreateSplashScreen()

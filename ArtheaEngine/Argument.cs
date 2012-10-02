@@ -5,10 +5,15 @@ namespace ArtheaEngine
     using System;
 	using System.Collections.Generic;
 
+	/// <summary>
+	/// Argument string.
+	/// </summary>
 	public class Argument
 	{
         #region Fields
-
+		/// <summary>
+		/// The empty argument.
+		/// </summary>
 		public static Argument Empty = new Argument ();
 		private string _mString;
 
@@ -16,6 +21,12 @@ namespace ArtheaEngine
 
         #region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Argument"/> class.
+		/// </summary>
+		/// <param name='arg'>
+		/// Argument.
+		/// </param>
 		public Argument (object arg)
 		{
 			_mString = arg.ToString ();
@@ -29,6 +40,12 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets the length.
+		/// </summary>
+		/// <value>
+		/// The length.
+		/// </value>
 		public int Length {
 			get { return _mString.Length; }
 		}
@@ -37,6 +54,12 @@ namespace ArtheaEngine
 
         #region Indexers
 
+		/// <summary>
+		/// Gets the <see cref="ArtheaEngine.Argument"/> at the specified index.
+		/// </summary>
+		/// <param name='index'>
+		/// Index.
+		/// </param>
 		public char this [int index] {
 			get { return _mString [index]; }
 		}
@@ -55,6 +78,9 @@ namespace ArtheaEngine
 			return x._mString;
 		}
 
+		/// <param name='x'>
+		/// The x coordinate.
+		/// </param>
 		public static implicit operator BsonValue (Argument x)
 		{
 			return x._mString;
@@ -102,6 +128,9 @@ namespace ArtheaEngine
 			return orig._mString.Equals (str, StringComparison.CurrentCultureIgnoreCase);
 		}
 
+		/// <summary>
+		/// All arguments
+		/// </summary>
 		public string[] All ()
 		{
 			var args = new List<string> ();
@@ -114,11 +143,30 @@ namespace ArtheaEngine
 			return args.ToArray ();
 		}
 
+		/// <summary>
+		/// Endses the with.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c>, if with was endsed, <c>false</c> otherwise.
+		/// </returns>
+		/// <param name='part'>
+		/// Part.
+		/// </param>
 		public bool EndsWith (string part)
 		{
 			return _mString.EndsWith (part, StringComparison.CurrentCultureIgnoreCase);
 		}
 
+		/// <summary>
+		/// Determines whether the specified <see cref="ArtheaEngine.Argument"/> is equal to the current <see cref="ArtheaEngine.Argument"/>.
+		/// </summary>
+		/// <param name='obj'>
+		/// The <see cref="ArtheaEngine.Argument"/> to compare with the current <see cref="ArtheaEngine.Argument"/>.
+		/// </param>
+		/// <returns>
+		/// <c>true</c> if the specified <see cref="ArtheaEngine.Argument"/> is equal to the current
+		/// <see cref="ArtheaEngine.Argument"/>; otherwise, <c>false</c>.
+		/// </returns>
 		public bool Equals (Argument obj)
 		{
 			if (ReferenceEquals (null, obj))
@@ -128,6 +176,16 @@ namespace ArtheaEngine
 			return Equals (obj._mString, _mString);
 		}
 
+		/// <summary>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="ArtheaEngine.Argument"/>.
+		/// </summary>
+		/// <param name='obj'>
+		/// The <see cref="System.Object"/> to compare with the current <see cref="ArtheaEngine.Argument"/>.
+		/// </param>
+		/// <returns>
+		/// <c>true</c> if the specified <see cref="System.Object"/> is equal to the current
+		/// <see cref="ArtheaEngine.Argument"/>; otherwise, <c>false</c>.
+		/// </returns>
 		public override bool Equals (object obj)
 		{
 			if (ReferenceEquals (null, obj))
@@ -139,16 +197,34 @@ namespace ArtheaEngine
 			return Equals ((Argument)obj);
 		}
 
+		/// <summary>
+		/// Serves as a hash function for a <see cref="ArtheaEngine.Argument"/> object.
+		/// </summary>
+		/// <returns>
+		/// A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.
+		/// </returns>
 		public override int GetHashCode ()
 		{
 			return (_mString != null ? _mString.GetHashCode () : 0);
 		}
 
+		/// <summary>
+		/// Determines whether this instance is empty.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if this instance is empty; otherwise, <c>false</c>.
+		/// </returns>
 		public bool IsEmpty ()
 		{
 			return string.IsNullOrEmpty (_mString);
 		}
 
+		/// <summary>
+		/// Determines whether this instance is number.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if this instance is number; otherwise, <c>false</c>.
+		/// </returns>
 		public bool IsNumber ()
 		{
 			return _mString.IsNumber ();
@@ -164,21 +240,45 @@ namespace ArtheaEngine
 			return Next (' ', true);
 		}
 
+		/// <summary>
+		/// Next the specified delimiter.
+		/// </summary>
+		/// <param name='delimiter'>
+		/// Delimiter.
+		/// </param>
 		public string Next (char delimiter)
 		{
 			return Next (delimiter, true);
 		}
 
+		/// <summary>
+		/// Peek this instance.
+		/// </summary>
 		public string Peek ()
 		{
 			return Next (' ', false);
 		}
 
+		/// <summary>
+		/// Replace the specified orig and value.
+		/// </summary>
+		/// <param name='orig'>
+		/// Original.
+		/// </param>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
 		public Argument Replace (string orig, string value)
 		{
 			return _mString.Replace (orig, value);
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Argument"/>.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Argument"/>.
+		/// </returns>
 		public override string ToString ()
 		{
 			return _mString;

@@ -12,6 +12,9 @@ using System.Text;
 namespace ArtheaEngine
 {
 
+	/// <summary>
+	/// Dice.
+	/// </summary>
 	[BsonSerializer(typeof(DiceSerializer))]
     public class Dice : IEnumerable<Die>
     {
@@ -19,6 +22,12 @@ namespace ArtheaEngine
 
         #region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Dice"/> class.
+		/// </summary>
+		/// <param name='count'>
+		/// Count.
+		/// </param>
 		public Dice (int count)
 		{
 			_dice = new Die[count];
@@ -26,6 +35,15 @@ namespace ArtheaEngine
 				_dice [i] = new Die ();
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Dice"/> class.
+		/// </summary>
+		/// <param name='count'>
+		/// Count.
+		/// </param>
+		/// <param name='sides'>
+		/// Sides.
+		/// </param>
         public Dice(int count, int sides)
         {
 			_dice = new Die[count];
@@ -33,6 +51,12 @@ namespace ArtheaEngine
                 _dice[i] = new Die(sides);
         }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Dice"/> class.
+		/// </summary>
+		/// <param name='dice'>
+		/// Dice.
+		/// </param>
         public Dice(params Die[] dice)
         {
 			_dice = new Die[dice.Length];
@@ -40,6 +64,12 @@ namespace ArtheaEngine
 				_dice[i] = dice[i].Clone();
         }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Dice"/> class.
+		/// </summary>
+		/// <param name='dice'>
+		/// Dice.
+		/// </param>
 		internal Dice (IEnumerable<Die> dice)
 		{
 			_dice = new Die[dice.Count ()];
@@ -49,6 +79,12 @@ namespace ArtheaEngine
 			}
 		}
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Dice"/>.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Dice"/>.
+		/// </returns>
 		public override string ToString ()
 		{
 			return string.Format ("{0}+{1}", Count, Bonus);
@@ -58,23 +94,47 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets or sets the bonus.
+		/// </summary>
+		/// <value>
+		/// The bonus.
+		/// </value>
         public int Bonus
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets the count.
+		/// </summary>
+		/// <value>
+		/// The count.
+		/// </value>
 		public int Count {
 			get {
 				return _dice.Length;
 			}
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether this instance is synchronized.
+		/// </summary>
+		/// <value>
+		/// <c>true</c> if this instance is synchronized; otherwise, <c>false</c>.
+		/// </value>
 		public bool IsSynchronized {
 			get {
 				return _dice.IsSynchronized;
 			}
 		}
 
+		/// <summary>
+		/// Gets the sync root.
+		/// </summary>
+		/// <value>
+		/// The sync root.
+		/// </value>
 		public object SyncRoot {
 			get {
 				return _dice.SyncRoot;
@@ -85,22 +145,46 @@ namespace ArtheaEngine
 
         #region Methods
 
+		/// <summary>
+		/// Copies to.
+		/// </summary>
+		/// <param name='to'>
+		/// To.
+		/// </param>
+		/// <param name='index'>
+		/// Index.
+		/// </param>
 		public void CopyTo (Array to, long index)
 		{
 			_dice.CopyTo(to, index);
 		}
 
+		/// <summary>
+		/// Gets the enumerator.
+		/// </summary>
+		/// <returns>
+		/// The enumerator.
+		/// </returns>
 		public IEnumerator<Die> GetEnumerator ()
 		{
 			foreach (Die d in _dice) //this does not work because _list is private
 				yield return d;
 		}
 
+		/// <summary>
+		/// Gets the enumerator.
+		/// </summary>
+		/// <returns>
+		/// The enumerator.
+		/// </returns>
 		IEnumerator IEnumerable.GetEnumerator ()
 		{
 			return _dice.GetEnumerator ();
 		}
 
+		/// <summary>
+		/// Roll this instance.
+		/// </summary>
         public int[] Roll()
         {
             int[] values = new int[Count];
@@ -116,7 +200,10 @@ namespace ArtheaEngine
 
     }
 
-	public class DiceSerializer : IBsonSerializer
+	/// <summary>
+	/// Dice serializer.
+	/// </summary>
+	internal class DiceSerializer : IBsonSerializer
 	{
 		EnumerableSerializer<Die> ser = new EnumerableSerializer<Die>();
 
@@ -143,6 +230,9 @@ namespace ArtheaEngine
 		}
 	}
 
+	/// <summary>
+	/// Die.
+	/// </summary>
     public class Die : ICloneable
     {
         #region Fields
@@ -153,10 +243,19 @@ namespace ArtheaEngine
 
         #region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Die"/> class.
+		/// </summary>
 		public Die () : this(6)
 		{
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Die"/> class.
+		/// </summary>
+		/// <param name='sides'>
+		/// Sides.
+		/// </param>
         public Die(int sides)
         {
             if (sides <= 0)
@@ -171,6 +270,12 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets or sets the sides.
+		/// </summary>
+		/// <value>
+		/// The sides.
+		/// </value>
         public int Sides
         {
             get; set;
@@ -180,16 +285,25 @@ namespace ArtheaEngine
 
         #region Methods
 
+		/// <summary>
+		/// Roll this instance.
+		/// </summary>
         public int Roll()
         {
             return rand.Next(1, Sides + 1);
         }
 
+		/// <summary>
+		/// Clone this instance.
+		/// </summary>
 		public Die Clone()
 		{
 			return new Die(Sides);
 		}
 
+		/// <summary>
+		/// Clone this instance.
+		/// </summary>
 		object ICloneable.Clone()   
 		{
 			return Clone();

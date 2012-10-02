@@ -7,6 +7,10 @@ namespace ArtheaEngine
 {
 
     #region Enumerations
+
+	/// <summary>
+	/// Color flags.
+	/// </summary>
 	[Flags]
 	public enum ColorFlags
 	{
@@ -19,6 +23,9 @@ namespace ArtheaEngine
 		Underscore = (1 << 5) // 4
 	}
 
+	/// <summary>
+	/// Color type.
+	/// </summary>
 	public enum ColorType
 	{
 		None = 0,
@@ -66,6 +73,9 @@ namespace ArtheaEngine
 
     #endregion Enumerations
 
+	/// <summary>
+	/// Color.
+	/// </summary>
 	public class Color
 	{
         #region Fields
@@ -104,11 +114,26 @@ namespace ArtheaEngine
 
         #region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Color"/> class.
+		/// </summary>
+		/// <param name='type'>
+		/// Type.
+		/// </param>
 		public Color (ColorType type)
 		{
 			Value = type;
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Color"/> class.
+		/// </summary>
+		/// <param name='type'>
+		/// Type.
+		/// </param>
+		/// <param name='cFlags'>
+		/// C flags.
+		/// </param>
 		public Color (ColorType type, ColorFlags cFlags)
 		{
 			Value = type;
@@ -127,6 +152,12 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets or sets the flags.
+		/// </summary>
+		/// <value>
+		/// The flags.
+		/// </value>
 		public ColorFlags Flags {
 			get;
 			set;
@@ -180,12 +211,18 @@ namespace ArtheaEngine
 			return col;
 		}
 
+		/// <summary>
+		/// Clear this instance.
+		/// </summary>
 		public void Clear ()
 		{
 			Value = ColorType.None;
 			Flags = 0;
 		}
 
+		/// <summary>
+		/// Format this instance.
+		/// </summary>
 		public string Format ()
 		{
 			var buf = new StringBuilder ();
@@ -265,10 +302,22 @@ namespace ArtheaEngine
         #endregion Methods
 	}
 
+	/// <summary>
+	/// Color writer.
+	/// </summary>
 	public class ColorWriter : StreamWriter
 	{
         #region Constructors
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.ColorWriter"/> class.
+		/// </summary>
+		/// <param name='stream'>
+		/// Stream.
+		/// </param>
+		/// <param name='conn'>
+		/// Conn.
+		/// </param>
 		public ColorWriter (Stream stream, IConnection conn)
             : base(stream)
 		{
@@ -279,6 +328,12 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets the connection.
+		/// </summary>
+		/// <value>
+		/// The connection.
+		/// </value>
 		public IConnection Connection {
 			get;
 			private set;
@@ -318,12 +373,6 @@ namespace ArtheaEngine
 
 				if (!Connection.Flags.HasFlag (ConnectionFlag.ColorOff)) {
 					switch (text [index]) {
-					case 'n':
-						buf.Append ("Arthea");
-						break;
-					case 'N':
-						buf.Append ("ARTHEA");
-						break;
 					case '*':
 						buf.Append ("\007");
 						break;
@@ -348,6 +397,12 @@ namespace ArtheaEngine
 			return buf.ToString ();
 		}
 
+		/// <summary>
+		/// Convert the specified buffer.
+		/// </summary>
+		/// <param name='buffer'>
+		/// Buffer.
+		/// </param>
 		public char[] Convert (char[] buffer)
 		{
 			var str = Convert (new string (buffer));
@@ -355,81 +410,231 @@ namespace ArtheaEngine
 			return str.ToCharArray ();
 		}
 
+		/// <summary>
+		/// Write the specified buffer.
+		/// </summary>
+		/// <param name='buffer'>
+		/// Buffer.
+		/// </param>
 		public override void Write (char[] buffer)
 		{
 			base.Write (Convert (buffer));
 		}
 
+		/// <summary>
+		/// Write the specified buffer, index and count.
+		/// </summary>
+		/// <param name='buffer'>
+		/// Buffer.
+		/// </param>
+		/// <param name='index'>
+		/// Index.
+		/// </param>
+		/// <param name='count'>
+		/// Count.
+		/// </param>
 		public override void Write (char[] buffer, int index, int count)
 		{
 			base.Write (Convert (buffer), index, count);
 		}
 
+		/// <summary>
+		/// Write the specified value.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
 		public override void Write (object value)
 		{
 			Write (value.ToString ());
 		}
 
+		/// <summary>
+		/// Write the specified format and arg0.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg0'>
+		/// Arg0.
+		/// </param>
 		public override void Write (string format, object arg0)
 		{
 			Write (string.Format (format, arg0));
 		}
 
+		/// <summary>
+		/// Write the specified format, arg0, arg1 and arg2.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg0'>
+		/// Arg0.
+		/// </param>
+		/// <param name='arg1'>
+		/// Arg1.
+		/// </param>
+		/// <param name='arg2'>
+		/// Arg2.
+		/// </param>
 		public override void Write (string format, object arg0, object arg1, object arg2)
 		{
 			Write (string.Format (format, arg0, arg1, arg2));
 		}
 
+		/// <summary>
+		/// Write the specified format, arg0 and arg1.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg0'>
+		/// Arg0.
+		/// </param>
+		/// <param name='arg1'>
+		/// Arg1.
+		/// </param>
 		public override void Write (string format, object arg0, object arg1)
 		{
 			Write (string.Format (format, arg0, arg1));
 		}
 
+		/// <summary>
+		/// Write the specified format and arg.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg'>
+		/// Argument.
+		/// </param>
 		public override void Write (string format, params object[] arg)
 		{
 			Write (string.Format (format, arg));
 		}
 
+		/// <summary>
+		/// Write the specified value.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
 		public override void Write (string value)
 		{
 			base.Write (Convert (value));
 		}
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='buffer'>
+		/// Buffer.
+		/// </param>
 		public override void WriteLine (char[] buffer)
 		{
 			base.WriteLine (Convert (buffer));
 		}
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='buffer'>
+		/// Buffer.
+		/// </param>
+		/// <param name='index'>
+		/// Index.
+		/// </param>
+		/// <param name='count'>
+		/// Count.
+		/// </param>
 		public override void WriteLine (char[] buffer, int index, int count)
 		{
 			base.WriteLine (Convert (buffer), index, count);
 		}
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
 		public override void WriteLine (object value)
 		{
 			WriteLine (value.ToString ());
 		}
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg0'>
+		/// Arg0.
+		/// </param>
 		public override void WriteLine (string format, object arg0)
 		{
 			WriteLine (string.Format (format, arg0));
 		}
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg0'>
+		/// Arg0.
+		/// </param>
+		/// <param name='arg1'>
+		/// Arg1.
+		/// </param>
 		public override void WriteLine (string format, object arg0, object arg1)
 		{
 			WriteLine (string.Format (format, arg0, arg1));
 		}
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg0'>
+		/// Arg0.
+		/// </param>
+		/// <param name='arg1'>
+		/// Arg1.
+		/// </param>
+		/// <param name='arg2'>
+		/// Arg2.
+		/// </param>
 		public override void WriteLine (string format, object arg0, object arg1, object arg2)
 		{
 			WriteLine (string.Format (format, arg0, arg1, arg2));
 		}
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg'>
+		/// Argument.
+		/// </param>
 		public override void WriteLine (string format, params object[] arg)
 		{
 			WriteLine (string.Format (format, arg));
 		}
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
 		public override void WriteLine (string value)
 		{
 			base.WriteLine (Convert (value));

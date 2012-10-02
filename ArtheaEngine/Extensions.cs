@@ -133,11 +133,15 @@ namespace ArtheaEngine
             return true;
         }
 
-        /*public static int DisplayLength(this string str)
-        {
-            return str.StripColor().Length;
-        }*/
-
+		/// <summary>
+		/// Displaies the length.
+		/// </summary>
+		/// <returns>
+		/// The length.
+		/// </returns>
+		/// <param name='mString'>
+		/// M string.
+		/// </param>
 		public static int DisplayLength (this string mString)
 		{
 			int len = mString.Length;
@@ -152,6 +156,19 @@ namespace ArtheaEngine
 
 			return len;
 		}
+
+		/// <summary>
+		/// Get the specified list and pred.
+		/// </summary>
+		/// <param name='list'>
+		/// List.
+		/// </param>
+		/// <param name='pred'>
+		/// Pred.
+		/// </param>
+		/// <typeparam name='T'>
+		/// The 1st type parameter.
+		/// </typeparam>
         public static T Get<T>(this IEnumerable<T> list, Predicate<T> pred)
         {
             foreach (var t in list)
@@ -162,17 +179,18 @@ namespace ArtheaEngine
             return default(T);
         }
 
-        public static T GetEnum<T>(this IDataRecord reader, int index)
-            where T : struct
-        {
-            T val;
-
-            if (reader.IsDBNull(index) || !Enum.TryParse(reader.GetString(index), true, out val))
-                return default(T);
-
-            return val;
-        }
-
+		/// <summary>
+		/// Gets the length of the line count.
+		/// </summary>
+		/// <returns>
+		/// The line count length.
+		/// </returns>
+		/// <param name='str'>
+		/// String.
+		/// </param>
+		/// <param name='count'>
+		/// Count.
+		/// </param>
         public static int GetLineCountLength(this string str, int count)
         {
             return str.GetLineCountLength(0, count);
@@ -244,23 +262,52 @@ namespace ArtheaEngine
             return str.GetNumberedArg(out arg, '.');
         }
 
-        public static string GetStringOrNull(this IDataRecord reader, int index)
-        {
-            if (reader.IsDBNull(index)) return string.Empty;
-
-            return reader.GetString(index);
-        }
-
+		/// <summary>
+		/// Determines if has flag the specified bits flag.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if has flag the specified bits flag; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='bits'>
+		/// Bits.
+		/// </param>
+		/// <param name='flag'>
+		/// Flag.
+		/// </param>
         public static bool HasFlag(this long bits, long flag)
         {
             return (bits & flag) != 0;
         }
 
+		/// <summary>
+		/// Determines if has flag the specified bits flag.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if has flag the specified bits flag; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='bits'>
+		/// Bits.
+		/// </param>
+		/// <param name='flag'>
+		/// Flag.
+		/// </param>
         public static bool HasFlag(this int bits, int flag)
         {
             return (bits & flag) != 0;
         }
 
+		/// <summary>
+		/// Determines if has word the specified value word.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if has word the specified value word; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='word'>
+		/// Word.
+		/// </param>
         public static bool HasWord(this string value, string word)
         {
             var arg = new Argument(value);
@@ -276,6 +323,18 @@ namespace ArtheaEngine
             return false;
         }
 
+		/// <summary>
+		/// Determines if is  mString other.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if is mString other; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='mString'>
+		/// M string.
+		/// </param>
+		/// <param name='other'>
+		/// Other.
+		/// </param>
         public static bool Is(this string mString, string other)
         {
             return mString.Equals(other, StringComparison.OrdinalIgnoreCase);
@@ -332,6 +391,21 @@ namespace ArtheaEngine
             return true;
         }
 
+		/// <summary>
+		/// Determines if is prefix of the specified mString value ignoreCase.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if is prefix of the specified mString value ignoreCase; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='mString'>
+		/// M string.
+		/// </param>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='ignoreCase'>
+		/// If set to <c>true</c> ignore case.
+		/// </param>
         public static bool IsPrefixOf(this string mString, string value, bool ignoreCase)
         {
             if (string.IsNullOrEmpty(mString) || string.IsNullOrEmpty(value)) return false;
@@ -339,21 +413,52 @@ namespace ArtheaEngine
             return value.StartsWith(mString, ignoreCase, CultureInfo.CurrentCulture);
         }
 
-		/*public static bool Delete<T> (this T doc) where T:IEntity,IRootLevelDocument
-		{
-			return DbManager.Delete<T> (doc);
-		}*/
-
+		/// <summary>
+		/// Lookup the specified arg and id.
+		/// </summary>
+		/// <param name='arg'>
+		/// Argument.
+		/// </param>
+		/// <param name='id'>
+		/// Identifier.
+		/// </param>
+		/// <typeparam name='T'>
+		/// The 1st type parameter.
+		/// </typeparam>
 		public static T Lookup<T> (this IEnumerable<T> arg, string id) where T: IEntity
 		{
 			return arg.FirstOrDefault (v => v.Id != null && v.Id.Equals (id));
 		}
 
+		/// <summary>
+		/// Determines if is prefix of the specified mString value.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if is prefix of the specified mString value; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='mString'>
+		/// M string.
+		/// </param>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
         public static bool IsPrefixOf(this string mString, string value)
         {
             return IsPrefixOf(mString, value, true);
         }
 
+		/// <summary>
+		/// Adds the changed handler.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='action'>
+		/// Action.
+		/// </param>
+		/// <typeparam name='T'>
+		/// The 1st type parameter.
+		/// </typeparam>
 		public static void AddChangedHandler<T> (this ObservableCollection<T> value, Action<T,bool> action)
 		{
 			value.CollectionChanged += new NotifyCollectionChangedEventHandler((o, e) =>
@@ -375,7 +480,18 @@ namespace ArtheaEngine
             });
         }
 
-		
+		/// <summary>
+		/// Adds all.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='arg'>
+		/// Argument.
+		/// </param>
+		/// <typeparam name='T'>
+		/// The 1st type parameter.
+		/// </typeparam>
 		public static void AddAll<T>(this ObservableCollection<T> value, IEnumerable<T> arg)
 		{
 			foreach (var i in arg) {
@@ -383,6 +499,12 @@ namespace ArtheaEngine
 			}
 		}
 
+		/// <summary>
+		/// Reverse the specified dir.
+		/// </summary>
+		/// <param name='dir'>
+		/// Dir.
+		/// </param>
         public static Direction Reverse(this Direction dir)
         {
             switch (dir)
@@ -399,11 +521,29 @@ namespace ArtheaEngine
             }
         }
 
+		/// <summary>
+		/// Strips the color.
+		/// </summary>
+		/// <returns>
+		/// The color.
+		/// </returns>
+		/// <param name='mString'>
+		/// M string.
+		/// </param>
         public static string StripColor(this string mString)
         {
             return Regex.Replace(mString, ColorRegex, string.Empty);
         }
 	
+		/// <summary>
+		/// To comma-separated-values.
+		/// </summary>
+		/// <returns>
+		/// The CSV list.
+		/// </returns>
+		/// <param name='Tags'>
+		/// Tags.
+		/// </param>
         public static string ToCSV(this ISet<string> Tags)
         {
             var buf = new StringBuilder();
@@ -418,6 +558,15 @@ namespace ArtheaEngine
             return buf.ToString();
         }
 
+		/// <summary>
+		/// Tos the flag.
+		/// </summary>
+		/// <returns>
+		/// The flag.
+		/// </returns>
+		/// <param name='loc'>
+		/// Location.
+		/// </param>
         public static WearFlag ToFlag(this WearLocation loc)
         {
             /*switch (loc)
@@ -427,6 +576,21 @@ namespace ArtheaEngine
             return WearFlag.None;
         }
 
+		/// <summary>
+		/// Gets the numbered argument.
+		/// </summary>
+		/// <returns>
+		/// The numbered argument.
+		/// </returns>
+		/// <param name='mString'>
+		/// M string.
+		/// </param>
+		/// <param name='arg'>
+		/// Argument.
+		/// </param>
+		/// <param name='c'>
+		/// C.
+		/// </param>
         private static int GetNumberedArg(this string mString, out string arg, char c)
         {
             var index = mString.IndexOf(c);

@@ -67,6 +67,20 @@ namespace ArtheaEngine
 			Silver = Convert.ToUInt32(value % 100);
 		}
 
+		public Currency (decimal value)
+		{
+			Gold = (uint) value;
+
+			Silver = (uint)((value - Gold) * 100);
+		}
+
+		public Currency (double value)
+		{
+			Gold = (uint)value;
+
+			_silver = (uint)((value - Gold) * 100);
+		}
+
         #endregion Constructors
 
 		/// <summary>
@@ -250,6 +264,10 @@ namespace ArtheaEngine
 		/// </param>
 		public static implicit operator ulong(Currency c) {
 			return c.Value;
+		}
+
+		public static implicit operator decimal(Currency c) {
+			return c.Value / 100M;
 		}
 
 		/// <param name='a'>

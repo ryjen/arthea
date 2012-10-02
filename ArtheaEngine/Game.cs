@@ -15,7 +15,9 @@ using System.Text.RegularExpressions;
 
 namespace ArtheaEngine
 {
-
+	/// <summary>
+	/// Game related data
+	/// </summary>
     public static class Game
     {
         #region Fields
@@ -27,6 +29,9 @@ namespace ArtheaEngine
 
         #region Constructors
 
+		/// <summary>
+		/// Initializes the <see cref="ArtheaEngine.Game"/> class.
+		/// </summary>
         static Game()
         {
             Rand = new Random();
@@ -36,6 +41,12 @@ namespace ArtheaEngine
 
         #region Properties
 
+		/// <summary>
+		/// Gets the rand.
+		/// </summary>
+		/// <value>
+		/// The rand.
+		/// </value>
         public static Random Rand
         {
             get; private set;
@@ -175,7 +186,15 @@ namespace ArtheaEngine
             }
         }
 
-
+		/// <summary>
+		/// Determines if is email the specified inputEmail.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if is email the specified inputEmail; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='inputEmail'>
+		/// Input email.
+		/// </param>
         public static bool IsEmail(string inputEmail)
         {
             inputEmail = inputEmail ?? "";

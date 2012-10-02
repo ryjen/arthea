@@ -6,14 +6,12 @@
     using System.Linq;
     using System.Text;
 
-    using ArtheaEditor.Import;
-
     using ArtheaEngine;
     using ArtheaEngine.Model;
 
     using NLog;
 
-    using Conv = ArtheaEditor.Import.Rom.Converter;
+    using Conv = Converter;
 
     using Object = ArtheaEngine.Model.Object;
 
@@ -23,11 +21,11 @@
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        private readonly List<Area> _areas = new List<Area>();
+        /*private readonly List<Area> _areas = new List<Area>();
         private readonly Dictionary<int, NonPlayer> _characterIndexes = new Dictionary<int, NonPlayer>();
         private readonly Dictionary<int, Object> _objectIndexes = new Dictionary<int, Object>();
         private readonly Dictionary<int, Room> _roomIndexes = new Dictionary<int, Room>();
-
+		*/
         private FileInfo _file;
         private FileReader _reader;
 

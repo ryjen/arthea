@@ -1,11 +1,10 @@
-﻿namespace ArtheaEditor
+﻿using ArtheaEditor.Import;
+
+namespace ArtheaEditor
 {
     using System;
     using System.IO;
     using System.Windows.Forms;
-
-    using ArtheaEditor.Import;
-    using ArtheaEditor.Import.Rom;
 
     using NLog;
     using NLog.Config;
