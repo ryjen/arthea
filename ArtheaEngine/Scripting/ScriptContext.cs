@@ -3,16 +3,21 @@ using ArtheaEngine.Model;
 
 namespace ArtheaEngine
 {
-	public class ScriptContext
+	public class ScriptContext<T>
 	{
-		public ScriptContext (Player player)
+		public ScriptContext (IWritable to)
 		{
-			Player = player;
+			To = to;
 		}
 
-		public Player Player
+		public IWritable To
 		{
 			get; set;
+		}
+
+		public T Value {
+			get;
+			set;
 		}
 	}
 }

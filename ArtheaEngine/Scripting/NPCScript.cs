@@ -4,12 +4,12 @@ using Jint;
 
 namespace ArtheaEngine
 {
-	public class NPCScript : IScript
+	public class NPCScript : IScript<NonPlayer>
 	{
-		public NPCScript (string text, NonPlayer npc)
+		public NPCScript (string text, ScriptContext<NonPlayer> context)
 		{
 			Text = text;
-			NonPlayer = npc;
+			Context = context;
 		}
 
 		public string Text 
@@ -17,14 +17,14 @@ namespace ArtheaEngine
 			get; private set;
 		}
 
-		public NonPlayer NonPlayer
-		{
-			get; private set;
-		}
-
 		public void Run ()
 		{
-			new ArtheaScript().Run(Text);
+			new ArtheaScript<NonPlayer>(Context).Run(Text);
+		}
+
+		public ScriptContext<NonPlayer> Context
+		{
+			get; private set;
 		}
 	}
 }

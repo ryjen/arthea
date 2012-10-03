@@ -4,16 +4,25 @@ using ArtheaEngine.Model;
 
 namespace ArtheaEngine
 {
-	public class ArtheaScript : JintEngine
+	public class ArtheaScript<T> : JintEngine
 	{
-		public ArtheaScript ()
+		ScriptContext<T> context;
+
+		public ArtheaScript (ScriptContext<T> context)
 		{
-			base.SetFunction("echo", new Action<IWritable,string>(Print));
+			this.context = context;
+
+			base.SetFunction("print", new Action<string>(Print));
 		}
 
-		public void Print(IWritable to, string text)
+		public void Print(string text)
 		{
-			to.WriteLine(text);
+			context.To.WriteLine(text);
+		}
+
+		public void Run(string text)
+		{
+			base.Run (text);
 		}
 	}
 }
