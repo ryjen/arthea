@@ -1,22 +1,15 @@
 ﻿namespace ArtheaServer
 {
+    using ArtheaEngine;
+    using ArtheaEngine.Model;
+    using ArtheaServer.Commands;
+    using ArtheaServer.Creation;
+    using NLog;
     using System;
-    using System.Data;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Net.Sockets;
-    using System.Reflection;
     using System.Text;
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-
-    using ArtheaServer.Commands;
-    using ArtheaServer.Creation;
-
-    using NLog;
-
     using Thought.Net.Telnet;
 
     public class TelnetConnection : IConnection

@@ -1,19 +1,12 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
-using MongoDB.Driver.Builders;
-using System.Text.RegularExpressions;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Configuration;
-using System.Data;
-using System.Data.Odbc;
 using System.Linq;
-using System.Text;
-
-using NLog;
+using System.Text.RegularExpressions;
 
 namespace ArtheaEngine.Model
 {

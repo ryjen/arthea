@@ -1,14 +1,9 @@
 ﻿namespace ArtheaServer.Creation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Text;
-
     using ArtheaEngine;
     using ArtheaEngine.Model;
-
+    using System;
+    using System.Globalization;
     using Object = ArtheaEngine.Model.Object;
 
     public class ObjectEditor : Editor

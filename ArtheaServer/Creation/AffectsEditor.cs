@@ -1,14 +1,10 @@
 ﻿namespace ArtheaServer.Creation
 {
-    using System;
-    using System.Collections.Generic;
+    using ArtheaEngine;
+    using ArtheaEngine.Model;
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
 
     public class AffectsEditor : Editor
     {

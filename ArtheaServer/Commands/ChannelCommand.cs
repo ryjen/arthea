@@ -1,6 +1,5 @@
 ﻿namespace ArtheaServer.Commands
 {
-    using System.Linq;
 
     using ArtheaEngine;
     using ArtheaEngine.Model;
@@ -125,7 +124,7 @@
                         return;
                     }
 
-                    object arg = Character.Lookup(argument);
+                    IEntity arg = Character.Lookup(argument);
 
                     if (arg != null)
                     {

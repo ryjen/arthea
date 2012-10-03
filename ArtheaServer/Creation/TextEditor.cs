@@ -1,12 +1,9 @@
 ﻿namespace ArtheaServer.Creation
 {
+    using ArtheaEngine;
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Reflection;
     using System.Text;
-
-    using ArtheaEngine;
 
     public class TextEditor : Editor
     {

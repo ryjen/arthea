@@ -1,6 +1,5 @@
-using System;
 using Jint;
-using ArtheaEngine.Model;
+using System;
 
 namespace ArtheaEngine
 {
@@ -18,11 +17,6 @@ namespace ArtheaEngine
 		public void Print(string text)
 		{
 			context.To.WriteLine(text);
-		}
-
-		public void Run(string text)
-		{
-			base.Run (text);
 		}
 	}
 }

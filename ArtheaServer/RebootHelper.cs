@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using NLog;
-using System.IO;
-using System.Xml.Serialization;
-using System.Linq;
-using System.Reflection;
-using Microsoft.Win32.TaskScheduler;
-using ArtheaEngine;
-using System.Runtime.Serialization;
 using ArtheaEngine.Model;
-using Thought.Net.Telnet;
+using Microsoft.Win32.TaskScheduler;
+using NLog;
+using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net.Sockets;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using Thought.Net.Telnet;
 
 namespace ArtheaServer
 {

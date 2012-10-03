@@ -1,13 +1,9 @@
-﻿using System;
-using System.Data;
-using System.Data.Odbc;
-using System.Linq;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Reflection;
 using System.Text;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 
-using NLog;
 
 namespace ArtheaEngine.Model
 {

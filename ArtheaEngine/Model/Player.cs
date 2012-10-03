@@ -3,14 +3,8 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.Options;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Configuration;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Text;
 
-using NLog;
 
 namespace ArtheaEngine.Model
 {
@@ -37,7 +31,7 @@ namespace ArtheaEngine.Model
 
 		public Player() : base()
         {
-            LastNote = new Dictionary<BsonValue, DateTime>();
+            LastNote = new Dictionary<string, DateTime>();
             Prompt = "~R%l/%L ~M%m/%M ~B%e/%E~x";
             CombatPrompt = Prompt;
         }
@@ -87,7 +81,7 @@ namespace ArtheaEngine.Model
         }
 
 		[BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
-        public Dictionary<BsonValue, DateTime> LastNote
+        public Dictionary<string, DateTime> LastNote
         {
             get; private set;
         }

@@ -1,23 +1,12 @@
-﻿using System.Collections.ObjectModel;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Configuration;
-using System.Data;
-using System.Data.Linq;
-using System.Data.Odbc;
-using System.Globalization;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-
-namespace ArtheaEngine
+﻿namespace ArtheaEngine
 {
-	/// <summary>
-	/// Game related data
-	/// </summary>
+    using System;
+    using System.Collections;
+    using System.Text.RegularExpressions;
+
+    /// <summary>
+    /// Game related data
+    /// </summary>
     public static class Game
     {
         #region Fields
@@ -29,9 +18,9 @@ namespace ArtheaEngine
 
         #region Constructors
 
-		/// <summary>
-		/// Initializes the <see cref="ArtheaEngine.Game"/> class.
-		/// </summary>
+        /// <summary>
+        /// Initializes the <see cref="ArtheaEngine.Game"/> class.
+        /// </summary>
         static Game()
         {
             Rand = new Random();
@@ -41,12 +30,12 @@ namespace ArtheaEngine
 
         #region Properties
 
-		/// <summary>
-		/// Gets the rand.
-		/// </summary>
-		/// <value>
-		/// The rand.
-		/// </value>
+        /// <summary>
+        /// Gets the rand.
+        /// </summary>
+        /// <value>
+        /// The rand.
+        /// </value>
         public static Random Rand
         {
             get; private set;
@@ -186,15 +175,15 @@ namespace ArtheaEngine
             }
         }
 
-		/// <summary>
-		/// Determines if is email the specified inputEmail.
-		/// </summary>
-		/// <returns>
-		/// <c>true</c> if is email the specified inputEmail; otherwise, <c>false</c>.
-		/// </returns>
-		/// <param name='inputEmail'>
-		/// Input email.
-		/// </param>
+        /// <summary>
+        /// Determines if is email the specified inputEmail.
+        /// </summary>
+        /// <returns>
+        /// <c>true</c> if is email the specified inputEmail; otherwise, <c>false</c>.
+        /// </returns>
+        /// <param name='inputEmail'>
+        /// Input email.
+        /// </param>
         public static bool IsEmail(string inputEmail)
         {
             inputEmail = inputEmail ?? "";

@@ -1,5 +1,3 @@
-using System;
-using ArtheaEngine.Model;
 
 namespace ArtheaEngine
 {

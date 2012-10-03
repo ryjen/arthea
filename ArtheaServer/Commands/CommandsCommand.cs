@@ -1,9 +1,8 @@
 ﻿namespace ArtheaServer.Commands
 {
-    using System.Collections.Generic;
-
     using ArtheaEngine;
     using ArtheaEngine.Model;
+    using System.Collections.Generic;
 
     internal class CommandsCommand : Command
     {
