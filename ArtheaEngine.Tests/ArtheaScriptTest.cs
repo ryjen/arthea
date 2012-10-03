@@ -1,5 +1,5 @@
-using System;
 using NUnit.Framework;
+using System;
 
 namespace ArtheaEngine.Tests
 {
@@ -23,7 +23,7 @@ namespace ArtheaEngine.Tests
 
 			new ArtheaScript<ArtheaScriptTest>(context).Run (script);
 
-			Assert.AreEqual("Hello, World!\n", writer.ToString());
+			Assert.AreEqual("Hello, World!" + Environment.NewLine, writer.ToString());
 		}
 	}
 }

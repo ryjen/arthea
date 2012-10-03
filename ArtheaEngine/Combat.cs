@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-
-using ArtheaEngine.Model;
-
-namespace ArtheaEngine
+﻿namespace ArtheaEngine
 {
-	/// <summary>
-	/// Combat.
-	/// </summary>
+    using ArtheaEngine.Model;
+    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
+    using System.Linq;
+
+    /// <summary>
+    /// Combat.
+    /// </summary>
     public class Combat : ITickable
     {
         #region Fields
@@ -21,15 +18,15 @@ namespace ArtheaEngine
 
         #region Constructors
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="ArtheaEngine.Combat"/> class.
-		/// </summary>
-		/// <param name='ch'>
-		/// Ch.
-		/// </param>
-		/// <param name='victims'>
-		/// Victims.
-		/// </param>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ArtheaEngine.Combat"/> class.
+        /// </summary>
+        /// <param name='ch'>
+        /// Ch.
+        /// </param>
+        /// <param name='victims'>
+        /// Victims.
+        /// </param>
         public Combat(Character ch, params Character[] victims)
         {
             _thisChar = ch;
@@ -42,35 +39,35 @@ namespace ArtheaEngine
 
         #region Properties
 
-		/// <summary>
-		/// Gets or sets the speed.
-		/// </summary>
-		/// <value>
-		/// The speed.
-		/// </value>
+        /// <summary>
+        /// Gets or sets the speed.
+        /// </summary>
+        /// <value>
+        /// The speed.
+        /// </value>
         public int Speed
         {
             get;
             set;
         }
 
-		/// <summary>
-		/// Gets the tick interval.
-		/// </summary>
-		/// <value>
-		/// The tick interval.
-		/// </value>
+        /// <summary>
+        /// Gets the tick interval.
+        /// </summary>
+        /// <value>
+        /// The tick interval.
+        /// </value>
         public int TickInterval
         {
             get { return Speed; }
         }
 
-		/// <summary>
-		/// Gets the victims.
-		/// </summary>
-		/// <value>
-		/// The victims.
-		/// </value>
+        /// <summary>
+        /// Gets the victims.
+        /// </summary>
+        /// <value>
+        /// The victims.
+        /// </value>
         public ISet<Character> Victims
         {
             get; private set;
@@ -80,47 +77,15 @@ namespace ArtheaEngine
 
         #region Methods
 
-		private static int[] GetAttacks(Dice d1, Dice d2)
-		{
-			Collection<int> values = new Collection<int>();
-			var roll1 = d1.Roll();
-			var roll2 = d2.Roll();
-			
-			foreach (var a in roll1)
-			{
-				foreach (var b in roll2)
-				{
-					if (a > b)
-						values.Add(a);
-				}
-			}
-			return values.ToArray();
-		}
-
-		private static int GetDamage(Dice d1, Dice d2)
-		{
-			int value = 0;
-
-			foreach (var a in d1.Roll())
-			{
-				foreach (var b in d2.Roll())
-				{
-					if (a > b)
-						value += a;
-				}
-			}
-			return value;
-		}
-
-		/// <summary>
-		/// Attack the specified victim.
-		/// </summary>
-		/// <param name='victim'>
-		/// Victim.
-		/// </param>
+        /// <summary>
+        /// Attack the specified victim.
+        /// </summary>
+        /// <param name='victim'>
+        /// Victim.
+        /// </param>
         public void Attack(Character victim)
         {
-			int[] attacks = GetAttacks(_thisChar.Attack, victim.Defense);
+            int[] attacks = GetAttacks(_thisChar.Attack, victim.Defense);
 
             foreach (var bonus in attacks)
             {
@@ -142,9 +107,9 @@ namespace ArtheaEngine
             CounterAttack(victim, attacks.Length);
         }
 
-		/// <summary>
-		/// Displaies the prompt.
-		/// </summary>
+        /// <summary>
+        /// Displaies the prompt.
+        /// </summary>
         public void DisplayPrompt()
         {
             if (_thisChar is Player)
@@ -153,9 +118,9 @@ namespace ArtheaEngine
             }
         }
 
-		/// <summary>
-		/// Tick this instance.
-		/// </summary>
+        /// <summary>
+        /// Tick this instance.
+        /// </summary>
         public void Tick()
         {
             foreach (var victim in Victims)
@@ -167,6 +132,38 @@ namespace ArtheaEngine
             }
 
             DisplayPrompt();
+        }
+
+        private static int[] GetAttacks(Dice d1, Dice d2)
+        {
+            Collection<int> values = new Collection<int>();
+            var roll1 = d1.Roll();
+            var roll2 = d2.Roll();
+
+            foreach (var a in roll1)
+            {
+                foreach (var b in roll2)
+                {
+                    if (a > b)
+                        values.Add(a);
+                }
+            }
+            return values.ToArray();
+        }
+
+        private static int GetDamage(Dice d1, Dice d2)
+        {
+            int value = 0;
+
+            foreach (var a in d1.Roll())
+            {
+                foreach (var b in d2.Roll())
+                {
+                    if (a > b)
+                        value += a;
+                }
+            }
+            return value;
         }
 
         private void CounterAttack(Character victim, int attacks)

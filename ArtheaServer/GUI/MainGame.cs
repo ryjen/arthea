@@ -1,41 +1,23 @@
 ﻿namespace ArtheaServer
 {
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Configuration;
-    using System.Diagnostics;
-    using System.IO;
-    using System.IO.Pipes;
-    using System.Linq;
-    using System.Net.Sockets;
-    using System.Reflection;
-    using System.Runtime.Remoting.Channels;
-    using System.Runtime.Remoting.Channels.Tcp;
-    using System.Text;
-    using System.Threading;
-    using System.Windows.Forms;
-    using System.Xml.Serialization;
-
     using ArtheaEngine;
     using ArtheaEngine.Model;
-
-    using ArtheaServer.Commands;
-
     using NLog;
     using NLog.Config;
     using NLog.Targets;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Net.Sockets;
+    using System.Reflection;
+    using System.Text;
+    using System.Windows.Forms;
 
-    using Thought.Net.Telnet;
 
     public partial class MainGame : Form
     {
-        #region Fields
-
-        //static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        #endregion Fields
-
         #region Constructors
 
         public MainGame()
@@ -49,7 +31,6 @@
                 var mi = new ToolStripMenuItem(entry.Name);
 
 				ToolStripMenuItem miStart;
-
 
 				if(saved == null)
                 	miStart = new ToolStripMenuItem("Start") { Tag = entry };

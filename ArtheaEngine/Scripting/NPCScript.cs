@@ -1,6 +1,4 @@
-using System;
 using ArtheaEngine.Model;
-using Jint;
 
 namespace ArtheaEngine
 {

@@ -1,18 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Data.Common;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-
 using MongoDB.Bson;
-using MongoDB.Driver.Builders;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
+using System;
+using System.Reflection;
 
-using NLog;
 
 namespace ArtheaEngine.Model
 {

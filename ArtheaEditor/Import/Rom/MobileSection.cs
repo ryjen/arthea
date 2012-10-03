@@ -42,7 +42,8 @@
 
         public override void Commit()
         {
-			DbManager.Save(Loaded.Values);
+            foreach(var v in Loaded.Values)
+    			DbManager.Save(v);
 
             /*foreach (var npc in Loaded)
                 {

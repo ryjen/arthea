@@ -1,13 +1,8 @@
 ﻿namespace ArtheaServer.Creation
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     using ArtheaEngine;
     using ArtheaEngine.Model;
-
+    using System;
     using Object = ArtheaEngine.Model.Object;
 
     public class ExitEditor : Editor

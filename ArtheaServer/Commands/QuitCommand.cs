@@ -2,11 +2,10 @@
 
 namespace ArtheaServer.Commands
 {
-    using System;
-    using System.Runtime.Serialization;
-
     using ArtheaEngine;
     using ArtheaEngine.Model;
+    using System;
+    using System.Runtime.Serialization;
 
     public class QuitCommand : Command
     {

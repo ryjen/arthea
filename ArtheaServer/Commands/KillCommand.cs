@@ -1,12 +1,8 @@
 ﻿namespace ArtheaServer.Commands
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     using ArtheaEngine;
     using ArtheaEngine.Model;
+    using System.Linq;
 
     public class KillCommand : Command
     {

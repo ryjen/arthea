@@ -1,11 +1,10 @@
 ﻿namespace ArtheaServer.Commands
 {
+    using ArtheaEngine;
+    using ArtheaEngine.Model;
     using System;
     using System.Collections.Generic;
     using System.Reflection;
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
 
     public abstract class Command : IComparable<Command>, IEqualityComparer<ICommand>
     {

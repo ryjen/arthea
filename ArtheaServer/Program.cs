@@ -2,19 +2,13 @@
 
 namespace ArtheaServer
 {
+    using ArtheaEngine.Model;
+    using Microsoft.VisualBasic.ApplicationServices;
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
-    using System.Diagnostics;
-    using System.Reflection;
     using System.Text.RegularExpressions;
     using System.Windows.Forms;
-
-    using ArtheaEngine.Model;
-
-    using ArtheaServer.Commands;
-
-    using Microsoft.VisualBasic.ApplicationServices;
 
     public class ArtheaApp : WindowsFormsApplicationBase
     {
