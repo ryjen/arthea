@@ -1,23 +1,47 @@
 using Jint;
 using System;
 
-namespace ArtheaEngine
+namespace ArtheaEngine.Scripting
 {
-	public class ArtheaScript<T> : JintEngine
+	/// <summary>
+	/// Arthea script.
+	/// </summary>
+	public class ArtheaScript : JintEngine
 	{
-		ScriptContext<T> context;
-
-		public ArtheaScript (ScriptContext<T> context)
+		/// <summary>
+		/// Gets the context.
+		/// </summary>
+		/// <value>
+		/// The context.
+		/// </value>
+		public ScriptContext Context
 		{
-			this.context = context;
-
-			base.SetFunction("print", new Action<string>(Print));
+			get; private set;
 		}
 
-		public void Print(string text)
+		public ArtheaScript ()
 		{
-			context.To.WriteLine(text);
+			//base.AllowClr = false;
+			base.EnableSecurity();
+			
+#if DEBUG
+			base.SetDebugMode(true);
+#endif
 		}
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.ArtheaScript"/> class.
+		/// </summary>
+		/// <param name='context'>
+		/// Context.
+		/// </param>
+		public ArtheaScript (ScriptContext context) : this()
+		{
+			Context = context;
+
+			Context.Apply(this);
+		}
+
 	}
 }
 

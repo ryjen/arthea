@@ -3,17 +3,17 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using System;
 using System.Reflection;
-
+using ArtheaEngine.Scripting;
 
 namespace ArtheaEngine.Model
 {
 	/// <summary>
 	/// Ability.
 	/// </summary>
-	[BsonKnownTypes(typeof(Skill), typeof(Spell))]
-	[BsonDiscriminator(Required = true, RootClass = true)]
-    public abstract class Ability : ICloneable, INamedEntity, IRootLevelDocument
+    public class Ability : ICloneable, INamedEntity, IRootLevelDocument
     {
+		private string _script;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.Ability"/> class.
 		/// </summary>
@@ -21,7 +21,17 @@ namespace ArtheaEngine.Model
 		{	
 			Id = ObjectId.GenerateNewId().ToString();
 		}
+
         #region Properties
+
+		[BsonRequired]
+		protected string Script {
+			get { return _script; }
+			set { 
+				_script = value;
+				new ArtheaScript(new ScriptContext(this)).Run(value);
+			}
+		}
 
 		/// <summary>
 		/// Gets or sets the cost.
@@ -79,6 +89,16 @@ namespace ArtheaEngine.Model
 			get; set;
 		}
 
+		public int Mana {
+			get;
+			set;
+		}
+
+		public Func<Character, bool> CanUse { get; set; }
+
+
+		public Action<Character, Argument> Execute { get; set; }
+
         #endregion Properties
 
         #region Methods
@@ -127,6 +147,11 @@ namespace ArtheaEngine.Model
             return newObject;
         }
 
+		public string MsgOffSelf { get; set; }
+		public string MsgOffChar { get; set; }
+		public string MsgOffObj { get; set; }
+		public string MsgOffRoom { get; set; }
+
 		/// <summary>
 		/// Displaies the off message.
 		/// </summary>
@@ -135,50 +160,35 @@ namespace ArtheaEngine.Model
 		/// </param>
         public void DisplayOffMsg(object from)
         {
-            string msg;
-
             if (from == null)
                 return;
 
             if (from is Character)
             {
                 var ch = from as Character;
-                msg = GetAbilityMsg("MsgOffSelf");
-                ch.WriteLine(msg);
-                msg = GetAbilityMsg("MsgOffChar");
-                ch.Room.Act(msg);
+                ch.WriteLine(MsgOffSelf);
+                ch.Room.Act(MsgOffChar);
             }
             else if (from is Object)
             {
                 var item = from as Object;
                 if (item.CarriedBy != null || item.Room != null)
                 {
-                    msg = GetAbilityMsg("MsgOffObj");
                     if (item.CarriedBy != null)
                     {
-                        item.CarriedBy.Act(msg);
+                        item.CarriedBy.Act(MsgOffObj);
                     }
                     else if (item.Room != null)
                     {
-                        item.Room.Act(msg);
+                        item.Room.Act(MsgOffObj);
                     }
                 }
             }
             else if (from is Room)
             {
                 var room = from as Room;
-                msg = GetAbilityMsg("MsgOffRoom");
-
-                room.Act(msg);
+                room.Act(MsgOffRoom);
             }
-        }
-
-        protected virtual string GetAbilityMsg(string name)
-        {
-            var fi = GetType().GetField(name,
-                                        BindingFlags.Static | BindingFlags.NonPublic |
-                                        BindingFlags.Public);
-            return fi.GetValue(null) as string;
         }
 
         #endregion Methods

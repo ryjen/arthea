@@ -1,4 +1,6 @@
-﻿namespace ArtheaEngine
+﻿using System.Text.RegularExpressions;
+
+namespace ArtheaEngine
 {
     using MongoDB.Driver;
     using MongoDB.Driver.Linq;
@@ -6,6 +8,7 @@
     using System.Collections.Generic;
     using System.Configuration;
     using System.Linq;
+	using DBQuery = MongoDB.Driver.Builders.Query;
 
     /// <summary>
     /// Database manager.
@@ -69,7 +72,7 @@
         public static bool Delete<T>(T e)
             where T : IEntity, IRootLevelDocument
         {
-            return Collection<T>().Remove(MongoDB.Driver.Builders.Query.EQ("_id", e.Id)).Ok;
+            return Collection<T>().Remove(DBQuery.EQ("_id", e.Id)).Ok;
         }
 
         /// <summary>
@@ -86,6 +89,16 @@
         {
             return Collection<T>().FindOneById(id);
         }
+
+		public static T Find<T>(string key) where T : INamedEntity, IRootLevelDocument
+		{
+
+			var regex = new Regex("^" + key, RegexOptions.IgnoreCase);
+
+			return Query<T>().Where(x => regex.IsMatch(x.Name) || key.Equals (x.Id)).FirstOrDefault();
+
+			//return Collection<T>().FindOne( DBQuery.Or( DBQuery.Matches("Name", key), DBQuery.EQ("_id", key) ) );
+		}
 
         /// <summary>
         /// Lookups as.

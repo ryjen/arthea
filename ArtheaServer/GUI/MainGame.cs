@@ -266,7 +266,7 @@
 		{
 				foreach(var c in server.Connections)
 				{
-					var sockInfo = c.Client.Parser.Socket.DuplicateAndClose(Process.GetCurrentProcess().Id);
+					var sockInfo = c.Socket.DuplicateAndClose(Process.GetCurrentProcess().Id);
 
 					Connections.Add(new ConnectionConfig { PlayerId = c.Playing.Id, SockInfo = sockInfo });
 				}

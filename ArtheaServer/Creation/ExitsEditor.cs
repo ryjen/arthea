@@ -69,8 +69,10 @@
 
 				Room r;
 
-                 if (!World.Rooms.ContainsKey(argument) || (r = Room.Lookup(World.Rooms[argument])) == null )
-                 {
+                 //if (!World.Rooms.ContainsKey(argument) || (r = Room.Lookup(World.Rooms[argument])) == null )
+                 
+				 if((r = DbManager.Find<Room> (argument)) == null)
+				 { 
                      WriteLine("~CInvalid room to link to.");
                      return true;
                  }
@@ -221,7 +223,7 @@
 
              foreach (var entry in _exits)
              {
-                 WriteLine("~W{0}) ~CExit to ~W{1}~C ({2})", entry.Key, entry.Value.ToRoom.Key, entry.Value.ToRoom.Name);
+                 WriteLine("~W{0}) ~CExit to ~W{1}~C ({2})", entry.Key, entry.Value.ToRoom.Id, entry.Value.ToRoom.Name);
              }
         }
 

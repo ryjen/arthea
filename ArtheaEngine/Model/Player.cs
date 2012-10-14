@@ -9,26 +9,32 @@ using System.Text;
 namespace ArtheaEngine.Model
 {
 
-    #region Enumerations
-
+	/// <summary>
+	/// Channel flag.
+	/// </summary>
     [Flags]
     public enum ChannelFlag
     {
         None
     }
 
+	/// <summary>
+	/// Pc flag.
+	/// </summary>
     [Flags]
     public enum PcFlag
     {
         None
     }
 
-    #endregion Enumerations
-
+	/// <summary>
+	/// Player.
+	/// </summary>
     public class Player : Character
     {
-        #region Constructors
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.Player"/> class.
+		/// </summary>
 		public Player() : base()
         {
             LastNote = new Dictionary<string, DateTime>();
@@ -36,10 +42,12 @@ namespace ArtheaEngine.Model
             CombatPrompt = Prompt;
         }
 
-        #endregion Constructors
-
-        #region Properties
-
+		/// <summary>
+		/// Gets or sets the account reference.
+		/// </summary>
+		/// <value>
+		/// The account reference.
+		/// </value>
 		[BsonElement("Account")]
 		[BsonRequired]
 		public string AccountRef {
@@ -47,12 +55,24 @@ namespace ArtheaEngine.Model
 			set { Account = ArtheaEngine.Model.Account.Lookup (value); }
 		}
 
+		/// <summary>
+		/// Gets or sets the account.
+		/// </summary>
+		/// <value>
+		/// The account.
+		/// </value>
 		[BsonIgnore]
         public Account Account
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the channel flags.
+		/// </summary>
+		/// <value>
+		/// The channel flags.
+		/// </value>
 		[BsonDefaultValue(ChannelFlag.None)]
 		[BsonIgnoreIfDefault]
         public ChannelFlag ChannelFlags
@@ -60,6 +80,12 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the class reference.
+		/// </summary>
+		/// <value>
+		/// The class reference.
+		/// </value>
 		[BsonElement("Class")]
 		[BsonRequired]
 		public string ClassRef {
@@ -67,12 +93,24 @@ namespace ArtheaEngine.Model
 			set { Class = Class.Lookup (value); }
 		}
 
+		/// <summary>
+		/// Gets or sets the class.
+		/// </summary>
+		/// <value>
+		/// The class.
+		/// </value>
 		[BsonIgnore]
         public Class Class
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the combat prompt.
+		/// </summary>
+		/// <value>
+		/// The combat prompt.
+		/// </value>
 		[BsonIgnoreIfNull]
         public string CombatPrompt
         {
@@ -80,12 +118,24 @@ namespace ArtheaEngine.Model
             set;
         }
 
+		/// <summary>
+		/// Gets the last note.
+		/// </summary>
+		/// <value>
+		/// The last note.
+		/// </value>
 		[BsonDictionaryOptions(DictionaryRepresentation.ArrayOfArrays)]
         public Dictionary<string, DateTime> LastNote
         {
             get; private set;
         }
 
+		/// <summary>
+		/// Gets or sets the prompt.
+		/// </summary>
+		/// <value>
+		/// The prompt.
+		/// </value>
 		[BsonIgnoreIfNull]
         public string Prompt
         {
@@ -93,22 +143,33 @@ namespace ArtheaEngine.Model
             set;
         }
 
+		/// <summary>
+		/// Gets or sets the title.
+		/// </summary>
+		/// <value>
+		/// The title.
+		/// </value>
 		[BsonIgnoreIfNull]
         public string Title
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets the world.
+		/// </summary>
+		/// <value>
+		/// The world.
+		/// </value>
 		[BsonIgnore]
         public override World World
         {
             get { return Account.Connection.World; }
         }
 
-        #endregion Properties
-
-        #region Methods
-		
+		/// <summary>
+		/// Save this instance.
+		/// </summary>
 		public override bool Save ()
 		{
 			if(Account != null)
@@ -117,6 +178,9 @@ namespace ArtheaEngine.Model
 			return base.Save();
 		}
 
+		/// <summary>
+		/// Displaies the prompt.
+		/// </summary>
         public void DisplayPrompt()
         {
             var pos = Prompt.IndexOf('%');
@@ -167,11 +231,15 @@ namespace ArtheaEngine.Model
             Write(buf);
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-        }
-
+		/// <summary>
+		/// Determines whether this instance has read note the specified note.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if this instance has read note the specified note; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='note'>
+		/// Note.
+		/// </param>
         public bool HasReadNote(Note note)
         {
             if (!LastNote.ContainsKey(note.Forum.Id))
@@ -278,12 +346,27 @@ namespace ArtheaEngine.Model
                 Account.Page(buf);
         }
 
+		/// <summary>
+		/// Page the specified buf.
+		/// </summary>
+		/// <param name='buf'>
+		/// Buffer.
+		/// </param>
 		public override void Page (StringBuilder buf)
 		{
 			if(Account != null)
 				Account.Page(buf);
 		}
 
+		/// <summary>
+		/// Write the specified format and args.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='args'>
+		/// Arguments.
+		/// </param>
         public override void Write(string format, params object[] args)
         {
             if (Account != null)
@@ -292,6 +375,12 @@ namespace ArtheaEngine.Model
             }
         }
 
+		/// <summary>
+		/// Write the specified value.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
         public override void Write(byte[] value)
         {
             if (Account == null) return;
@@ -299,6 +388,15 @@ namespace ArtheaEngine.Model
             Account.Write(value);
         }
 
+		/// <summary>
+		/// Write the specified value.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='obj'>
+		/// Object.
+		/// </param>
         public override void Write(object obj)
         {
             if (Account == null) return;
@@ -306,6 +404,9 @@ namespace ArtheaEngine.Model
             Account.Write(obj);
         }
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
         public override void WriteLine()
         {
             if (Account == null) return;
@@ -313,6 +414,15 @@ namespace ArtheaEngine.Model
             Account.WriteLine();
         }
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='obj'>
+		/// Object.
+		/// </param>
         public override void WriteLine(object obj)
         {
             if (Account == null) return;
@@ -320,13 +430,20 @@ namespace ArtheaEngine.Model
             Account.WriteLine(obj);
         }
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='args'>
+		/// Arguments.
+		/// </param>
         public override void WriteLine(string format, params object[] args)
         {
             if (Account == null) return;
 
             Account.WriteLine(format, args);
         }
-
-        #endregion Methods
     }
 }

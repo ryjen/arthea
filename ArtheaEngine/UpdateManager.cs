@@ -1,8 +1,8 @@
-﻿namespace ArtheaEngine
-{
-    using System.Collections.Generic;
-    using System.Timers;
+﻿using System.Collections.Generic;
+using System.Timers;
 
+namespace ArtheaEngine
+{
 
     /// <summary>
     /// Tickable interface.

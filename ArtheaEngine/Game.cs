@@ -1,8 +1,9 @@
-﻿namespace ArtheaEngine
+﻿using System;
+using System.Collections;
+using System.Text.RegularExpressions;
+
+namespace ArtheaEngine
 {
-    using System;
-    using System.Collections;
-    using System.Text.RegularExpressions;
 
     /// <summary>
     /// Game related data

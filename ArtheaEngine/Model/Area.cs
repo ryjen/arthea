@@ -8,14 +8,16 @@ using System.Linq;
 
 namespace ArtheaEngine.Model
 {
-
+	/// <summary>
+	/// Area.
+	/// </summary>
     public class Area : INamedEntity, IFormattable, ITickable, IRootLevelDocument
     {
-        #region Constructors
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.Area"/> class.
+		/// </summary>
         public Area()
         {
-			
 			Id = ObjectId.GenerateNewId().ToString();
             TickInterval = Game.Rand.Next(90000, 120000);
 			Rooms = new ObservableCollection<Room>();
@@ -24,49 +26,92 @@ namespace ArtheaEngine.Model
 			});
         }
 
-
-        #endregion Constructors
-
-        #region Properties
-
+		/// <summary>
+		/// Gets or sets the credits.
+		/// </summary>
+		/// <value>
+		/// The credits.
+		/// </value>
         public string Credits
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the description.
+		/// </summary>
+		/// <value>
+		/// The description.
+		/// </value>
         public string Description
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets the rooms.
+		/// </summary>
+		/// <value>
+		/// The rooms.
+		/// </value>
 		[BsonIgnore]
 		public ObservableCollection<Room> Rooms
 		{
 			get; private set;
 		}
 
+		/// <summary>
+		/// Gets or sets the key.
+		/// </summary>
+		/// <value>
+		/// The key.
+		/// </value>
 		public string Key
 		{
 			get; set;
 		}
-		
+
+		/// <summary>
+		/// Gets the identifier.
+		/// </summary>
+		/// <value>
+		/// The identifier.
+		/// </value>
 		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id
 		{
 			get; set;
         }
 
+		/// <summary>
+		/// Gets the name.
+		/// </summary>
+		/// <value>
+		/// The name.
+		/// </value>
         public string Name
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets the tick interval.
+		/// </summary>
+		/// <value>
+		/// The tick interval.
+		/// </value>
         public int TickInterval
         {
             get;
             set;
         }
 
+		/// <summary>
+		/// Gets or sets the world reference.
+		/// </summary>
+		/// <value>
+		/// The world reference.
+		/// </value>
 		[BsonRequired]
 		[BsonElement("World")]
 		public string WorldRef {
@@ -77,26 +122,43 @@ namespace ArtheaEngine.Model
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the world.
+		/// </summary>
+		/// <value>
+		/// The world.
+		/// </value>
 		[BsonIgnore]
         public World World
         {
             get; set;
         }
 
-        #endregion Properties
-
-        #region Methods
-
-		
+		/// <summary>
+		/// Save this instance.
+		/// </summary>
 		public bool Save ()
 		{
 			return DbManager.Save (this);
 		}
-		
+
+		/// <summary>
+		/// Delete this instance.
+		/// </summary>
 		public bool Delete ()
 		{
 			return DbManager.Delete (this);
 		}
+
+		/// <summary>
+		/// Gets the default.
+		/// </summary>
+		/// <returns>
+		/// The default.
+		/// </returns>
+		/// <param name='world'>
+		/// World.
+		/// </param>
         public static Area GetDefault (World world)
 		{
 			Area area;
@@ -104,18 +166,16 @@ namespace ArtheaEngine.Model
 			if (DbManager.Count<Area> () != 0) {
 				area = DbManager.Query<Area> ().First ();
 
-				area.Rooms.AddAll (DbManager.Query<Room>().Where(r => r.Key.AreaRef.Equals (area.Id)));
+				area.Rooms.AddAll (DbManager.Query<Room>().Where(r => r.AreaRef.Equals (area.Id)));
 
 				return area;
 			}
 
             area = new Area() { Key = "limbo", World = world, Name = "Limbo", Credits = "Arthea"};
 
-			var room = new Room { Area = area, Name = "Limbo", Key = "limbo-1", Description = "You are in darkness.", Terrain = Terrain.Air };
+			var room = new Room { Area = area, Name = "Limbo", Description = "You are in darkness.", Terrain = Terrain.Air };
         
 			area.Rooms.Add(room);
-
-			//World.GetDefault().Areas.Add (area);
 
 			area.Save();
 
@@ -124,131 +184,20 @@ namespace ArtheaEngine.Model
             return area;
         }
 
+		/// <summary>
+		/// Lookup the specified keyword.
+		/// </summary>
+		/// <param name='keyword'>
+		/// Keyword.
+		/// </param>
         public static Area Lookup(string keyword)
         {
             return DbManager.Lookup<Area>(keyword);
         }
 
-		/*
-        public bool Delete(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("delete_area");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            return cmd.ExecuteNonQuery() == 1;
-        }
-
-        public bool Load(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("read_area");
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            var reader = cmd.ExecuteReader();
-
-            if (!reader.Read()) return false;
-
-            MapRow(reader);
-
-            return true;
-        }
-
-        public void LoadNpcs(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("select_area_npcs");
-
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            using (var reader = cmd.ExecuteReader())
-            {
-
-                while (reader.Read())
-                {
-                    var npc = new NonPlayer();
-                    npc.MapRow(reader);
-
-                    NonPlayer.List.Add(npc);
-                    NonPlayers.Add(npc);
-                }
-            }
-        }
-
-        public void LoadObjects(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("select_area_objects");
-
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            using (var reader = cmd.ExecuteReader())
-            {
-
-                while (reader.Read())
-                {
-                    var obj = new Object();
-                    obj.MapRow(reader);
-
-                    Object.List.Add(obj);
-                    Objects.Add(obj);
-                }
-            }
-        }
-
-        public void LoadRooms(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("select_area_rooms");
-
-            cmd.AddParameter("@id", DbType.Int32, Id);
-
-            using (var reader = cmd.ExecuteReader())
-            {
-
-                while (reader.Read())
-                {
-                    var room = new Room();
-                    room.MapRow(reader);
-
-                    Room.List.Add(room);
-                    Rooms.Add(room);
-                }
-            }
-
-            foreach (var room in Rooms)
-            {
-                room.LoadReset(conn);
-            }
-        }
-
-        public int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-
-            Id = reader.GetInt32(i++);
-            Name = reader.GetString(i++);
-            Credits = reader.GetString(i++);
-            World = World.List.SingleOrDefault(x => x.Id == reader.GetInt32(i++));
-
-            return i;
-        }
-
-        public bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_area");
-
-            cmd.AddParameter("@id", DbType.Int32, Id);
-            cmd.AddParameter("@name", DbType.String, Name);
-            cmd.AddParameter("@credits", DbType.String, Credits);
-            cmd.AddParameter("@world", DbType.Int32, World.Id);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-            {
-                Id = Convert.ToInt32(conn.LastInsertId());
-                List.Add(this);
-            }
-
-            return res;
-        }*/
-
+		/// <summary>
+		/// Tick this instance.
+		/// </summary>
         public void Tick()
         {
             LogManager.GetCurrentClassLogger().Info("{0} tick!", Name);
@@ -258,6 +207,18 @@ namespace ArtheaEngine.Model
             }
         }
 
+		/// <summary>
+		/// Tos the string.
+		/// </summary>
+		/// <returns>
+		/// The string.
+		/// </returns>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='formatProvider'>
+		/// Format provider.
+		/// </param>
         public string ToString(string format, IFormatProvider formatProvider)
         {
             if (string.IsNullOrEmpty(format) || format == "N")
@@ -272,6 +233,5 @@ namespace ArtheaEngine.Model
             }
         }
 
-        #endregion Methods
     }
 }

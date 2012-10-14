@@ -1,10 +1,11 @@
-﻿namespace ArtheaEngine
+﻿using ArtheaEngine.Model;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using System;
+using System.Linq;
+
+namespace ArtheaEngine
 {
-    using ArtheaEngine.Model;
-    using MongoDB.Bson;
-    using MongoDB.Bson.Serialization.Attributes;
-    using System;
-    using System.Linq;
 
     /// <summary>
     /// Entity interface.
@@ -65,7 +66,7 @@
     /// <summary>
     /// A foreign key to an area
     /// </summary>
-    public class AreaKey
+    /*public class AreaKey
     {
         #region Fields
 
@@ -165,5 +166,5 @@
         }
 
         #endregion Methods
-    }
+    }*/
 }

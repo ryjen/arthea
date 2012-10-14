@@ -1,4 +1,5 @@
 ﻿using ArtheaEngine;
+using NLog;
 
 namespace ArtheaServer
 {
@@ -10,7 +11,7 @@ namespace ArtheaServer
     using System.Text.RegularExpressions;
     using System.Windows.Forms;
 
-    public class ArtheaApp : WindowsFormsApplicationBase
+    internal class GUIProgram : WindowsFormsApplicationBase
     {
         #region Methods
 
@@ -31,6 +32,14 @@ namespace ArtheaServer
             this.SplashScreen = new ArtheaSplashScreen();
         }
 
+		public void Run (Arguments args)
+		{
+			Application.EnableVisualStyles ();
+			Application.SetCompatibleTextRenderingDefault (false);
+
+			base.Run(args);
+		}
+
         #endregion Methods
     }
 
@@ -42,6 +51,8 @@ namespace ArtheaServer
         // Variables
         private readonly StringDictionary Parameters;
 
+		private string[] value;
+
         #endregion Fields
 
         #region Constructors
@@ -50,8 +61,10 @@ namespace ArtheaServer
         /// Initializes a new instance of the <see cref="Arguments"/> class.
         /// </summary>
         /// <param name="Args">The args.</param>
-        public Arguments(IEnumerable<string> Args)
+        public Arguments(string[] Args)
         {
+			value = Args;
+
             Parameters = new StringDictionary();
             Regex Spliter = new Regex(@"^-{1,2}|^/|=|:",
                                       RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -148,37 +161,48 @@ namespace ArtheaServer
             get { return (Parameters[Param]); }
         }
 
+		public bool Has (string Param)
+		{
+			return Parameters.ContainsKey(Param);
+		}
+
         #endregion Indexers
+
+        public static implicit operator string[] (Arguments args) {
+            return args.value;
+        }
     }
 
-    /*internal static class Program
-    {
-        #region Methods
+	internal class ConsoleProgram
+	{
+		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
-        [STAThread]
-        private static void Main(string[] args)
-        {
-            var cmdLine = new Arguments(args);
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm(cmdLine["transfer"] != null));
-        }
+		public void Run(Arguments args)
+		{
 
-        #endregion Methods
-    }*/
-    static class Program
+			Log.Info("Starting console...");
+			if (DbManager.Count<World> () == 0) {
+				World.GetDefault ();
+			}
+
+			new ConsoleGame().Run(args);
+		}
+	}
+
+    internal static class Program
     {
         #region Methods
 
         [STAThread]
-        static void Main(string[] args)
-        {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            new ArtheaApp().Run(args);
+		static void Main (string[] arguments)
+		{
+			var args = new Arguments (arguments);
+
+			if (args.Has ("console")) {
+				new ConsoleProgram ().Run (args);
+			} else {
+				new GUIProgram ().Run (args);
+			}
         }
 
         #endregion Methods

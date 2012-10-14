@@ -9,8 +9,9 @@ using System.Collections.ObjectModel;
 namespace ArtheaEngine.Model
 {
 
-    #region Enumerations
-
+	/// <summary>
+	/// Forum permissions.
+	/// </summary>
     [Flags]
     public enum ForumPermissions
     {
@@ -28,8 +29,6 @@ namespace ArtheaEngine.Model
         Admin
     }
 
-    #endregion Enumerations
-
 
     /// <summary>
     /// Implementation of Forum.
@@ -39,8 +38,9 @@ namespace ArtheaEngine.Model
 	[BsonDiscriminator(Required = true, RootClass = true)]
     public class Forum : INamedEntity, IRootLevelDocument
     {
-        #region Constructors
-	
+		/// <summary>
+		/// Initializes the <see cref="ArtheaEngine.Model.Forum"/> class.
+		/// </summary>
 		static Forum() {
 			DbManager.Synchronize(new Forum[] {
 				new AnnounceForum(), 
@@ -62,39 +62,71 @@ namespace ArtheaEngine.Model
             });
         }
 
-        #endregion Constructors
-
-        #region Properties
-
+		/// <summary>
+		/// Gets or sets the description.
+		/// </summary>
+		/// <value>
+		/// The description.
+		/// </value>
 		[BsonIgnoreIfNull]
         public string Description
         {
 			get; protected set;
         }
 
+		/// <summary>
+		/// Gets the identifier.
+		/// </summary>
+		/// <value>
+		/// The identifier.
+		/// </value>
 		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id
         {
 			get; protected set;
         }
 
+		/// <summary>
+		/// Gets the name.
+		/// </summary>
+		/// <value>
+		/// The name.
+		/// </value>
         public string Name
         {
 			get; protected set;
         }
 
+		/// <summary>
+		/// Gets or sets the notes.
+		/// </summary>
+		/// <value>
+		/// The notes.
+		/// </value>
         public ObservableCollection<Note> Notes
         {
             get; protected set;
         }
 
+		/// <summary>
+		/// Gets or sets the read permission.
+		/// </summary>
+		/// <value>
+		/// The read permission.
+		/// </value>
 		[BsonDefaultValue(ForumPermissions.None)]
 		[BsonIgnoreIfDefault]
         public ForumPermissions ReadPermission
         {
 			get; protected set;
         }
-		
+
+		/// <summary>
+		/// Gets or sets the write permission.
+		/// </summary>
+		/// <value>
+		/// The write permission.
+		/// </value>
 		[BsonDefaultValue(ForumPermissions.None)]
 		[BsonIgnoreIfDefault]
         public ForumPermissions WritePermission
@@ -102,31 +134,51 @@ namespace ArtheaEngine.Model
 			get; protected set;
         }
 
-        #endregion Properties
-
-        #region Methods
-
+		/// <summary>
+		/// Lookup the specified id.
+		/// </summary>
+		/// <param name='id'>
+		/// Identifier.
+		/// </param>
         public static Forum Lookup(string id)
         {
 			return DbManager.Lookup<Forum>(id);
         }
 
+		/// <summary>
+		/// All this instance.
+		/// </summary>
 		public static IEnumerable<Forum> All ()
 		{
 			return DbManager.Query<Forum>();
 
 		}
 
+		/// <summary>
+		/// Save this instance.
+		/// </summary>
 		public bool Save ()
 		{
 			return DbManager.Save (this);
 		}
 
+		/// <summary>
+		/// Delete this instance.
+		/// </summary>
 		public bool Delete()
 		{
 			return DbManager.Delete(this);
 		}
 
+		/// <summary>
+		/// Readables the by.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c>, if by was readabled, <c>false</c> otherwise.
+		/// </returns>
+		/// <param name='ch'>
+		/// Ch.
+		/// </param>
         public bool ReadableBy(Character ch)
         {
             if (ReadPermission.HasFlag(ForumPermissions.Admin) && ch.Level < Game.Immortal)
@@ -193,8 +245,6 @@ namespace ArtheaEngine.Model
         {
 			ColumnFormatter columns = new ColumnFormatter(2, player);
 
-            //StringCollection columns = new StringCollection();
-
             var count = 0;
 
             foreach(var note in Notes)
@@ -207,8 +257,6 @@ namespace ArtheaEngine.Model
                                           (count + 1), note.Subject, note.From));
                 count++;
             }
-
-            //Columns.Show(player, 2, columns);
 
 			player.Page(columns);
         }
@@ -223,12 +271,16 @@ namespace ArtheaEngine.Model
         {
             return Name;
         }
-
-        #endregion Methods
 	}
 
+	/// <summary>
+	/// Announce forum.
+	/// </summary>
 	public class AnnounceForum : Forum
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.AnnounceForum"/> class.
+		/// </summary>
 		public AnnounceForum() 
 		{
 			Name = "Announce";
@@ -238,8 +290,14 @@ namespace ArtheaEngine.Model
 		}
 	}
 
+	/// <summary>
+	/// General forum.
+	/// </summary>
 	public class GeneralForum : Forum
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.GeneralForum"/> class.
+		/// </summary>
 		public GeneralForum ()
 		{
 			Name = "General";
@@ -249,8 +307,14 @@ namespace ArtheaEngine.Model
 		}
 	}
 
+	/// <summary>
+	/// Personal forum.
+	/// </summary>
 	public class PersonalForum : Forum
 	{
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.PersonalForum"/> class.
+		/// </summary>
 		public PersonalForum()
 		{
 			Name = "Personal";

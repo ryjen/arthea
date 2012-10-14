@@ -48,9 +48,8 @@
 
         public override void Commit()
         {
-            foreach (TempReset temp in Loaded)
+            	foreach (TempReset temp in Loaded)
                 {
-
                     StringBuilder buf = new StringBuilder();
 
                     switch (temp.command)
@@ -62,7 +61,7 @@
                                 continue;
                             }
                             buf.Append("npc(");
-                            buf.Append(Importer.Mobiles.Loaded[temp.arg1].Key);
+                            buf.Append(Importer.Mobiles.Loaded[temp.arg1].Id);
                             buf.Append(",");
                             buf.Append(temp.arg4); // max room
                             buf.Append(")\n");
@@ -75,7 +74,7 @@
                             }
 
                             buf.Append("obj(");
-                            buf.Append(Importer.Objects.Loaded[temp.arg1].Key);
+                            buf.Append(Importer.Objects.Loaded[temp.arg1].Id);
                             buf.Append(")\n");
                             break;
                         case 'D':
@@ -103,7 +102,7 @@
                                             + sub.arg1);
                                 }
                                 buf.Append("put(");
-                                buf.Append(Importer.Objects.Loaded[sub.arg1].Key);
+                                buf.Append(Importer.Objects.Loaded[sub.arg1].Id);
                                 buf.Append(")\n");
                                 break;
                             case 'G':
@@ -113,7 +112,7 @@
                                             + sub.arg1);
                                 }
                                 buf.Append("give(");
-                                buf.Append(Importer.Objects.Loaded[sub.arg1].Key);
+						buf.Append(Importer.Objects.Loaded[sub.arg1].Id);
                                 buf.Append(")\n");
                                 break;
                             case 'E':
@@ -123,17 +122,17 @@
                                             + sub.arg1);
                                 }
                                 buf.Append("equip(");
-                                buf.Append(Importer.Objects.Loaded[sub.arg1].Key);
+						buf.Append(Importer.Objects.Loaded[sub.arg1].Id);
                                 buf.Append(")\n");
                                 break;
                         }
                     }
 
-                    Reset reset = new Reset(room);
+                    //Reset reset = new Reset(room);
 
-                    reset.Code = buf.ToString();
+                    room.Reset = buf.ToString();
 
-                    room.Reset = reset;
+                    //room.Reset = reset;
 
 				room.Save();
                 }

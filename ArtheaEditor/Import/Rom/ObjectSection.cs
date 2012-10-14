@@ -120,7 +120,7 @@
                         item.Values.Add(reader.ReadNumber());
                         item.Values.Add(reader.ReadNumber());
                         item.Values.Add(reader.ReadNumber());
-                        item.Values.Add(Spell.Lookup(reader.ReadWord()).Name);
+                        item.Values.Add(Ability.Lookup(reader.ReadWord()).Name);
                         reader.ReadNumber();
                         break;
 
@@ -129,13 +129,13 @@
                     case ObjectType.Scroll:
 
                         item.Values.Add(reader.ReadNumber());
-                        var spell = Spell.Lookup(reader.ReadWord()); // skill lookup
+                        var spell = Ability.Lookup(reader.ReadWord()); // skill lookup
                         if (spell != null) item.Values.Add(spell.Name);
-                        spell = Spell.Lookup(reader.ReadWord()); // skill lookup
+					spell = Ability.Lookup(reader.ReadWord()); // skill lookup
                         if (spell != null) item.Values.Add(spell.Name);
-                        spell = Spell.Lookup(reader.ReadWord());
+					spell = Ability.Lookup(reader.ReadWord());
                         if (spell != null) item.Values.Add(spell.Name);
-                        spell = Spell.Lookup(reader.ReadWord());
+					spell = Ability.Lookup(reader.ReadWord());
                         if (spell != null) item.Values.Add(spell.Name);
 
                         break;
@@ -260,7 +260,7 @@
                             case 'V':
                                 break;
                             default:
-                                throw new ImportException("Invalid object flag on item " + item.Key);
+                                throw new ImportException("Invalid object flag on item " + item.Id);
                         }
 
                         reader.ReadNumber(); // location

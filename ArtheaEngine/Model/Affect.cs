@@ -3,12 +3,11 @@ using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Reflection;
 using System.Text;
+using MongoDB.Bson.Serialization.IdGenerators;
 
 
 namespace ArtheaEngine.Model
 {
-
-    #region Enumerations
 
 	/// <summary>
 	/// Affect flag.
@@ -30,18 +29,18 @@ namespace ArtheaEngine.Model
         Move
     }
 
-    #endregion Enumerations
-
 	/// <summary>
 	/// Affect.
 	/// </summary>
     public class Affect : IEntity, IFormattable
     {
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.Affect"/> class.
+		/// </summary>
 		public Affect()
 		{	
 			Id = ObjectId.GenerateNewId().ToString();
 		}
-        #region Properties
 
 		/// <summary>
 		/// Gets or sets the duration.
@@ -71,10 +70,10 @@ namespace ArtheaEngine.Model
 		/// <value>
 		/// The identifier.
 		/// </value>
-		[BsonId]
+		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id
         {
-            get; set;
+            get; private set;
         }
 
 		/// <summary>
@@ -109,10 +108,6 @@ namespace ArtheaEngine.Model
 			get;
 			set;
 		}
-
-        #endregion Properties
-
-        #region Methods
 
 		/// <summary>
 		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="ArtheaEngine.Model.Affect"/>.
@@ -215,7 +210,5 @@ namespace ArtheaEngine.Model
 
             throw new FormatException("unknown format");
         }
-
-        #endregion Methods
     }
 }

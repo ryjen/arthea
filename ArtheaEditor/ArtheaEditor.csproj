@@ -48,11 +48,8 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Transitions">
-      <HintPath>Libraries\Transitions.dll</HintPath>
-    </Reference>
     <Reference Include="NLog">
-      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\ThirdParty\NLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
