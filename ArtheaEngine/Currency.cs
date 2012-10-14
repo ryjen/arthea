@@ -1,8 +1,8 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Globalization;
+﻿using System;
+using System.Globalization;
 
+namespace ArtheaEngine
+{
     /// <summary>
     /// Currency.
     /// </summary>
@@ -62,12 +62,24 @@
         {
         }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Currency"/> class.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
         public Currency(ulong value)
         {
             Gold = Convert.ToUInt32(value / 100);
             Silver = Convert.ToUInt32(value % 100);
         }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Currency"/> class.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
         public Currency(decimal value)
         {
             Gold = (uint) value;
@@ -75,6 +87,12 @@
             Silver = (uint)((value - Gold) * 100);
         }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Currency"/> class.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
         public Currency(double value)
         {
             Gold = (uint)value;
@@ -166,6 +184,9 @@
             return c.Value;
         }
 
+		/// <param name='c'>
+		/// the currency object to convert
+		/// </param>
         public static implicit operator decimal(Currency c)
         {
             return c.Value / 100M;

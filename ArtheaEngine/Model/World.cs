@@ -23,13 +23,7 @@ namespace ArtheaEngine.Model
 
     public partial class World : INamedEntity, ICloneable, IRootLevelDocument
     {
-        #region Fields
-
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        #endregion Fields
-
-        #region Constructors
 
         public World ()
 		{
@@ -40,17 +34,17 @@ namespace ArtheaEngine.Model
 
 		static World ()
 		{
-			Objects = new Dictionary<string, string> ();
+			//Objects = new Dictionary<string, string> ();
 
-			Rooms = new Dictionary<string, string> ();
+			//Rooms = new Dictionary<string, string> ();
 
-			NonPlayers = new Dictionary<string, string> ();
+			//NonPlayers = new Dictionary<string, string> ();
 
 			DbManager.Synchronize(new Race[] { new HumanRace(), new DwarfRace() });
 
 			DbManager.Synchronize(new Class[] { new WarriorClass(), new MageClass() });
 
-			foreach (var a in DbManager.Query<Area>()) {
+			/*foreach (var a in DbManager.Query<Area>()) {
 
 				foreach(var o in DbManager.Query<Object>().Where (x => x.Key.AreaRef == a.Id))
 				{
@@ -67,15 +61,11 @@ namespace ArtheaEngine.Model
 				{
 					NonPlayers.Add (a.Key+"-"+npc.Key, npc.Id);
 				}
-			}
+			}*/
 		}
 
-        #endregion Constructors
 
-        #region Properties
-
-
-		public static Dictionary<string,string> Objects
+		/*public static Dictionary<string,string> Objects
 		{
 			get; private set;
 		}
@@ -88,7 +78,7 @@ namespace ArtheaEngine.Model
 		public static Dictionary<string,string> NonPlayers
 		{
 			get; private set;
-		}
+		}*/
 
 		/*
 		[BsonIgnore]
@@ -146,18 +136,10 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
-        #endregion Properties
-
-        #region Methods
-
         public static World GetDefault()
         {
 			if(DbManager.Count<World>() != 0)
 				return DbManager.Query<World>().First();
-
-            /*var world = List.FirstOrDefault(x => x.Port == 3778);
-
-            if (world != null) return world;*/
 
             Log.Info("Created default world");
             var world = new World();
@@ -186,24 +168,19 @@ namespace ArtheaEngine.Model
 
 		public static Object FindObject (string keyword)
 		{
-			if(!Objects.ContainsKey(keyword))
-				return null;
-			return DbManager.Lookup<Object>(Objects[keyword]);
+
+			return DbManager.Find<Object>(keyword);
 		}
 
 		public static NonPlayer FindNPC (string keyword)
 		{
-			if(!NonPlayers.ContainsKey(keyword))
-				return null;
-			return DbManager.Lookup<NonPlayer>(NonPlayers[keyword]);
+			return DbManager.Find<NonPlayer>(keyword);
 		}
 
 
 		public static Room FindRoom (string keyword)
 		{
-			if(!Rooms.ContainsKey(keyword))
-				return null;
-			return DbManager.Lookup<Room>(Rooms[keyword]);
+			return DbManager.Find<Room>(keyword);
 		}
 
 
@@ -323,7 +300,5 @@ namespace ArtheaEngine.Model
         {
             return Name + ":" + Port;
         }
-
-        #endregion Methods
     }
 }

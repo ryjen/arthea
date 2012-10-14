@@ -1,4 +1,6 @@
-﻿namespace ArtheaServer
+﻿using ArtheaEngine;
+
+namespace ArtheaServer
 {
     using ArtheaEngine.Model;
     using NLog;
@@ -10,13 +12,6 @@
     using Thought.Net.Telnet;
 
     #region Enumerations
-
-    public enum ServerState
-    {
-        Initializing,
-        Running,
-        Stopped
-    }
 
     #endregion Enumerations
 
@@ -83,7 +78,7 @@
         #endregion Fields
     }*/
 
-    public class TelnetServer : IDisposable
+    public class TelnetServer : IDisposable, IServer
     {
         #region Fields
 
@@ -101,7 +96,7 @@
         public TelnetServer(World world)
         {
             World = world;
-            Connections = new HashSet<TelnetConnection>();
+            Connections = new HashSet<IConnection>();
             List.Add(this);
         }
 
@@ -109,7 +104,7 @@
 
         #region Properties
 
-        public HashSet<TelnetConnection> Connections
+        public HashSet<IConnection> Connections
         {
             get;
             private set;
@@ -122,7 +117,7 @@
 
         public World World
         {
-            get; set;
+            get; private set;
         }
 
         #endregion Properties

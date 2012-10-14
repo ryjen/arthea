@@ -1,8 +1,9 @@
-﻿namespace ArtheaEngine
+﻿using System;
+using System.Linq.Expressions;
+using System.Reflection;
+
+namespace ArtheaEngine
 {
-    using System;
-    using System.Linq.Expressions;
-    using System.Reflection;
 
     /// <summary>
     /// Property helper.

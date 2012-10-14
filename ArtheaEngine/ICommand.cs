@@ -1,7 +1,7 @@
-﻿namespace ArtheaEngine
-{
+﻿using ArtheaEngine.Model;
 
-    using ArtheaEngine.Model;
+namespace ArtheaEngine
+{
 
     /// <summary>
     /// Command interface.

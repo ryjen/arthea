@@ -11,8 +11,9 @@ using System.Text;
 namespace ArtheaEngine.Model
 {
 
-    #region Enumerations
-
+	/// <summary>
+	/// Position.
+	/// </summary>
     public enum Position
     {
         Dead,
@@ -24,6 +25,9 @@ namespace ArtheaEngine.Model
         Standing
     }
 
+	/// <summary>
+	/// Sex.
+	/// </summary>
     public enum Sex
     {
         Neutral,
@@ -32,6 +36,9 @@ namespace ArtheaEngine.Model
         Hermaphrodite
     }
 
+	/// <summary>
+	/// Size.
+	/// </summary>
     public enum Size
     {
         Minuscule,
@@ -43,30 +50,51 @@ namespace ArtheaEngine.Model
         Giant
     }
 
-    #endregion Enumerations
-
+	/// <summary>
+	/// Action formatter.
+	/// </summary>
     public class ActionFormatter : IFormatProvider, ICustomFormatter
     {
-        #region Constructors
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.ActionFormatter"/> class.
+		/// </summary>
+		/// <param name='viewer'>
+		/// Viewer.
+		/// </param>
         public ActionFormatter(Character viewer)
         {
             Viewer = viewer;
         }
-
-        #endregion Constructors
-
-        #region Properties
-
+	
+		/// <summary>
+		/// Gets the viewer.
+		/// </summary>
+		/// <value>
+		/// The viewer.
+		/// </value>
         public Character Viewer
         {
             get; private set;
         }
 
-        #endregion Properties
-
-        #region Methods
-
+		/// <Docs>
+		/// To be added: an object of type 'string'
+		/// </Docs>
+		/// <param name='formatProvider'>
+		/// To be added: an object of type 'IFormatProvider'
+		/// </param>
+		/// <returns>
+		/// To be added: an object of type 'string'
+		/// </returns>
+		/// <summary>
+		/// Format the specified format, arg and formatProvider.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='arg'>
+		/// Argument.
+		/// </param>
         public string Format(string format, object arg, IFormatProvider formatProvider)
         {
             var ch = arg as Character;
@@ -87,25 +115,23 @@ namespace ArtheaEngine.Model
         {
             return formatType == typeof(ICustomFormatter) ? this : null;
         }
-
-        #endregion Methods
     }
 
+	/// <summary>
+	/// Character (an actor in the world)
+	/// </summary>
 	[BsonKnownTypes(typeof(NonPlayer), typeof(Player))]
 	[BsonDiscriminator(Required = true, RootClass = true)]
     public abstract class Character : INamedEntity, IRootLevelDocument, IWritable, IFormattable, IDisposable, ICloneable
     {
-        #region Fields
-
         private static readonly string[] HeShe = { "it", "he", "she", "it" };
         private static readonly string[] HimHer = { "it", "him", "her", "it" };
         private static readonly string[] HisHer = { "its", "his", "her", "it" };
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        #endregion Fields
-
-        #region Constructors
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.Character"/> class.
+		/// </summary>
         public Character()
         {
 			Id = ObjectId.GenerateNewId().ToString();
@@ -121,52 +147,102 @@ namespace ArtheaEngine.Model
             Vitals = new Vitals();
         }
 
-        #endregion Constructors
-
-        #region Properties
-
+		/// <summary>
+		/// Gets or sets the affects.
+		/// </summary>
+		/// <value>
+		/// The affects.
+		/// </value>
         public ObservableCollection<Affect> Affects
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the attack.
+		/// </summary>
+		/// <value>
+		/// The attack.
+		/// </value>
         public Dice Attack
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the carrying.
+		/// </summary>
+		/// <value>
+		/// The carrying.
+		/// </value>
         public ObservableCollection<Object> Carrying
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the defense.
+		/// </summary>
+		/// <value>
+		/// The defense.
+		/// </value>
         public Dice Defense
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the description.
+		/// </summary>
+		/// <value>
+		/// The description.
+		/// </value>
         public string Description
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the fighting.
+		/// </summary>
+		/// <value>
+		/// The fighting.
+		/// </value>
         public Combat Fighting
         {
             get;
             set;
         }
 
+		/// <summary>
+		/// Gets the identifier.
+		/// </summary>
+		/// <value>
+		/// The identifier.
+		/// </value>
 		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id
 		{
 			get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the level.
+		/// </summary>
+		/// <value>
+		/// The level.
+		/// </value>
         public short Level
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets the name.
+		/// </summary>
+		/// <value>
+		/// The name.
+		/// </value>
         public string Name
         {
             get; set;
@@ -177,6 +253,12 @@ namespace ArtheaEngine.Model
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the race reference.
+		/// </summary>
+		/// <value>
+		/// The race reference.
+		/// </value>
 		[BsonElement("Race")]
 		public string RaceRef {
 			get {
@@ -187,12 +269,24 @@ namespace ArtheaEngine.Model
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the race.
+		/// </summary>
+		/// <value>
+		/// The race.
+		/// </value>
 		[BsonIgnore]
         public Race Race
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the room reference.
+		/// </summary>
+		/// <value>
+		/// The room reference.
+		/// </value>
 		[BsonElement("Room")]
 		public string RoomRef {
 			get { 
@@ -203,66 +297,135 @@ namespace ArtheaEngine.Model
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the room.
+		/// </summary>
+		/// <value>
+		/// The room.
+		/// </value>
 		[BsonIgnore]
         public Room Room
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the sex.
+		/// </summary>
+		/// <value>
+		/// The sex.
+		/// </value>
         public Sex Sex
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the size.
+		/// </summary>
+		/// <value>
+		/// The size.
+		/// </value>
         public float Size
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the vitals.
+		/// </summary>
+		/// <value>
+		/// The vitals.
+		/// </value>
         public Vitals Vitals
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets the world.
+		/// </summary>
+		/// <value>
+		/// The world.
+		/// </value>
 		[BsonIgnore]
         public abstract World World
         {
             get;
         }
 
-        #endregion Properties
-
+		/// <summary>
+		/// Lookup the specified id.
+		/// </summary>
+		/// <param name='id'>
+		/// Identifier.
+		/// </param>
 		public static Character Lookup (string id)
 		{
 			return DbManager.Lookup<Character>(id);
 		}
 
+		/// <summary>
+		/// Lookup the specified id.
+		/// </summary>
+		/// <param name='id'>
+		/// Identifier.
+		/// </param>
+		/// <typeparam name='T'>
+		/// The 1st type parameter.
+		/// </typeparam>
 		public static T Lookup<T> (string id) where T:Character
 		{
 			return DbManager.LookupAs<Character,T> (id);
 		}
 
-        #region Methods
-		
+		/// <summary>
+		/// Save this instance.
+		/// </summary>
 		public virtual bool Save ()
 		{
 			return DbManager.Save (this);
 		}
-		
+
+		/// <summary>
+		/// Delete this instance.
+		/// </summary>
 		public bool Delete ()
 		{
 			return DbManager.Delete (this);
 		}
+
+		/// <summary>
+		/// Act the specified format and args.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='args'>
+		/// Arguments.
+		/// </param>
         public void Act(string format, params object[] args)
         {
             WriteLine(string.Format(new ActionFormatter(this), format, args));
         }
 
+		/// <summary>
+		/// Determines whether this instance can see the specified who.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if this instance can see the specified who; otherwise, <c>false</c>.
+		/// </returns>
+		/// <param name='who'>
+		/// Who.
+		/// </param>
         public virtual bool CanSee(Character who)
         {
             return true;
         }
 
+		/// <summary>
+		/// Clone this instance.
+		/// </summary>
         public Character Clone()
         {
             return MemberwiseClone() as Character;
@@ -281,6 +444,16 @@ namespace ArtheaEngine.Model
             }
         }
 
+		/// <summary>
+		/// Determines whether the specified <see cref="ArtheaEngine.Model.Character"/> is equal to the current <see cref="ArtheaEngine.Model.Character"/>.
+		/// </summary>
+		/// <param name='obj'>
+		/// The <see cref="ArtheaEngine.Model.Character"/> to compare with the current <see cref="ArtheaEngine.Model.Character"/>.
+		/// </param>
+		/// <returns>
+		/// <c>true</c> if the specified <see cref="ArtheaEngine.Model.Character"/> is equal to the current
+		/// <see cref="ArtheaEngine.Model.Character"/>; otherwise, <c>false</c>.
+		/// </returns>
         public virtual bool Equals(Character obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -288,6 +461,16 @@ namespace ArtheaEngine.Model
             return obj.Id.Equals(Id);
         }
 
+		/// <summary>
+		/// Determines whether the specified <see cref="System.Object"/> is equal to the current <see cref="ArtheaEngine.Model.Character"/>.
+		/// </summary>
+		/// <param name='obj'>
+		/// The <see cref="System.Object"/> to compare with the current <see cref="ArtheaEngine.Model.Character"/>.
+		/// </param>
+		/// <returns>
+		/// <c>true</c> if the specified <see cref="System.Object"/> is equal to the current
+		/// <see cref="ArtheaEngine.Model.Character"/>; otherwise, <c>false</c>.
+		/// </returns>
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -296,6 +479,15 @@ namespace ArtheaEngine.Model
             return Equals((Character)obj);
         }
 
+		/// <summary>
+		/// Equip the specified obj and location.
+		/// </summary>
+		/// <param name='obj'>
+		/// Object.
+		/// </param>
+		/// <param name='location'>
+		/// Location.
+		/// </param>
         public void Equip (Object obj, WearLocation location)
 		{
 			if (obj.WearLocation != WearLocation.None) {
@@ -313,79 +505,78 @@ namespace ArtheaEngine.Model
             Carrying.Add(obj);
         }
 
+		/// <summary>
+		/// Serves as a hash function for a <see cref="ArtheaEngine.Model.Character"/> object.
+		/// </summary>
+		/// <returns>
+		/// A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a hash table.
+		/// </returns>
         public override int GetHashCode()
         {
             return Id.GetHashCode();
         }
 
+		/// <summary>
+		/// Clone this instance.
+		/// </summary>
         object ICloneable.Clone()
         {
             return this.Clone();
         }
 
-		/*
-        public abstract bool Load(IDbConnection conn);
-
-        public virtual int MapRow(IDataRecord reader)
-        {
-            int i = 0;
-
-            Id = reader.GetInt64(i++);
-            Name = reader.GetString(i++);
-            Description = reader.GetStringOrNull(i++);
-            Level = reader.GetInt16(i++);
-
-            Race = Race.Lookup(reader.GetInt32(i++));
-            if (Race == null)
-                Race = new UniqueRace();
-            Size = reader.GetFloat(i++);
-            Position = reader.GetEnum<Position>(i++);
-            Sex = reader.GetEnum<Sex>(i++);
-
-            return i;
-        }
-
-
-        public virtual bool Save(IDbConnection conn)
-        {
-            var cmd = conn.CreateCommand("save_char");
-
-            cmd.AddParameter("@id", DbType.Int64, Id);
-            cmd.AddParameter("@name", DbType.String, Name);
-            cmd.AddParameter("@descr", DbType.String, Description);
-            cmd.AddParameter("@level", DbType.Int16, Level);
-            cmd.AddParameter("@race", DbType.Int32, Race.Id);
-            cmd.AddParameter("@size", DbType.Single, Size);
-            cmd.AddParameter("@position", DbType.String, Position.ToString());
-            cmd.AddParameter("@sex", DbType.String, Sex);
-
-            var res = cmd.ExecuteNonQuery() > 0;
-
-            if (Id == 0 && res)
-            {
-                Id = Convert.ToInt64(conn.LastInsertId());
-                List.Add(this);
-            }
-
-            return res;
-        }
-
-		*/
-
+		/// <summary>
+		/// Page the specified buf.
+		/// </summary>
+		/// <param name='buf'>
+		/// Buffer.
+		/// </param>
         public abstract void Page(string buf);
 
+		/// <summary>
+		/// Page the specified buf.
+		/// </summary>
+		/// <param name='buf'>
+		/// Buffer.
+		/// </param>
 		public abstract void Page(StringBuilder buf);
 
+		/// <summary>
+		/// Returns a <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Model.Character"/>.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="System.String"/> that represents the current <see cref="ArtheaEngine.Model.Character"/>.
+		/// </returns>
         public override string ToString()
         {
             return Name;
         }
 
+		/// <summary>
+		/// Tos the string.
+		/// </summary>
+		/// <returns>
+		/// The string.
+		/// </returns>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
         public virtual string ToString(string format)
         {
             return ToString(format, CultureInfo.CurrentCulture);
         }
 
+		/// <summary>
+		/// Tos the string.
+		/// </summary>
+		/// <returns>
+		/// The string.
+		/// </returns>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='formatProvider'>
+		/// Format provider.
+		/// </param>
         public virtual string ToString(string format, IFormatProvider formatProvider)
         {
             if (string.IsNullOrEmpty(format) || format == "N")
@@ -422,25 +613,73 @@ namespace ArtheaEngine.Model
             }
         }
 
+		/// <summary>
+		/// Write the specified format and args.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='args'>
+		/// Arguments.
+		/// </param>
         public abstract void Write(string format, params object[] args);
 
+		/// <summary>
+		/// Write the specified value.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
         public abstract void Write(byte[] value);
 
+		/// <summary>
+		/// Write the specified value.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='obj'>
+		/// Object.
+		/// </param>
         public abstract void Write(object obj);
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
         public abstract void WriteLine();
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='obj'>
+		/// Object.
+		/// </param>
         public abstract void WriteLine(object obj);
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='args'>
+		/// Arguments.
+		/// </param>
         public abstract void WriteLine(string format, params object[] args);
 
-        #endregion Methods
     }
 
+	/// <summary>
+	/// Vitals.
+	/// </summary>
     public class Vitals
     {
-        #region Constructors
-
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.Vitals"/> class.
+		/// </summary>
         public Vitals()
         {
             Life = MaxLife=100;
@@ -448,40 +687,70 @@ namespace ArtheaEngine.Model
             Energy = MaxEnergy = 100;
         }
 
-        #endregion Constructors
-
-        #region Properties
-
+		/// <summary>
+		/// Gets or sets the energy.
+		/// </summary>
+		/// <value>
+		/// The energy.
+		/// </value>
         public long Energy
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the life.
+		/// </summary>
+		/// <value>
+		/// The life.
+		/// </value>
         public long Life
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the mana.
+		/// </summary>
+		/// <value>
+		/// The mana.
+		/// </value>
         public long Mana
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the max energy.
+		/// </summary>
+		/// <value>
+		/// The max energy.
+		/// </value>
         public long MaxEnergy
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the max life.
+		/// </summary>
+		/// <value>
+		/// The max life.
+		/// </value>
         public long MaxLife
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the max mana.
+		/// </summary>
+		/// <value>
+		/// The max mana.
+		/// </value>
         public long MaxMana
         {
             get; set;
         }
-
-        #endregion Properties
     }
 }

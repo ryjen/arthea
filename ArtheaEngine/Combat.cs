@@ -1,10 +1,10 @@
-﻿namespace ArtheaEngine
-{
-    using ArtheaEngine.Model;
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
+﻿using ArtheaEngine.Model;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
+namespace ArtheaEngine
+{
     /// <summary>
     /// Combat.
     /// </summary>
@@ -133,6 +133,7 @@
 
             DisplayPrompt();
         }
+
 
         private static int[] GetAttacks(Dice d1, Dice d2)
         {

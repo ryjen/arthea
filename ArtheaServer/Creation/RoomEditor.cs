@@ -91,7 +91,7 @@
 
             if (arg.Is("F") || arg.Is("reset"))
             {
-                var ed = new ResetEditor(_connection, _data.Reset == null ? new Reset(_data) : _data.Reset);
+                var ed = new TextEditor(_connection, _data, PropertyHelper<Room>.GetProperty(x => x.Reset));
                 Forward(ed);
                 return true;
             }
@@ -121,7 +121,7 @@
             cols.Add("~YC) ~CTerrain: ~W{0}~x", _data.Terrain.ToString());
             cols.Add("~YD) ~CFlags: ~W{0}~x", _data.Flags);
             cols.Add("~RE) ~CExits: ~W{0} exits~x", _data.Exits.Count);
-            cols.Add("~RF) ~CReset: ~W{0}~x", _data.Reset == null ? "none" : _data.Reset.Id);
+            cols.Add(TextEditor.Preview("~RF) ~CReset", _data.Reset, cols.Width));
 
 			_connection.Page(cols.GetBuffer());
         }

@@ -1,8 +1,8 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace ArtheaEngine
+{
 
     /// <summary>
     /// Argument string.
@@ -33,6 +33,9 @@
             _mString = arg.ToString ();
         }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Argument"/> class.
+		/// </summary>
         private Argument()
         {
         }

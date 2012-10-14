@@ -11,8 +11,6 @@ namespace ArtheaEngine.Model
 
     public class Note : IEntity
     {
-        #region Constructors
-
         /// <summary>
         /// Initializes a new instance of the <see cref="Note"/> class.
         /// </summary>
@@ -30,6 +28,21 @@ namespace ArtheaEngine.Model
             When = DateTime.Now;
         }
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.Model.Note"/> class.
+		/// </summary>
+		/// <param name='to'>
+		/// To.
+		/// </param>
+		/// <param name='from'>
+		/// From.
+		/// </param>
+		/// <param name='subject'>
+		/// Subject.
+		/// </param>
+		/// <param name='text'>
+		/// Text.
+		/// </param>
 		public Note(IEntity to, IEntity from, string subject, string text)
 			: this(new MongoDBRef(to.GetType().FullName, to.Id), 
 			       new MongoDBRef(from.GetType().FullName, from.Id),
@@ -52,22 +65,36 @@ namespace ArtheaEngine.Model
             });
         }
 
-        #endregion Constructors
-
-        #region Properties
-
+		/// <summary>
+		/// Gets or sets the forum.
+		/// </summary>
+		/// <value>
+		/// The forum.
+		/// </value>
 		[BsonIgnore]
         public Forum Forum
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets from reference.
+		/// </summary>
+		/// <value>
+		/// From reference.
+		/// </value>
 		[BsonRequired]
 		[BsonElement("From")]
 		public MongoDBRef FromRef {
 			get; set;
         }
 
+		/// <summary>
+		/// Gets from.
+		/// </summary>
+		/// <value>
+		/// From.
+		/// </value>
 		[BsonIgnore]
 		public IEntity From {
 			get {
@@ -75,12 +102,24 @@ namespace ArtheaEngine.Model
 			}
 		}
 
+		/// <summary>
+		/// Gets the identifier.
+		/// </summary>
+		/// <value>
+		/// The identifier.
+		/// </value>
 		[BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the original reference.
+		/// </summary>
+		/// <value>
+		/// The original reference.
+		/// </value>
 		[BsonIgnoreIfNull]
 		[BsonElement("Original")]
 		public string OriginalRef {
@@ -88,36 +127,71 @@ namespace ArtheaEngine.Model
 			set { Original = Forum.Notes.Lookup (value); }
 		}
 
+		/// <summary>
+		/// Gets or sets the original.
+		/// </summary>
+		/// <value>
+		/// The original.
+		/// </value>
 		[BsonIgnore]
         public Note Original
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the replies.
+		/// </summary>
+		/// <value>
+		/// The replies.
+		/// </value>
         public ObservableCollection<Note> Replies
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the subject.
+		/// </summary>
+		/// <value>
+		/// The subject.
+		/// </value>
 		[BsonRequired]
         public string Subject
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets the text.
+		/// </summary>
+		/// <value>
+		/// The text.
+		/// </value>
 		[BsonRequired]
         public string Text
         {
             get; set;
         }
 
+		/// <summary>
+		/// Gets or sets to reference.
+		/// </summary>
+		/// <value>
+		/// To reference.
+		/// </value>
 		[BsonRequired]
 		[BsonElement("To")]
 		public MongoDBRef ToRef {
 			get; set;
         }
 
-
+		/// <summary>
+		/// Gets to.
+		/// </summary>
+		/// <value>
+		/// To.
+		/// </value>
 		[BsonIgnore]
 		public IEntity To {
 			get {
@@ -125,15 +199,17 @@ namespace ArtheaEngine.Model
 			}
 		}
 
+		/// <summary>
+		/// Gets or sets the when.
+		/// </summary>
+		/// <value>
+		/// The when.
+		/// </value>
 		[BsonRequired]
         public DateTime When
         {
             get; set;
         }
-
-        #endregion Properties
-
-        #region Methods
 
         /// <summary>
         /// Determines whether a specific note can be read on this Forum.
@@ -149,7 +225,5 @@ namespace ArtheaEngine.Model
                     (FromRef != null && FromRef.Id == entity.Id) ||
                     (ToRef != null && ToRef.Id == entity.Id)));
         }
-
-        #endregion Methods
     }
 }

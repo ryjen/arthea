@@ -1,10 +1,10 @@
-﻿namespace ArtheaEngine
-{
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
+namespace ArtheaEngine
+{
     #region Enumerations
 
     /// <summary>

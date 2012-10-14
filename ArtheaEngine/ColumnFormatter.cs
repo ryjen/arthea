@@ -1,10 +1,10 @@
-﻿namespace ArtheaEngine
-{
-    using ArtheaEngine.Model;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
+﻿using ArtheaEngine.Model;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
+namespace ArtheaEngine
+{
     #region Enumerations
 
     /// <summary>
@@ -792,6 +792,12 @@
             return count;
         }
 
+		/// <summary>
+		/// Tos the array.
+		/// </summary>
+		/// <returns>
+		/// The array.
+		/// </returns>
         public Column[] ToArray()
         {
             return _columns.ToArray();

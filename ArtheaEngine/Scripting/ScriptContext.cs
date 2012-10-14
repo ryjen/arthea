@@ -1,21 +1,65 @@
 
-namespace ArtheaEngine
+namespace ArtheaEngine.Scripting
 {
-	public class ScriptContext<T>
+	/// <summary>
+	/// Script context.
+	/// </summary>
+	public class ScriptContext
 	{
-		public ScriptContext (IWritable to)
+		object[] arguments;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ArtheaEngine.ScriptContext"/> class.
+		/// </summary>
+		/// <param name='to'>
+		/// The writable instance initiating the action
+		/// </param>
+		/// <param name='args'>
+		/// Parameters for the script
+		/// </param>
+		public ScriptContext (params object[] args)
 		{
-			To = to;
+			this.arguments = args;
 		}
 
-		public IWritable To
-		{
-			get; set;
+		/// <summary>
+		/// Gets the parameters.
+		/// </summary>
+		/// <value>
+		/// The parameters.
+		/// </value>
+		public object[] Parameters {
+			get {
+				return arguments;
+			}
 		}
 
-		public T Value {
-			get;
-			set;
+		/// <summary>
+		/// Sets the parameters.
+		/// </summary>
+		/// <param name='args'>
+		/// Arguments.
+		/// </param>
+		public void SetParameters (params object[] args)
+		{
+			this.arguments = args;
+		}
+
+		/// <summary>
+		/// Apply the specified script.
+		/// </summary>
+		/// <param name='script'>
+		/// Script.
+		/// </param>
+		public virtual void Apply (ArtheaScript script)
+		{
+
+			int count = 1;
+				
+			foreach (var val in Parameters) {
+				script.SetParameter ("$" + count, val);
+				count++;
+			}
 		}
 	}
 }

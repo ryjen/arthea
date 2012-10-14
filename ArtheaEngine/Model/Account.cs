@@ -10,7 +10,6 @@ using System.Text;
 namespace ArtheaEngine.Model
 {
 
-    #region Enumerations
 	/// <summary>
 	/// Account flag.
 	/// </summary>
@@ -21,15 +20,11 @@ namespace ArtheaEngine.Model
         Admin
     }
 
-    #endregion Enumerations
-
 	/// <summary>
 	/// Account.
 	/// </summary>
     public class Account : IWritable, IRootLevelDocument
     {
-        #region Constructors
-
 		/// <summary>
 		/// Initializes the <see cref="ArtheaEngine.Model.Account"/> class.
 		/// </summary>
@@ -56,10 +51,6 @@ namespace ArtheaEngine.Model
 			Login = login;
 			Players = new List<string>();
         }
-
-        #endregion Constructors
-
-        #region Properties
 
 		/// <summary>
 		/// Gets or sets the connection.
@@ -156,46 +147,95 @@ namespace ArtheaEngine.Model
 			return DbManager.Delete (this);
 		}
 
-
-        #endregion Properties
-
-        #region Methods
-
+		/// <summary>
+		/// Page the specified buf.
+		/// </summary>
+		/// <param name='buf'>
+		/// Buffer.
+		/// </param>
         public virtual void Page(string buf)
         {
             Connection.Page(buf);
         }
 
+		/// <summary>
+		/// Page the specified buf.
+		/// </summary>
+		/// <param name='buf'>
+		/// Buffer.
+		/// </param>
 		public virtual void Page (StringBuilder buf)
 		{
 			Connection.Page (buf);
 		}
 
+		/// <summary>
+		/// Write the specified format and args.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='args'>
+		/// Arguments.
+		/// </param>
         public virtual void Write(string format, params object[] args)
         {
             Connection.Write(format, args);
         }
 
+		/// <summary>
+		/// Write the specified value.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
         public virtual void Write(byte[] value)
         {
             Connection.Write(value);
         }
 
+		/// <summary>
+		/// Write the specified value.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
+		/// <param name='obj'>
+		/// Object.
+		/// </param>
         public virtual void Write(object obj)
         {
             Connection.Write(obj);
         }
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
         public virtual void WriteLine()
         {
             Connection.WriteLine();
         }
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='value'>
+		/// Value.
+		/// </param>
         public virtual void WriteLine(object value)
         {
             Connection.WriteLine(value);
         }
 
+		/// <summary>
+		/// Writes the line.
+		/// </summary>
+		/// <param name='format'>
+		/// Format.
+		/// </param>
+		/// <param name='args'>
+		/// Arguments.
+		/// </param>
         public virtual void WriteLine(string format, params object[] args)
         {
             Connection.WriteLine(format, args);
@@ -211,7 +251,5 @@ namespace ArtheaEngine.Model
 		{
 			return DbManager.Lookup<Account> (id);
 		}
-
-        #endregion Methods
     }
 }

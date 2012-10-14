@@ -1,7 +1,9 @@
-﻿namespace ArtheaEngine
+﻿using System.Net.Sockets;
+using ArtheaEngine.Model;
+using System;
+
+namespace ArtheaEngine
 {
-    using ArtheaEngine.Model;
-    using System;
 
     #region Enumerations
 
@@ -80,6 +82,11 @@
         {
             get;
         }
+
+		Socket Socket
+		{
+			get;
+		}
 
         #endregion Properties
     }

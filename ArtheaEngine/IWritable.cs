@@ -1,6 +1,7 @@
-﻿namespace ArtheaEngine
+﻿using System.Text;
+
+namespace ArtheaEngine
 {
-    using System.Text;
 
     /// <summary>
     /// Writable interface.

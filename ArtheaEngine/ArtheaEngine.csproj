@@ -70,16 +70,16 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="MongoDB.Bson">
-      <HintPath>..\packages\mongocsharpdriver.1.6\lib\net35\MongoDB.Bson.dll</HintPath>
+      <HintPath>..\ThirdParty\MongoDB\MongoDB.Bson.dll</HintPath>
     </Reference>
     <Reference Include="MongoDB.Driver">
-      <HintPath>..\packages\mongocsharpdriver.1.6\lib\net35\MongoDB.Driver.dll</HintPath>
+      <HintPath>..\ThirdParty\MongoDB\MongoDB.Driver.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
-      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
+      <HintPath>..\ThirdParty\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Jint">
-      <HintPath>..\packages\Jint.dll</HintPath>
+      <HintPath>..\ThirdParty\Jint\Debug\Jint.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -111,19 +111,16 @@
     <Compile Include="Model\Race.cs" />
     <Compile Include="Model\Room.cs" />
     <Compile Include="Model\Social.cs" />
-    <Compile Include="Model\Skill.cs" />
-    <Compile Include="Model\Spell.cs" />
-    <Compile Include="Model\Reset.cs" />
     <Compile Include="UpdateManager.cs" />
     <Compile Include="DbManager.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="PropertyHelper.cs" />
     <Compile Include="ColumnFormatter.cs" />
     <Compile Include="Currency.cs" />
-    <Compile Include="Scripting\IScript.cs" />
-    <Compile Include="Scripting\NPCScript.cs" />
     <Compile Include="Scripting\ScriptContext.cs" />
     <Compile Include="Scripting\ArtheaScript.cs" />
+    <Compile Include="Scripting\WritableScriptContext.cs" />
+    <Compile Include="Scripting\ResetScriptContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
@@ -138,7 +135,4 @@
   </Target>
   -->
   <ItemGroup />
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
 </Project>

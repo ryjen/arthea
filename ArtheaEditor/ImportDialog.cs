@@ -1,14 +1,14 @@
 ﻿using ArtheaEditor.Import;
+using System;
+using System.IO;
+using System.Windows.Forms;
+
+using NLog;
+using NLog.Config;
+using NLog.Targets;
 
 namespace ArtheaEditor
 {
-    using System;
-    using System.IO;
-    using System.Windows.Forms;
-
-    using NLog;
-    using NLog.Config;
-    using NLog.Targets;
 
     public partial class ImportDialog : Form
     {

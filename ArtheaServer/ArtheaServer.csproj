@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Commandlineparameters>/console</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,10 +39,6 @@
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Microsoft.Win32.TaskScheduler">
       <HintPath>Libraries\Microsoft.Win32.TaskScheduler.dll</HintPath>
-    </Reference>
-    <Reference Include="NLog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NLog.2.0.0.2000\lib\net40\NLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -57,6 +54,15 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Xml" />
+    <Reference Include="Thought.Net.Telnet">
+      <HintPath>ThirdParty\Thought.Net.Telnet\Release\Thought.Net.Telnet.dll</HintPath>
+    </Reference>
+    <Reference Include="Thought.Terminals">
+      <HintPath>ThirdParty\Thought.Terminals\Release\Thought.Terminals.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\ThirdParty\NLog.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GUI\ArtheaSplashScreen.cs">
@@ -83,7 +89,6 @@
     <Compile Include="Creation\ExitsEditor.cs" />
     <Compile Include="Creation\HelpEditor.cs" />
     <Compile Include="Creation\ObjectEditor.cs" />
-    <Compile Include="Creation\ResetEditor.cs" />
     <Compile Include="Creation\RoomEditor.cs" />
     <Compile Include="Creation\TextEditor.cs" />
     <Compile Include="TelnetConnection.cs" />
@@ -91,7 +96,6 @@
       <DependentUpon>MainGame.cs</DependentUpon>
     </Compile>
     <Compile Include="Creation\Editor.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="GUI\ArtheaSplashScreen.resx">
       <DependentUpon>ArtheaSplashScreen.cs</DependentUpon>
@@ -119,16 +123,14 @@
     </Compile>
     <Compile Include="RebootHelper.cs" />
     <Compile Include="Commands\ScoreCommand.cs" />
-    <None Include="packages.config" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Console\ConsoleGame.cs" />
+    <Compile Include="IServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArtheaEngine\ArtheaEngine.csproj">
       <Project>{BDE17C69-A398-4FFD-B8B1-2454066ED64E}</Project>
       <Name>ArtheaEngine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Thought.Net.Telnet\Thought.Net.Telnet.csproj">
-      <Project>{7CA62F6C-37B9-4B9F-8132-81E02FBC7C11}</Project>
-      <Name>Thought.Net.Telnet</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -142,4 +144,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <Folder Include="Console\" />
+  </ItemGroup>
 </Project>
