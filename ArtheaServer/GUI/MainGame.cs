@@ -1,21 +1,17 @@
-﻿namespace ArtheaServer
+﻿using System;
+using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Windows.Forms;
+using ArtheaEngine;
+using ArtheaEngine.Model;
+using NLog;
+using NLog.Config;
+using NLog.Targets;
+
+namespace ArtheaServer
 {
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using NLog;
-    using NLog.Config;
-    using NLog.Targets;
-    using System;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Net.Sockets;
-    using System.Reflection;
-    using System.Text;
-    using System.Windows.Forms;
-
-
     public partial class MainGame : Form
     {
         #region Constructors
@@ -24,16 +20,16 @@
         {
             InitializeComponent();
 
-            foreach (var entry in DbManager.Query<World>())
+            foreach (World entry in DbManager.Query<World>())
             {
                 var mi = new ToolStripMenuItem(entry.Name);
 
-				ToolStripMenuItem miStart;
+                ToolStripMenuItem miStart;
 
                 if (!GameServer.IsWorldActive(entry))
-                    miStart = new ToolStripMenuItem("Start") { Tag = entry };
+                    miStart = new ToolStripMenuItem("Start") {Tag = entry};
                 else
-                    miStart = new ToolStripMenuItem("Stop") { Tag = entry };
+                    miStart = new ToolStripMenuItem("Stop") {Tag = entry};
 
                 miStart.Click += miStart_Click;
                 mi.DropDownItems.Add(miStart);
@@ -50,9 +46,9 @@
         {
             var buf = new StringBuilder();
 
-            var assName = Assembly.GetAssembly(typeof(World)).GetName(false);
+            AssemblyName assName = Assembly.GetAssembly(typeof (World)).GetName(false);
 
-            var vrs = assName.Version;
+            Version vrs = assName.Version;
 
             buf.Append(assName.Name).Append(": v");
             buf.AppendFormat("{0}.{1}.{2}", vrs.Major, vrs.Minor, vrs.Build);
@@ -75,7 +71,7 @@
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            foreach (var s in TelnetServer.List.Reverse())
+            foreach (TelnetServer s in TelnetServer.List.Reverse())
             {
                 s.Stop();
             }
@@ -146,16 +142,16 @@
             RestoreMainForm();
         }
 
-        private TelnetServer StartWorld (World world)
-		{
-			var server = new TelnetServer (world);
-			StartServer (server);
-			return server;
-		}
+        private TelnetServer StartWorld(World world)
+        {
+            var server = new TelnetServer(world);
+            StartServer(server);
+            return server;
+        }
 
-		private void StartServer(TelnetServer server)
-		{
-			World world = server.World;
+        private void StartServer(TelnetServer server)
+        {
+            World world = server.World;
 
             var tabPage = new TabPage(world.Name);
             tabPage.Tag = world.Id;
@@ -166,7 +162,7 @@
             output.Dock = DockStyle.Fill;
             tabPage.Controls.Add(output);
 
-            RTLogTarget target = new RTLogTarget(output);
+            var target = new RTLogTarget(output);
             target.Layout = "${date:format=HH\\:MM\\:ss} ${logger} ${message}";
 
             SimpleConfigurator.ConfigureForTargetLogging(target);
@@ -196,6 +192,16 @@
         }
 
         #endregion Methods
+
+        private void RebootToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            RebootHelper.Reboot();
+        }
+
+        private void ShutdownToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            GameServer.Exit();
+        }
     }
 
     public sealed class RTLogTarget : TargetWithLayout
@@ -204,7 +210,7 @@
 
         public RTLogTarget(RichTextBox box)
         {
-            this.Display = box;
+            Display = box;
         }
 
         #endregion Constructors
@@ -213,14 +219,11 @@
 
         public delegate void AppendTextDelegate(string text);
 
-        #endregion Delegates
+        #endregion
 
         #region Properties
 
-        public RichTextBox Display
-        {
-            get; set;
-        }
+        public RichTextBox Display { get; set; }
 
         #endregion Properties
 
@@ -234,7 +237,7 @@
 
         protected override void Write(LogEventInfo logEvent)
         {
-            string logMessage = this.Layout.Render(logEvent);
+            string logMessage = Layout.Render(logEvent);
 
             if (Display.InvokeRequired)
             {
@@ -248,5 +251,4 @@
 
         #endregion Methods
     }
-
 }

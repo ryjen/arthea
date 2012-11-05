@@ -1,8 +1,8 @@
-﻿namespace ArtheaServer.Commands
-{
+﻿using ArtheaEngine;
+using ArtheaEngine.Model;
 
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
+namespace ArtheaServer.Commands
+{
 
     #region Enumerations
 
@@ -40,25 +40,13 @@
 
         #region Properties
 
-        public abstract string Color
-        {
-            get;
-        }
+        public abstract string Color { get; }
 
-        public abstract string DisplayName
-        {
-            get;
-        }
+        public abstract string DisplayName { get; }
 
-        public abstract ChannelFlag Flag
-        {
-            get;
-        }
+        public abstract ChannelFlag Flag { get; }
 
-        public abstract ChannelPermission Permission
-        {
-            get;
-        }
+        public abstract ChannelPermission Permission { get; }
 
         #endregion Properties
 
@@ -110,7 +98,7 @@
                 case '+':
                     argument.Next();
 
-				    var s = Social.Lookup(argument.Next());
+                    Social s = Social.Lookup(argument.Next());
 
                     if (s == null)
                     {
@@ -188,7 +176,7 @@
                     break;
             }
 
-            foreach (var player in ch.World.Players)
+            foreach (Player player in ch.World.Players)
             {
                 if (type == ChannelType.Who || player == ch || !CanUseChannel(player))
                     continue;
@@ -213,12 +201,12 @@
 
         private void ProcessChannelSocial(Character ch, string argument, params object[] args)
         {
-            foreach (var wch in ch.World.Players)
+            foreach (Player wch in ch.World.Players)
             {
                 if (ch == wch || CanUseChannel(wch))
                 {
                     wch.Act(string.Format("{0} {1}{2}~x",
-                                                        DisplayName, Color, argument), args);
+                                          DisplayName, Color, argument), args);
                 }
             }
         }

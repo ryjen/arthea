@@ -1,14 +1,14 @@
-﻿namespace ArtheaServer.Creation
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System;
+﻿using System;
+using ArtheaEngine;
+using ArtheaEngine.Model;
 
+namespace ArtheaServer.Creation
+{
     public class RoomEditor : Editor
     {
         #region Fields
 
-        private Room _data;
+        private readonly Room _data;
 
         #endregion Fields
 
@@ -35,7 +35,7 @@
 
         public override bool Execute(Argument argument)
         {
-            var arg = argument.Next();
+            string arg = argument.Next();
 
             if (base.Execute(arg))
                 return true;
@@ -116,14 +116,14 @@
             cols.Add("   ~CId: ~W{0}", _data.Id);
             cols.Add("   ~CArea: ~W{0}", _data.Area.Name);
             cols.Add("~YA) ~CName: ~W{0}~x", _data.Name);
-			cols.SetSpan(2);
-			cols.Add (TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
+            cols.SetSpan(2);
+            cols.Add(TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
             cols.Add("~YC) ~CTerrain: ~W{0}~x", _data.Terrain.ToString());
             cols.Add("~YD) ~CFlags: ~W{0}~x", _data.Flags);
             cols.Add("~RE) ~CExits: ~W{0} exits~x", _data.Exits.Count);
             cols.Add(TextEditor.Preview("~RF) ~CReset", _data.Reset, cols.Width));
 
-			_connection.Page(cols.GetBuffer());
+            _connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods

@@ -1,11 +1,11 @@
-﻿namespace ArtheaServer.Commands
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using ArtheaEngine;
+using ArtheaEngine.Model;
 
+namespace ArtheaServer.Commands
+{
     public abstract class Command : IComparable<Command>, IEqualityComparer<ICommand>
     {
         #region Fields
@@ -18,7 +18,7 @@
 
         static Command()
         {
-            foreach (var type in Assembly.GetExecutingAssembly().GetTypes())
+            foreach (Type type in Assembly.GetExecutingAssembly().GetTypes())
             {
                 if (!type.IsSubclassOf(typeof (Command)) || type.IsAbstract)
                     continue;
@@ -52,34 +52,42 @@
 
         #region Properties
 
-        public HashSet<string> Aliases
-        {
-            get; protected set;
-        }
+        public HashSet<string> Aliases { get; protected set; }
 
-        public string Description
-        {
-            get; protected set;
-        }
+        public string Description { get; protected set; }
 
-        public short Level
-        {
-            get; protected set;
-        }
+        public short Level { get; protected set; }
 
-        public string Name
-        {
-            get; protected set;
-        }
+        public string Name { get; protected set; }
 
-        protected byte ListPriority
-        {
-            get; set;
-        }
+        protected byte ListPriority { get; set; }
 
         #endregion Properties
 
         #region Methods
+
+        #region IComparable<Command> Members
+
+        public int CompareTo(Command other)
+        {
+            return Name.CompareTo(other.Name) & ListPriority.CompareTo(other.ListPriority);
+        }
+
+        #endregion
+
+        #region IEqualityComparer<ICommand> Members
+
+        public bool Equals(ICommand x, ICommand y)
+        {
+            return x.Name.Equals(y.Name);
+        }
+
+        public int GetHashCode(ICommand obj)
+        {
+            return obj.Name.GetHashCode();
+        }
+
+        #endregion
 
         public static bool Interpret(Character ch, Argument argument)
         {
@@ -93,8 +101,8 @@
                 return true;
             }
 
-            var arg = argument.Next();
-            foreach (var cmd in Commands)
+            string arg = argument.Next();
+            foreach (Command cmd in Commands)
             {
                 if (!cmd.CanUse(ch))
                     continue;
@@ -105,7 +113,7 @@
                     return true;
                 }
 
-                foreach (var alias in cmd.Aliases)
+                foreach (string alias in cmd.Aliases)
                 {
                     if (alias.StartsWith(arg, StringComparison.CurrentCultureIgnoreCase))
                     {
@@ -123,22 +131,7 @@
             return Level <= ch.Level;
         }
 
-        public int CompareTo(Command other)
-        {
-            return Name.CompareTo(other.Name) & ListPriority.CompareTo(other.ListPriority);
-        }
-
-        public bool Equals(ICommand x, ICommand y)
-        {
-            return x.Name.Equals(y.Name);
-        }
-
         public abstract void Execute(Character ch, Argument argument);
-
-        public int GetHashCode(ICommand obj)
-        {
-            return obj.Name.GetHashCode();
-        }
 
         #endregion Methods
     }

@@ -1,40 +1,28 @@
-using System;
-using ArtheaEngine.Model;
 using System.Collections.Generic;
 using ArtheaEngine;
+using ArtheaEngine.Model;
 
 namespace ArtheaServer
 {
-	public enum ServerState
-	{
-		Initializing,
-		Running,
-		Stopped
-	}
+    public enum ServerState
+    {
+        Initializing,
+        Running,
+        Stopped
+    }
 
-	public interface IServer
-	{
+    public interface IServer
+    {
+        HashSet<IConnection> Connections { get; }
 
-		HashSet<IConnection> Connections
-		{
-			get;
-		}
+        ServerState State { get; set; }
 
-		ServerState State
-		{
-			get; set;
-		}
+        World World { get; }
 
-		World World
-		{
-			get;
-		}
+        void Listen();
 
-		void Listen();
+        void Start();
 
-		void Start();
-
-		void Stop();
-	}
+        void Stop();
+    }
 }
-

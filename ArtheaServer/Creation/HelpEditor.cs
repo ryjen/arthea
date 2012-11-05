@@ -1,14 +1,13 @@
-﻿namespace ArtheaServer.Creation
+﻿using ArtheaEngine;
+using ArtheaEngine.Model;
+
+namespace ArtheaServer.Creation
 {
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-
     public class HelpEditor : Editor
     {
         #region Fields
 
-        private Help _data;
+        private readonly Help _data;
 
         #endregion Fields
 
@@ -35,7 +34,7 @@
 
         public override bool Execute(Argument argument)
         {
-            var arg = argument.Next();
+            string arg = argument.Next();
 
             if (base.Execute(argument))
                 return true;
@@ -67,20 +66,20 @@
 
         public override void Save()
         {
-			_data.Save();
+            _data.Save();
         }
 
         public override void Show()
         {
             Reset();
 
-            ColumnFormatter cols = new ColumnFormatter(2, _connection.ScreenWidth);
+            var cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
             cols.Add("~YA) ~CKeywords: ~W{0}~x", _data.Keywords.ToCSV());
 
-            cols.SetSpan (2).Add(TextEditor.Preview("~YB) Text", _data.Text, cols.Width));
+            cols.SetSpan(2).Add(TextEditor.Preview("~YB) Text", _data.Text, cols.Width));
 
-			_connection.Page(cols.GetBuffer());
+            _connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods

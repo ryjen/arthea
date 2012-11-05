@@ -1,9 +1,9 @@
-﻿namespace ArtheaServer.Commands
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using ArtheaEngine;
+using ArtheaEngine.Model;
 
+namespace ArtheaServer.Commands
+{
     internal class CommandsCommand : Command
     {
         #region Constructors
@@ -23,12 +23,12 @@
 
             var p = ch as Player;
 
-            var columns = p.Account.Connection.ScreenWidth/11;
-            var i = 0;
+            int columns = p.Account.Connection.ScreenWidth/11;
+            int i = 0;
 
             var sorted = new SortedList<string, Command>();
 
-            foreach (var cmd in Commands)
+            foreach (Command cmd in Commands)
                 sorted.Add(cmd.Name, cmd);
 
             foreach (var cmd in sorted)

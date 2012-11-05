@@ -1,9 +1,9 @@
-﻿namespace ArtheaServer.Commands
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System.Linq;
+﻿using System.Linq;
+using ArtheaEngine;
+using ArtheaEngine.Model;
 
+namespace ArtheaServer.Commands
+{
     public class KillCommand : Command
     {
         #region Constructors
@@ -19,7 +19,7 @@
 
         public override void Execute(Character ch, Argument argument)
         {
-            var victim = ch.Room.Characters.FirstOrDefault(x => x.Name.HasWord(argument));
+            Character victim = ch.Room.Characters.FirstOrDefault(x => x.Name.HasWord(argument));
 
             if (victim == null)
             {

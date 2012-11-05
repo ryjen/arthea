@@ -1,9 +1,8 @@
-﻿namespace ArtheaServer.Commands
+﻿using ArtheaEngine;
+using ArtheaEngine.Model;
+
+namespace ArtheaServer.Commands
 {
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-
     public class SaveCommand : Command
     {
         #region Constructors
@@ -21,11 +20,11 @@
         {
             if (!(ch is Player)) return;
 
-			Player p = ch as Player;
+            var p = ch as Player;
 
-			ch.Save();
+            ch.Save();
 
-			p.Account.Save();
+            p.Account.Save();
 
             ch.WriteLine(ch.Name + " saved.");
         }

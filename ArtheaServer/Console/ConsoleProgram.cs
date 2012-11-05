@@ -1,16 +1,15 @@
-﻿using ArtheaEngine;
+﻿using System;
+using ArtheaEngine;
 using ArtheaEngine.Model;
 using NLog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace ArtheaServer.Console
 {
     internal class ConsoleProgram : IProgram
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+        #region IProgram Members
 
         public void Run(Arguments args)
         {
@@ -30,6 +29,7 @@ namespace ArtheaServer.Console
         {
             Environment.Exit(0);
         }
-    }
 
+        #endregion
+    }
 }

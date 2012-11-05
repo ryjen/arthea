@@ -1,7 +1,7 @@
-﻿namespace ArtheaServer
-{
-    using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
+namespace ArtheaServer
+{
     public partial class ArtheaSplashScreen : Form
     {
         #region Constructors
