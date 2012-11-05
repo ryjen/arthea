@@ -10,45 +10,46 @@ namespace ArtheaServer
 {
 	internal class ConsoleGame
 	{
-		HashSet<IServer> servers = new HashSet<IServer>();
-		
 		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
 		public ConsoleGame ()
 		{
+
 		}
 
 		public void Run (Arguments args)
 		{
-			foreach (var entry in DbManager.Query<World>()) {
-				var server = RebootHelper.Recover (entry);
+            
+            GameServer.Servers = RebootHelper.Recover();
 
-				if (server != null) {
-					servers.Add (server);
+			foreach (var entry in DbManager.Query<World>()) {
+
+				if (GameServer.IsWorldActive(entry)) {
 					continue;
 				}
 
+                if(args.Has("world")) {
+                    if(entry.Name.Equals(args["world"]) || entry.Id.Equals(args["world"]))
+                    {
+                        GameServer.Servers.Add(new TelnetServer(entry));
+                        break;
+                    }
+                    continue;
+                } 
 				
-				server = new TelnetServer (entry);
-				
-				servers.Add (server);
+				GameServer.Servers.Add(new TelnetServer (entry));
 			}
 
-			if (args.Has ("world")) {
-				var server = servers.FirstOrDefault (w => w.World.Name.Equals (args ["world"]) || w.World.Id.Equals (args ["world"]));
-
-				if (server != null) {
-					Log.Info("Starting {0}...", server.World.Name);
-					server.Start ();
-				} else {
-					Log.Error("Could not find world '{0}'.", args["world"]);
-				}
-			} else {
-				foreach (var server in servers) {
-					Log.Info("Starting {0}...", server.World.Name);
-					server.Start ();
-				}
+			if (args.Has ("world") && GameServer.Servers.Count == 0) {
+				Log.Error("Could not find world '{0}'.", args["world"]);
+				return;
 			}
+
+			foreach (var server in GameServer.Servers) {
+				Log.Info("Starting {0}...", server.World.Name);
+				server.Start ();
+			}
+			
 
 			MainLoop();
 		}
@@ -61,9 +62,21 @@ namespace ArtheaServer
 
 				Thread.Sleep(1000);
 
-				servers.RemoveWhere(s => s.State == ServerState.Stopped);
+                int index = 0;
 
-				alive = servers.Count != 0;
+                while (index < GameServer.Servers.Count)
+                {
+                    var server = GameServer.Servers[index];
+
+                    if (server.State == ServerState.Stopped)
+                    {
+                        GameServer.Servers.RemoveAt(index);
+                        continue;
+                    }
+
+                    index++;
+                }
+				alive = GameServer.Servers.Count != 0;
 			}
 		}
 	}

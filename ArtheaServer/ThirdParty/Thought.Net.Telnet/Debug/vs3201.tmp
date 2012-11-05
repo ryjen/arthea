@@ -1,0 +1,1644 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Thought.Net.Telnet</name>
+    </assembly>
+    <members>
+        <member name="T:Thought.Net.Telnet.AsciiByte">
+            <summary>
+                ASCII constants related to the Telnet protocol.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.AsciiByte.NUL">
+            <summary>
+                Null character (ASCII 0)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.AsciiByte.BEL">
+            <summary>
+                Bell (ASCII 7)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.AsciiByte.BS">
+            <summary>
+                Backspace (ASCII 8)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.AsciiByte.HT">
+            <summary>
+                Horizontal tab (ASCII 9)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.AsciiByte.LF">
+            <summary>
+                Line Feed (ASCII 10)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.AsciiByte.VT">
+            <summary>
+                Vertical Tab (ASCII 11)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.AsciiByte.FF">
+            <summary>
+                Form Feed (ASCII 12)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.AsciiByte.CR">
+            <summary>
+                Carriage Return (ASCII 13)
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.ByteBuffer">
+            <summary>
+                A resizeable byte array.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.ByteBuffer.DefaultCapacity">
+            <summary>
+                The default capacity of the buffer (in bytes) if an
+                initial capacity is not specified by the developer.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.ByteBuffer.count">
+            <summary>
+                The number of bytes stored in the buffer.
+                This is not necessarily the actual length of
+                the internal byte array.  It is the number of
+                bytes as seen by the user.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.ByteBuffer.buffer">
+            <summary>
+                The internal byte array managed by the class.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.#ctor">
+            <summary>
+                Creates a buffer with the default capacity.
+            </summary>
+            <seealso cref="F:Thought.Net.Telnet.ByteBuffer.DefaultCapacity"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.#ctor(System.Int32)">
+            <summary>
+                Creates a buffer with the specified capacity.
+            </summary>
+            <param name="capacity">The initial capacity of the buffer</param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.#ctor(System.Byte[])">
+            <summary>
+                Creates a buffer and initializes it with an existing byte array.
+            </summary>
+            <param name="data">The data to copy to the buffer.</param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.#ctor(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Initializes the byte buffer with a subset of bytes
+                from a byte array.
+            </summary>
+            <param name="data">
+                A byte array containing data to copy to the byte buffer.
+            </param>
+            <param name="offset">
+                The offset of the source array at which to begin copying bytes.
+            </param>
+            <param name="count">
+                The number of bytes from the source array to copy to the buffer.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Append(System.Byte)">
+            <summary>
+                Appends a byte to the end of the buffer.
+            </summary>
+            <param name="value">
+                The byte to append.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Append(System.Byte[])">
+            <summary>
+                Appends an array of bytes to the end of the buffer.
+            </summary>
+            <param name="bytes">
+                A byte array containing the bytes to append.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Append(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Appends a subset of a byte array to the byte buffer.
+            </summary>
+            <param name="sourceArray">
+                An array containing bytes to append to the buffer.
+            </param>
+            <param name="sourceIndex">
+                The index of the source array at which to begin
+                copying bytes into the buffer.
+            </param>
+            <param name="count">
+                The number of bytes from the source array to
+                append into the byte buffer.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Clear">
+            <summary>
+                Clears the contents of the buffer.
+            </summary>
+            <remarks>
+                The buffer is not necessarily resized (trimmed).  Clearing
+                the buffer will not reduce the memory consumed by the buffer.
+            </remarks>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.CollapseDoubles(System.Byte)">
+            <summary>
+                Collapses doubled bytes (e.g. two 0xFF bytes are collapsed into a single 0xFF).
+            </summary>
+            <param name="value">The value to collapse.</param>
+            <seealso cref="M:Thought.Net.Telnet.ByteBuffer.Double(System.Byte)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Contains(System.Byte)">
+            <summary>
+                Searches for the specified value.
+            </summary>
+            <param name="value">The value to check.</param>
+            <returns>True if the buffer contains the specified byte.</returns>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Double(System.Byte)">
+            <summary>
+                Doubles each instance of a value (e.g. a single 0xFF becomes two 0xFF bytes).
+            </summary>
+            <param name="value">The value to double.</param>
+            <seealso cref="M:Thought.Net.Telnet.ByteBuffer.CollapseDoubles(System.Byte)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.EnsureCapacity(System.Int32)">
+            <summary>
+                Ensures the internal buffer can hold a minimum
+                number of elements.
+            </summary>
+            <param name="minimum">
+                The minimum capacity of the buffer after resizing.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.IndexOf(System.Byte)">
+            <summary>
+                Searches the buffer for a byte with a specified value.
+            </summary>
+            <param name="value">The value to locate in the buffer.</param>
+            <returns>
+                Returns the 0-based index of the first byte with the specified value,
+                or -1 if no such byte has been stored in the buffer.
+            </returns>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.IndexOf(System.Byte,System.Int32)">
+            <summary>
+                Searches the buffer for a value located at or after a starting index.
+            </summary>
+            <param name="value">The value to locate in the buffer.</param>
+            <param name="startIndex">The starting index to begin the search.</param>
+            <returns>
+                The zero-based index of the first value at or after the starting
+                index, or -1 if the value could not be located.
+            </returns>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Insert(System.Int32,System.Byte)">
+            <summary>
+                Inserts a byte into the buffer.
+            </summary>
+            <param name="index">
+                The zero-based index in the buffer where the byte should be inserted.
+            </param>
+            <param name="value">
+                The value to insert into the buffer.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Insert(System.Int32,System.Byte[])">
+            <summary>
+                Inserts a byte array into the specified
+                location of the buffer.
+            </summary>
+            <param name="index">
+                The location where inserting should begin.
+            </param>
+            <param name="values">
+                A byte array of values to insert into the buffer.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.RemoveAt(System.Int32)">
+            <summary>
+                Removes the byte at the specified index of the buffer.
+            </summary>
+            <param name="index">The zero-based index of the byte to remove.</param>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.Replace(System.Byte,System.Byte[])">
+            <summary>
+            Replaces the specified value.
+            </summary>
+            <param name="value">The value.</param>
+            <param name="newValues">The new values.</param>
+            <exception cref="T:System.ArgumentNullException">newValues</exception>
+        </member>
+        <member name="M:Thought.Net.Telnet.ByteBuffer.ToArray">
+            <summary>
+                Copies the contents of the buffer to a new array.
+            </summary>
+            <returns>
+                A new byte array containing the contents of the buffer.
+            </returns>
+        </member>
+        <member name="P:Thought.Net.Telnet.ByteBuffer.Capacity">
+            <summary>
+                The capacity of the buffer.
+            </summary>
+            <remarks>
+                The capacity reflects the number of bytes that can be stored
+                in the buffer before a resize operation is necessary.  The
+                capacity is always a positive number equal to or greater than
+                the <see cref="P:Thought.Net.Telnet.ByteBuffer.Count"/> of bytes stored in the buffer.
+            </remarks>
+            <seealso cref="P:Thought.Net.Telnet.ByteBuffer.Count"/>
+        </member>
+        <member name="P:Thought.Net.Telnet.ByteBuffer.Count">
+            <summary>
+                The number of bytes stored in the buffer.
+            </summary>
+            <seealso cref="P:Thought.Net.Telnet.ByteBuffer.Capacity"/>
+        </member>
+        <member name="P:Thought.Net.Telnet.ByteBuffer.Item(System.Int32)">
+            <summary>
+                Gets or sets the byte at the specified index.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetClient">
+            <summary>
+                Implements a Telnet client based on RFC 854 (Telnet Protocol
+                Specification).
+            </summary>
+            
+            <remarks>
+            
+                <para>
+                    From the perspective of the protocol, both sides of
+                    connections are peers -- neither is a true "server"
+                    in the sense that it controls the flow of the protocol.
+                    This is very different than command-oriented protocols like
+                    POP3 or SMTP in which a client sends commands to the server
+                    and receives responses.  In Telnet, both sides can send
+                    commands and responses to each other.  Commands and
+                    responses are embedded in the data being transferred.
+                </para>
+            
+            </remarks>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetClient.DefaultPort">
+            <summary>
+                The default telnet server port (23 decimal).
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.#ctor">
+            <summary>
+                Initializes the basic Telnet options (private).
+            </summary>
+            <remarks>
+                The default constructor is marked as private to ensure
+                that only the parameterized constructors are called.  This
+                may change in a future version of the software.
+            </remarks>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.#ctor(System.Net.Sockets.Socket)">
+            <summary>
+                Creates a telnet client against a connected socket.
+            </summary>
+            <param name="socket">
+                The socket to be used for sending and receiving data.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.Close">
+            <summary>
+                Terminates the telnet connection.
+            </summary>
+            <remarks>
+                This can be called multiple times without raising an exception.
+            </remarks>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.DoingLocalOption(System.Byte)">
+            <summary>
+                Checks if the client is implementing an option.
+            </summary>
+            <param name="option">
+                The Telnet option code.
+            </param>
+            <returns>
+                True if the local client is implementing an option.    
+            </returns>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.DoingRemoteOption(System.Byte)">
+            <summary>
+                Checks if the remote client is doing an option.
+            </summary>
+            <param name="option">
+                The Telnet option code.
+            </param>
+            <returns>
+                True if the remote client is implementing an option.
+            </returns>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.OnCommandReceived(Thought.Net.Telnet.TelnetCommand)">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetClient.CommandReceived"/> event.
+            </summary>
+            <param name="command">
+                Any Telnet command that does not require additional parameters.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.OnDoOption(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetClient.DoReceived"/> event.
+            </summary>
+            <param name="option">
+                The <see cref="T:Thought.Net.Telnet.TelnetOption"/> related to the event.
+            </param>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.DoReceived"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnDontOption(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnWillOption(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnWontOption(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.OnDontOption(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetClient.DontReceived"/> event.
+            </summary>
+            <param name="option">
+                The <see cref="T:Thought.Net.Telnet.TelnetOption"/> related to the event.
+            </param>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.DontReceived"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnDoOption(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnWillOption(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnWontOption(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.OnWillOption(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetClient.WillReceived"/> event.
+            </summary>
+            <param name="option">
+                The <see cref="T:Thought.Net.Telnet.TelnetOption"/> related to the event.
+            </param>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WillReceived"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnDoOption(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnDontOption(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnWontOption(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.OnWontOption(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetClient.WontReceived"/> event.
+            </summary>
+            <param name="option">
+                The <see cref="T:Thought.Net.Telnet.TelnetOption"/> related to the event.
+            </param>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WillReceived"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnDoOption(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnDontOption(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnWillOption(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.OnSubnegotiation(Thought.Net.Telnet.TelnetOption,System.Byte[])">
+            <summary>
+            Raises the <see cref="E:Thought.Net.Telnet.TelnetClient.SubnegotiationReceived"/> event.
+            </summary>
+            <param name="option">The <see cref="T:Thought.Net.Telnet.TelnetOption"/> related to the event.</param>
+            <param name="data">The data.</param>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WillReceived"/>
+              <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnDoOption(Thought.Net.Telnet.TelnetOption)"/>
+              <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnDontOption(Thought.Net.Telnet.TelnetOption)"/>
+              <seealso cref="M:Thought.Net.Telnet.TelnetClient.OnWillOption(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Reads data from the remote telnet client.
+            </summary>
+            <param name="buffer">The buffer in which bytes are to be copied.</param>
+            <param name="offset">The byte offset in the buffer at which to begin copying bytes.</param>
+            <param name="count">The number of bytes to be read.</param>
+            <returns>
+                The number of data bytes read from the remote system.
+            </returns>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.SendDo(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends an IAC DO sequence to the remote system.
+            </summary>
+            <param name="option">The <see cref="T:Thought.Net.Telnet.TelnetOption"/> to send.</param>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendDont(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendWill(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendWont(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.SendDont(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends an IAC DONT sequence to the remote system.
+            </summary>
+            <param name="option">The <see cref="T:Thought.Net.Telnet.TelnetOption"/> to send.</param>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendDo(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendWill(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendWont(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.SendGoAhead">
+            <summary>
+                Sends an IAC GA (Go Ahead) command to the remote system.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.SendWill(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends an IAC WILL sequence to the remote system.
+            </summary>
+            <param name="option">The <see cref="T:Thought.Net.Telnet.TelnetOption"/> to send.</param>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendDo(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendDont(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendWont(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.SendWont(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends an IAC WONT sequence to the remote system.
+            </summary>
+            <param name="option">The <see cref="T:Thought.Net.Telnet.TelnetOption"/> to send.</param>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendDo(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendDont(Thought.Net.Telnet.TelnetOption)"/>
+            <seealso cref="M:Thought.Net.Telnet.TelnetClient.SendWill(Thought.Net.Telnet.TelnetOption)"/>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.SendSubNegotiation(Thought.Net.Telnet.TelnetOption,System.Byte[])">
+            <summary>
+            Sends the sub negotiation.
+            </summary>
+            <param name="option">The option.</param>
+            <param name="data">The data.</param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.Write(System.Byte)">
+            <summary>
+                Writes a byte to the client.
+            </summary>
+            <param name="value">
+                The byte to send to the client.
+            </param>
+            <remarks>
+                <para>
+                    This is not an efficient function for it will probably
+                    trigger a full TCP or underlying network packet to send
+                    the single byte.  Always try to send data in the largest
+                    possible chunks.
+                </para>
+                <para>
+                    Reserved characters are encoded or escaped prior to sending.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetClient.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Escapes and sends a buffer of bytes to the remote system.
+            </summary>
+            <param name="buffer">
+                A buffer containing raw data to send to the remote system.
+            </param>
+            <param name="offset">
+                The offset in buffer in which to begin sending.
+            </param>
+            <param name="count">
+                The number of bytes to send.
+            </param>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetClient.CommandReceived">
+            <summary>
+                Raised when a command is received by the remote system.
+            </summary>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetClient.DoReceived">
+            <summary>
+                Raised when a DO command is received.
+            </summary>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.DontReceived"/>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WillReceived"/>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WontReceived"/>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetClient.DontReceived">
+            <summary>
+                Raised when a DONT command is received.
+            </summary>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.DoReceived"/>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WillReceived"/>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WontReceived"/>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetClient.SubnegotiationReceived">
+            <summary>
+                Raised when a SB command is received.
+            </summary>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.DoReceived"/>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WillReceived"/>
+            <seealso cref="E:Thought.Net.Telnet.TelnetClient.WontReceived"/>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetClient.Parser">
+            <summary>
+                The underlying parser of the telnet protocol.
+            </summary>
+            <remarks>
+                The parser can be used to send advanced Telnet commands
+                that are not supported by the TelnetClient class.  
+            </remarks>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetClient.WillReceived">
+            <summary>
+                Raised when a WILL command is received.
+            </summary>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetClient.WontReceived">
+            <summary>
+                Raised when a WONT command is received.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetCommand">
+            <summary>
+                A telnet command.
+            </summary>
+            <remarks>
+                A telnet command is embedded in the stream of data being transferred
+                from one side of the connection to the other.  A command begins
+                with an IAC character (ASCII 255) followed by a byte that identifies
+                the command.
+            </remarks>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.EndSubnegotiation">
+            <summary>
+                End Subnegotiation (SE)
+            </summary>
+            <remarks>
+                This command indicates the end of subnegotiation data.
+            </remarks>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Subnegotiation"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.NoOperation">
+            <summary>
+                No operation (NOP)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.DataMark">
+            <summary>
+                Data Mark
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.Break">
+            <summary>
+                Break (BRK)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.InterruptProcess">
+            <summary>
+                Interrupt Process (IP)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.AbortOutput">
+            <summary>
+                Abort output (AO)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.AreYouThere">
+            <summary>
+                Are You There (AYT)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.EraseCharacter">
+            <summary>
+                Erase Character (EC)
+            </summary>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.EraseLine"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.EraseLine">
+            <summary>
+                Erase Line (EL)
+            </summary>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.EraseCharacter"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.GoAhead">
+            <summary>
+                Go Ahead (GA)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.Subnegotiation">
+            <summary>
+                Subnegotiation (SB)
+            </summary>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.EndSubnegotiation"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.Will">
+            <summary>
+                Will do option (WILL)
+            </summary>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Do"/>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Dont"/>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Wont"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.Wont">
+            <summary>
+                Will not do option (WONT)
+            </summary>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Do"/>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Dont"/>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Will"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.Do">
+            <summary>
+                Do option (DO)
+            </summary>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Dont"/>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Will"/>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Wont"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.Dont">
+            <summary>
+                Don't do option (DONT)
+            </summary>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Do"/>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Will"/>
+            <seealso cref="F:Thought.Net.Telnet.TelnetCommand.Wont"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetCommand.Iac">
+            <summary>
+                IAC
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetCommandEventArgs">
+            <summary>
+                Event arguments for a telnet command event.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetCommandEventArgs.#ctor(Thought.Net.Telnet.TelnetCommand)">
+            <summary>
+                Initializes the structure with the specified command.
+            </summary>
+            <param name="command">
+                The telnet command specific to the event.
+            </param>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetCommandEventArgs.Command">
+            <summary>
+                The command that caused the event.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetCommandEventHandler">
+            <summary>
+                The signature of a handler of a telnet command event.
+            </summary>
+            <param name="sender">
+                The sender of the event.
+            </param>
+            <param name="e">
+                Additional data about the event.
+            </param>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetListener">
+            <summary>
+                Listens for connections from Telnet clients.
+            </summary>
+            <remarks>
+                <para>
+                    The TelnetListener class provides simple methods for accepting incoming
+                    Telnet connections.  It is modeled after the standard TcpListener class
+                    and operates in much the same manner.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.#ctor(System.Net.IPEndPoint)">
+            <summary>
+                Initializes a new instance of the TcpListener class
+                with the specified local endpoint.
+            </summary>
+            <param name="localEndPoint">
+                An IPEndPoint that represents the local endpoint to which
+                to bind the listener.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.#ctor(System.Net.IPAddress,System.Int32)">
+            <summary>
+                Initalizes a new instance of the TelnetListener class
+                that listens for incoming network connection attempts
+                on the specified IP address and port number.
+            </summary>
+            <param name="localAddress">
+                A local IP address.
+            </param>
+            <param name="port">
+                The port on which to listen for incoming connection attempts.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.Accept">
+            <summary>
+                Accepts an incoming Telnet connection and returns a corresponding
+                stream object.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.OnStarted">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetListener.Started"/> event.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.OnStarting">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetListener.Starting"/> event.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.OnStopped">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetListener.Stopped"/> event.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.OnStopping">
+            <summary>
+                Raises the <see cref="E:Thought.Net.Telnet.TelnetListener.Stopping"/> event.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.Start">
+            <summary>
+                Starts listening for incoming connection requests.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetListener.Stop">
+            <summary>
+                Stops the telnet listener.
+            </summary>
+            <remarks>
+                <para>
+                    Existing connections already established by the
+                    listener are not disconnected.
+                </para>
+            </remarks>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetListener.LocalEndPoint">
+            <summary>
+                Gets the underlying EndPoint of the telnet listener.
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetListener.Pending">
+            <summary>
+                Determines if there are pending connection requests.
+            </summary>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetListener.Started">
+            <summary>
+                Occurs when the listener is started.
+            </summary>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetListener.Starting">
+            <summary>
+                Occurs when the listener is starting.
+            </summary>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetListener.Stopped">
+            <summary>
+                Occurs when the listener has stopped.
+            </summary>
+        </member>
+        <member name="E:Thought.Net.Telnet.TelnetListener.Stopping">
+            <summary>
+                Occurs when the listener is stopping.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetListenerEventHandler">
+            <summary>
+                Defines the signature of a method that handles the <see cref="T:Thought.Net.Telnet.TelnetListener"/>-related events.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetOption">
+            <summary>
+                Common telnet options and their corresponding byte values.
+            </summary>
+            <remarks>
+                <para>
+                    Options defined here do not imply support in the Telnet
+                    class library.  They are defined for reference purposes
+                    only by developers implementing the option in a Telnet
+                    client.
+                </para>
+                <para>
+                    Member names generally correspond to the command names
+                    defined in RFC document.  Names are converted to Pascal
+                    capitalization with dashes stripped.  Some abbreviations
+                    are expanded.  For example, the TRANSMIT-BINARY telnet
+                    option is listed as TransmitBinary.
+                </para>
+                <para>
+                    This enumeration will be updated as new Telnet-related
+                    RFC documents are published on the Internet.  Updates
+                    may be sent to dave@thoughtproject.com.
+                </para>
+            </remarks>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.TransmitBinary">
+            <summary>
+                Binary Transmission (RFC 856)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Echo">
+            <summary>
+                Echo (RFC 857)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Reconnection">
+            <summary>
+                Reconnection (NIC 50005)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.SuppressGoAhead">
+            <summary>
+                Suppress Go Ahead (RFC 858)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.ApproximateMessageSizeNegotiation">
+            <summary>
+                Approximate Message Size Negotiation
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Status">
+            <summary>
+                Status (RFC 859)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.TimingMark">
+            <summary>
+                Timing Mark (RFC 860)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Rcte">
+            <summary>
+                Remote Controlled Transmission and Echoing (RFC 726)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.OutputCarriageReturnDisposition">
+            <summary>
+                Output Carriage-Return Disposition (RFC 652)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.OutputHorizontalTabStops">
+            <summary>
+                Output Horizontal Tab Stops (RFC 653)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.OutputHorizontalTabDisposition">
+            <summary>
+                Output Horizontal Tab Disposition (RFC 654)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.OutputFormfeedDisposition">
+            <summary>
+                Output formfeed disposition (RFC 655)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.OutputVerticalTabStops">
+            <summary>
+                Output Vertical Tab Stops (RFC 656)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.OutputVerticalTabDisposition">
+            <summary>
+                Output Vertical Tab Disposition (RFC 657)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.OutputLinefeedDisposition">
+            <summary>
+                Output Linefeed Disposition (RFC 658)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.ExtendedAscii">
+            <summary>
+                Extended ASCII (RFC 698)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Logout">
+            <summary>
+                Logout (RFC 727)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.ByteMacro">
+            <summary>
+                Byte Macro (RFC 735)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.DataEntryTerminal">
+            <summary>
+                Data Entry Terminal (RRC 1043)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.SendLocation">
+            <summary>
+                Send Location (RFC 779)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.TerminalType">
+            <summary>
+                Terminal type (RFC 1091)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.EndOfRecord">
+            <summary>
+              End of Record (RFC 885)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.TacacsUserId">
+            <summary>
+                TACAS User Identification (RFC 927)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.OutputMarking">
+            <summary>
+                Output Marking (RFC 933)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.TerminalLocation">
+            <summary>
+                Terminal Location (RFC 946)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Ibm3270Regime">
+            <summary>
+                IBM 3270 Regime (RFC 1041)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.X3Pad">
+            <summary>
+                X.3-PAD (RFC 1053)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.WindowSize">
+            <summary>
+                NAWS (Negotiate About Window Size), RFC 1073.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.TerminalSpeed">
+            <summary>
+                Terminal Speed (RFC 1079)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.ToggleFlowControl">
+            <summary>
+                Toggle Flow Control (RFC 1372)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.LineMode">
+            <summary>
+                Line Mode (RFC 1184)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.XDisplayLocation">
+            <summary>
+                X Display Location (RFC 1096)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Environment">
+            <summary>
+                Environment (RFC 1408)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Authentication">
+            <summary>
+                Authentication (RFC 2941)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Encrypt">
+            <summary>
+                Encrypt (RFC 2946)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.NewEnvironment">
+            <summary>
+                New Environment (RFC 1572)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.TN3270E">
+            <summary>
+                TN3270 Enhancements (RFC 2355)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.CharacterSet">
+            <summary>
+                Character Set (RFC 2066)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.ComPort">
+            <summary>
+                Communications Port (RFC 2217)
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetOption.Kermit">
+            <summary>
+                Kermit (RFC 2840)
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetOptionEventArgs">
+            <summary>
+                Base class for events related to telnet option negotiations.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetOptionEventArgs.#ctor(Thought.Net.Telnet.TelnetCommand,Thought.Net.Telnet.TelnetOption)">
+            <summary>
+            Creates a new instance of the event arguments structure.
+            </summary>
+            <param name="command">The command.</param>
+            <param name="option">The <see cref="T:Thought.Net.Telnet.TelnetOption"/> related to the event.</param>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetOptionEventArgs.Agreed">
+            <summary>
+                Indicates the client agrees to implement a protocol option.
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetOptionEventArgs.Command">
+            <summary>
+                The command (e.g. WILL, DONT, etc) for the option.
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetOptionEventArgs.Option">
+            <summary>
+                The <see cref="T:Thought.Net.Telnet.TelnetOption"/> related to the event..
+            </summary>
+            <seealso cref="T:Thought.Net.Telnet.TelnetOption"/>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetOptionEventHandler">
+            <summary>
+                Defines the signature of an event handler for the
+                option-related events of the <see cref="T:Thought.Net.Telnet.TelnetClient"/> class.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetOptionLookup">
+            <summary>
+                A utility class for translating RFC telnet option names into the
+                corresponding byte or <see cref="T:Thought.Net.Telnet.TelnetOption"/> values.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetOptionLookup.GetName(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Returns the text name of the option as documented in the RFC.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetOptionLookup.GetOption(System.String)">
+            <summary>
+            Gets the option.
+            </summary>
+            <param name="name">The name.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException">name</exception>
+            <exception cref="T:System.NotSupportedException"></exception>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetPacket">
+            <summary>
+                A chunk of information from a Telnet stream.
+            </summary>
+            <remarks>
+                <para>
+                    The Telnet protocol does not have "packets" in the sense that some
+                    protocols communicate through distict packets or frames.  The term
+                    packet is for the purposes of the class library only.
+                </para>
+            </remarks>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetPacket.#ctor(System.Byte[])">
+            <summary>
+                Initializes a packet of regular data.
+            </summary>
+            <param name="data">
+                A byte array containing data destined for the user.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetPacket.#ctor(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Initializes a new data packet containing a subset
+                of the bytes from a byte array.
+            </summary>
+            <param name="data">
+                A byte array containing the data to copy to the packet.
+            </param>
+            <param name="offset">
+                The zero-based offset in the source array at which
+                to begin copying bytes to the packet.
+            </param>
+            <param name="length">
+                The number of bytes to copy to the packet.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetPacket.#ctor(Thought.Net.Telnet.TelnetCommand)">
+            <summary>
+                Initializes the Telnet packet that represents a command.
+            </summary>
+            <param name="command">
+                Any telnet command except for those requiring options or data parameters.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetPacket.#ctor(Thought.Net.Telnet.TelnetCommand,Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Initializes the telnet packet with the specified
+                command and option code.
+            </summary>
+            <param name="command">
+                Any command that uses an option code (e.g. WILL, DO, etc).
+            </param>
+            <param name="option">
+                The option code.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetPacket.#ctor(Thought.Net.Telnet.TelnetCommand,System.Byte)">
+            <summary>
+                Initializes the telnet packet with the specified
+                command and option byte.
+            </summary>
+            <param name="command">
+                Any command that uses an option (e.g. WILL, DO, etc).
+            </param>
+            <param name="option">
+                The option value.
+            </param>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetPacket.Command">
+            <summary>
+                The command of the Telnet packet.
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetPacket.Data">
+            <summary>
+                Any data associated with the packet.
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetPacket.Option">
+            <summary>
+                The option designed in certain commands or subnegotiations.
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetPacket.PacketType">
+            <summary>
+                The type of packet.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetPacketType">
+            <summary>
+                The type of data received by a remote system.
+            </summary>
+            <remarks>
+                The Telnet protocol does not have "packets" in the formal sense.
+                The <see cref="T:Thought.Net.Telnet.TelnetParser"/> class packages the incoming raw bytes
+                into their appropriate types (e.g. data, commands, etc).  Each 
+                chunk is called a packet by the class library.
+            </remarks>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetPacketType.Data">
+            <summary>
+                A packet containing data.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetPacketType.Command">
+            <summary>
+                A packet containing an option command.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetPacketType.Subnegotiation">
+            <summary>
+                A packet containing subnegotiation data.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetParser">
+            <summary>
+                Parses incoming data from a Telnet connection.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParser.IAC">
+            <summary>
+                Marks the beginning of any telnet command or option.
+            </summary>
+            <remarks>
+                The IAC character marks the beginning of any telnet command
+                or option.  It is ASCII #255.  When this character is part of
+                regular data (that is, not intended as an IAC character), it
+                must be doubled (sent as two 0xFF characters).
+            </remarks>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParser.socket">
+            <summary>
+                The socket to use for communications.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParser.state">
+            <summary>
+                The state of the protocol parser.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParser.unprocessed">
+            <summary>
+                Byte that have been received but are still unprocessed.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParser.unprocessedCount">
+            <summary>
+                The number of unprocessed bytes (the array might be larger).
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParser.unprocessedIndex">
+            <summary>
+                The start of valid bytes in the unprocessed byte array.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.#ctor(System.Net.Sockets.Socket)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Thought.Net.Telnet.TelnetParser"/> class.
+            </summary>
+            <param name="socket">The socket.</param>
+            <exception cref="T:System.ArgumentNullException">socket</exception>
+            <exception cref="T:System.IO.IOException"></exception>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.Close">
+            <summary>
+            Closes this instance.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.ReadNext">
+            <summary>
+                Reads the next <see cref="T:Thought.Net.Telnet.TelnetPacket"/> from the socket.
+            </summary>
+            <remarks>
+                The next packet from the remote system.  If the packet regular
+                or subnegotiation data, then the function will attempt to 
+                load as much data as possible.
+            </remarks>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.ReadNext(System.Nullable{System.Int32})">
+            <summary>
+                Reads the next <see cref="T:Thought.Net.Telnet.TelnetPacket"/> while limiting
+                the number of bytes returned for a data or subnegotiation
+                packet.
+            </summary>
+            <param name="maximumDataBytes">
+                The maximum number of bytes to return in a data or
+                subnegotiation packet.  Ignored for other packet types.
+            </param>
+            <returns>
+                The next <see cref="T:Thought.Net.Telnet.TelnetPacket"/> from the remote system.
+            </returns>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendCommand(Thought.Net.Telnet.TelnetCommand)">
+            <summary>
+                Sends a Telnet command that requires no additional parameters.
+            </summary>
+            <param name="command">
+                The Telnet command to send to the remote system.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendCommand(Thought.Net.Telnet.TelnetCommand,Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends a Telnet command that requires an option parameter.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendDo(System.Byte)">
+            <summary>
+                Sends an IAC DO command.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendDo(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends an IAC DO command.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendDont(System.Byte)">
+            <summary>
+                Sends an IAC DONT dommand.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendDont(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends an IAC DONT command.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendEscaped(System.Byte[])">
+            <summary>
+                Sends a byte array after processing carriage-returns
+                and IAC characters.
+            </summary>
+            <param name="buffer">
+                A byte array containing the data to send to the remote system.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendEscaped(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Sends a portion of a byte array after processing
+                carriage-returns and IAC characters.
+            </summary>
+            <param name="buffer">
+                A byte array containing data to send to the remote system.
+            </param>
+            <param name="offset">
+                The offset at which to begin copying bytes.
+            </param>
+            <param name="count">
+                The number of bytes to copy from the array.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendGoAhead">
+            <summary>
+                Sends an IAC GA (go ahead) command.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendRaw(System.Byte[])">
+            <summary>
+                Sends raw data to the remote system without processing.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendRaw(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Sends raw data to the remote system without processing.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendWill(System.Byte)">
+            <summary>
+                Sends an IAC WILL option.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendWill(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends an IAC WILL option.
+            </summary>
+            <param name="option"></param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendWont(System.Byte)">
+            <summary>
+                Sends an IAC WONT option.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendWont(Thought.Net.Telnet.TelnetOption)">
+            <summary>
+                Sends an IAC WONT sequence.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetParser.SendSubNegotiation(Thought.Net.Telnet.TelnetOption,System.Byte[])">
+            <summary>
+            Sends the sub negotiation.
+            </summary>
+            <param name="option">The option.</param>
+            <param name="data">The data.</param>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetParser.Socket">
+            <summary>
+                The underlying socket of the Telnet connection.
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetParser.State">
+            <summary>
+                The state of the incoming data parser.
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetParserState">
+            <summary>
+                The internal state of the telnet protocol parser.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.Data">
+            <summary>
+                The client is reading or waiting for data.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.ReceivedCarriageReturn">
+            <summary>
+                The client received a carriage-return (ASCII 13) and
+                is attempting to determine its purpose.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.ReceivedIAC">
+            <summary>
+                The client has received an IAC character.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.ReceivedDo">
+            <summary>
+                The client has received a DO code.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.ReceivedDont">
+            <summary>
+                The client has recieved a DONT code.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.ReceivedWill">
+            <summary>
+                The client has received a WILL code.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.ReceivedWont">
+            <summary>
+                The client has received a WONT code.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.ReceivedSubnegotiation">
+            <summary>
+                The client has received a SB code.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetParserState.SubnegotiationData">
+            <summary>
+            The subnegotiation data
+            </summary>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetStream">
+            <summary>
+                Provides a stream that implements the Telnet protocol.
+            </summary>
+            <seealso cref="P:Thought.Net.Telnet.TelnetStream.TelnetClient"/>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetStream.canRead">
+            <summary>
+                Privately tracks the read capability of the stream.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetStream.canWrite">
+            <summary>
+                Privately tracks the write capability of the stream.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetStream.client">
+            <summary>
+                The underlying TelnetClient wrapped by the stream.
+            </summary>
+        </member>
+        <member name="F:Thought.Net.Telnet.TelnetStream.ownsSocket">
+            <summary>
+                Privately tracks the ownership status.
+            </summary>
+            <remarks>
+                If owned, the client will close (dispose) the socket when
+                the class itself is closed.  Otherwise the client will
+                simply release its reference to the socket.
+            </remarks>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.#ctor">
+            <summary>
+                The default constructor is marked as private to
+                ensure the parameterized constructor is called.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.#ctor(System.Net.Sockets.Socket)">
+            <summary>
+                Creates a Telnet stream against the specified socket.
+            </summary>
+            <param name="socket">
+                The socket that the <see cref="T:Thought.Net.Telnet.TelnetStream"/> will use to send and receive data.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.#ctor(System.Net.Sockets.Socket,System.IO.FileAccess,System.Boolean)">
+            <summary>
+                Creates a telnet stream against the specified
+                socket with designated file access and ownership
+                permissions.
+            </summary>
+            <param name="socket">
+                The socket that the <see cref="T:Thought.Net.Telnet.TelnetStream"/> will use to send and receive data.
+            </param>
+            <param name="access">
+                A bitwise combination of the FileAccess values that specifies the
+                type of access given to the TelnetStream over the provided Socket.
+            </param>
+            <param name="ownsSocket">
+                True to indicate that the TelnetStream will take ownership of the
+                Socket; otherwise False.
+            </param>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.#ctor(Thought.Net.Telnet.TelnetClient)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Thought.Net.Telnet.TelnetStream"/> class.
+            </summary>
+            <param name="client">The client.</param>
+            <exception cref="T:System.ArgumentNullException">client</exception>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.Close">
+            <summary>
+                Closes the Telnet stream and network connection.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.System#IDisposable#Dispose">
+            <summary>
+                Disposes (closes) the telnet stream.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.Flush">
+            <summary>
+                Ignored.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.Read(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Copies bytes from the stream into an array.
+            </summary>
+            <param name="buffer">
+                The buffer to which bytes are copied.
+            </param>
+            <param name="offset">
+                The byte offset in the buffer at which to begin copying bytes.
+            </param>
+            <param name="count">
+                The number of bytes to read.
+            </param>
+            <returns>The number of bytes read into the buffer.</returns>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.Seek(System.Int64,System.IO.SeekOrigin)">
+            <summary>
+                Not supported.
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.SetLength(System.Int64)">
+            <summary>
+                Set the length of the stream (not supported).
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetStream.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+                Copies bytes to the telnet stream.
+            </summary>
+            <param name="buffer">
+                The byte array from which to copy bytes to the stream.
+            </param>
+            <param name="offset">
+                The offset in the buffer at which to begin copying bytes.
+            </param>
+            <param name="count">
+                The number of bytes to copy to the stream.
+            </param>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetStream.CanRead">
+            <summary>
+                Gets a value indicating whether the TelnetStream supports reading.
+            </summary>
+            <value>
+                True if the stream supports reading; False if the stream is closed
+                or does not support reading.
+            </value>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetStream.CanSeek">
+            <summary>
+                Gets a value indicating whether the TelnetStream supports seeking.
+            </summary>
+            <value>
+                Always false.
+            </value>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetStream.CanWrite">
+            <summary>
+                Gets a value indicating whether the stream supports writing.
+            </summary>
+            <value>
+                True if the stream supports reading; false if the stream is closed
+                or does not support reading.
+            </value>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetStream.Length">
+            <summary>
+                The stream length (not supported).
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetStream.OwnsSocket">
+            <summary>
+                Indicates whether or not the stream owns the socket.
+            </summary>
+            <remarks>
+                If the stream owns the socket, then the socket will be closed
+                when the stream is closed.  Otherwise the socket will be released
+                without disposing.  This is useful when the stream is being used
+                temporarily against an existing socket that is needed after the
+                stream is finished.
+            </remarks>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetStream.Position">
+            <summary>
+                The stream position (not supported).
+            </summary>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetStream.TelnetClient">
+            <summary>
+                The underlying <see cref="P:Thought.Net.Telnet.TelnetStream.TelnetClient"/> of the stream.
+            </summary>
+            <seealso cref="P:Thought.Net.Telnet.TelnetStream.TelnetClient"/>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetSubNegotiationEventArgs">
+            <summary>
+            event arguments for telnet sub negotation communication
+            </summary>
+        </member>
+        <member name="M:Thought.Net.Telnet.TelnetSubNegotiationEventArgs.#ctor(Thought.Net.Telnet.TelnetOption,System.Byte[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:Thought.Net.Telnet.TelnetSubNegotiationEventArgs"/> class.
+            </summary>
+            <param name="option">The option.</param>
+            <param name="data">The data.</param>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetSubNegotiationEventArgs.Option">
+            <summary>
+                The <see cref="T:Thought.Net.Telnet.TelnetOption"/> related to the event..
+            </summary>
+            <seealso cref="T:Thought.Net.Telnet.TelnetOption"/>
+        </member>
+        <member name="P:Thought.Net.Telnet.TelnetSubNegotiationEventArgs.Data">
+            <summary>
+            Gets the data.
+            </summary>
+            <value>
+            The data.
+            </value>
+        </member>
+        <member name="T:Thought.Net.Telnet.TelnetSubNegotiationEventHandler">
+            <summary>
+                Defines the signature of an event handler for the
+                option-related events of the <see cref="T:Thought.Net.Telnet.TelnetClient"/> class.
+            </summary>
+        </member>
+    </members>
+</doc>

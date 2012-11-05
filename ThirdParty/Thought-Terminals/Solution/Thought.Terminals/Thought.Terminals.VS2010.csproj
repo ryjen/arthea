@@ -1,0 +1,175 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <ProjectType>Local</ProjectType>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{72DDFE21-D546-46B1-9B9A-06AE1C36E9EB}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <AssemblyKeyContainerName>
+    </AssemblyKeyContainerName>
+    <AssemblyName>Thought.Terminals</AssemblyName>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+    <DefaultClientScript>JScript</DefaultClientScript>
+    <DefaultHTMLPageLayout>Grid</DefaultHTMLPageLayout>
+    <DefaultTargetSchema>IE50</DefaultTargetSchema>
+    <DelaySign>false</DelaySign>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Thought.Terminals</RootNamespace>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <StartupObject>
+    </StartupObject>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\Thought.Terminals.XML</DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>false</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>full</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <BaseAddress>285212672</BaseAddress>
+    <CheckForOverflowUnderflow>false</CheckForOverflowUnderflow>
+    <ConfigurationOverrideFile>
+    </ConfigurationOverrideFile>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>false</DebugSymbols>
+    <FileAlignment>4096</FileAlignment>
+    <NoStdLib>false</NoStdLib>
+    <NoWarn>
+    </NoWarn>
+    <Optimize>true</Optimize>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <RemoveIntegerChecks>false</RemoveIntegerChecks>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+    <DebugType>none</DebugType>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <Name>System</Name>
+    </Reference>
+    <Reference Include="System.Data">
+      <Name>System.Data</Name>
+    </Reference>
+    <Reference Include="System.Xml">
+      <Name>System.XML</Name>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AsciiControlChar.cs" />
+    <Compile Include="AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Terminal.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AsciiByte.cs" />
+    <Compile Include="AsciiChar.cs" />
+    <Compile Include="AnsiTerminalProtocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="AvatarTerminalProtocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ITerminalProtocol.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translator.cs" />
+    <Compile Include="TranslatorCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="TranslatorKeyAttribute.cs" />
+    <Compile Include="Translators\AmbroshiaColorTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\AnsiTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\AtCommentTranslator.cs" />
+    <Compile Include="Translators\AvatarTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\DataSourceMacroTranslator.cs" />
+    <Compile Include="Translators\EzycomColorTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\IsaTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\KDriveTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\MacroTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\NexusColorTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\PCBoardColorTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\PCBoardMacroTranslator.cs" />
+    <Compile Include="Translators\RemoteAccessColorTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Translators\SynchronetColorTranslator.cs" />
+    <Compile Include="Translators\XCodeTranslator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CgaHighBit.cs" />
+    <Compile Include="CommonStyles.cs" />
+    <Compile Include="SerialTerminal.cs" />
+    <Compile Include="SystemTerminal.cs" />
+    <Compile Include="Terminal.PromptBoolean.cs" />
+    <Compile Include="Terminal.PromptHotString.cs" />
+    <Compile Include="Terminal.PromptInteger.cs" />
+    <Compile Include="Terminal.PromptMenu.cs" />
+    <Compile Include="Terminal.PromptPassword.cs" />
+    <Compile Include="Terminal.PromptText.cs" />
+    <Compile Include="Terminal.WritePadded.cs" />
+    <Compile Include="JustityText.cs" />
+    <Compile Include="TextBlinking.cs" />
+    <Compile Include="TextColor.cs" />
+    <Compile Include="TextIntensity.cs" />
+    <Compile Include="TextStyle.cs" />
+    <Compile Include="TextUnderline.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
