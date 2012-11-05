@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual Studio 2005
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Thought.Net.Telnet", "Thought.Net.Telnet\Thought.Net.Telnet.csproj", "{7CA62F6C-37B9-4B9F-8132-81E02FBC7C11}"
 EndProject
 Global
