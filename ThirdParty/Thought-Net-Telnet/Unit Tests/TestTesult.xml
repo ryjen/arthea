@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!--This file represents the results of running a test suite-->
+<test-results name="C:\Pinchy\Projects\Thought\Libraries\Telnet\Unit Tests\Telnet.nunit" total="61" failures="0" not-run="0" date="2007-05-30" time="11:30:50">
+  <environment nunit-version="2.4.0.2" clr-version="2.0.50727.42" os-version="Microsoft Windows NT 5.1.2600 Service Pack 2" platform="Win32NT" cwd="C:\Pinchy\Projects\Thought\Libraries\Telnet\Unit Tests\Unit Tests\bin\Debug" machine-name="DAVIDPI-LPTD" user="DavidPi" user-domain="MAGENIC" />
+  <culture-info current-culture="en-US" current-uiculture="en-US" />
+  <test-suite name="C:\Pinchy\Projects\Thought\Libraries\Telnet\Unit Tests\Telnet.nunit" success="True" time="4.438" asserts="0">
+    <results>
+      <test-suite name="C:\Pinchy\Projects\Thought\Libraries\Telnet\Unit Tests\Unit Tests\bin\Debug\Unit Tests.dll" success="True" time="4.438" asserts="0">
+        <results>
+          <test-suite name="ByteBufferTests" success="True" time="0.172" asserts="0">
+            <results>
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.Clear" executed="True" success="True" time="0.063" asserts="2" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.CollapseDoubles_NonExistentValue" executed="True" success="True" time="0.000" asserts="1" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.CollapseDoubles_ShouldNotHappen" executed="True" success="True" time="0.016" asserts="1" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.CollapseDoubles_Simple" executed="True" success="True" time="0.000" asserts="2" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.CollapseDoubles_ValueAtBeginning" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.CollapseDoubles_ValueAtEnd" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.CollapseDoubles_ValueInMiddle" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.Constructor_Array" executed="True" success="True" time="0.000" asserts="11" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.Constructor_Default" executed="True" success="True" time="0.000" asserts="2" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.Constructor_NegativeCapacity" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.Constructor_NullArray" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.Constructor_ZeroCapacity" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.Contains" executed="True" success="True" time="0.000" asserts="255" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.Double1" executed="True" success="True" time="0.000" asserts="3" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.InsertValues_Beginning" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.InsertValues_End" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.InsertValues_Middle" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.ReplaceValues_Beginning" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.ReplaceValues_End" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.ByteBufferTests.ReplaceValues_Middle" executed="True" success="True" time="0.000" asserts="5" />
+            </results>
+          </test-suite>
+          <test-suite name="TelnetClientTests" success="True" time="0.203" asserts="0">
+            <results>
+              <test-case name="Thought.Net.Telnet.Tests.TelnetClientTests.SendDo" executed="True" success="True" time="0.109" asserts="3" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetClientTests.WriteAllBytes" executed="True" success="True" time="0.016" asserts="512" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetClientTests.WriteIAC" executed="True" success="True" time="0.000" asserts="1" />
+            </results>
+          </test-suite>
+          <test-suite name="TelnetPacketTests" success="True" time="0.156" asserts="0">
+            <results>
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_ByteArray" executed="True" success="True" time="0.000" asserts="1004" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_ByteArray_Null" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Command_MissingOption_Do" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Command_MissingOption_Dont" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Command_MissingOption_Will" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Command_MissingOption_Wont" executed="True" success="True" time="0.000" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Subarray_LengthTooLong1" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Subarray_LengthTooLong2" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Subarray_NegativeIndex" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Subarray_NegativeLength" executed="True" success="True" time="0.000" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Subarray_NullData" executed="True" success="True" time="0.000" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Subarray_OffsetTooLarge" executed="True" success="True" time="0.016" asserts="0" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetPacketTests.Constructor_Subarray_ZeroLength" executed="True" success="True" time="0.016" asserts="0" />
+            </results>
+          </test-suite>
+          <test-suite name="TelnetParserTests" success="True" time="3.875" asserts="0">
+            <results>
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.RandomFlow" executed="True" success="True" time="3.688" asserts="1001" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.ReadNext_Maximum_1" executed="True" success="True" time="0.000" asserts="15" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.ReadNext_Maximum_Equal" executed="True" success="True" time="0.000" asserts="7" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.ReadNext_Maximum_Excessive" executed="True" success="True" time="0.016" asserts="7" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_Command" executed="True" success="True" time="0.000" asserts="4" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_Data" executed="True" success="True" time="0.000" asserts="1004" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_Data_Command" executed="True" success="True" time="0.000" asserts="108" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_Data_Command_Data" executed="True" success="True" time="0.000" asserts="212" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_Data_IacData" executed="True" success="True" time="0.016" asserts="9" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_Data_IacData_Command" executed="True" success="True" time="0.000" asserts="15" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_Data_IacData_Data" executed="True" success="True" time="0.000" asserts="11" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_IacData" executed="True" success="True" time="0.031" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_IacData_Data" executed="True" success="True" time="0.000" asserts="6" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.Send_IacData_IacData" executed="True" success="True" time="0.000" asserts="6" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendCommand_NoOperation" executed="True" success="True" time="0.000" asserts="4" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendDo" executed="True" success="True" time="0.000" asserts="4" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendDont" executed="True" success="True" time="0.000" asserts="4" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendGoAhead" executed="True" success="True" time="0.000" asserts="4" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendRaw_CR_LF" executed="True" success="True" time="0.016" asserts="6" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendRaw_CR_NUL_TAB" executed="True" success="True" time="0.000" asserts="6" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendRaw_CR_NULL" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendRaw_Iac_Iac" executed="True" success="True" time="0.000" asserts="5" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendRaw_Iac_Iac_Iac_Iac" executed="True" success="True" time="0.000" asserts="6" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendWill" executed="True" success="True" time="0.000" asserts="4" />
+              <test-case name="Thought.Net.Telnet.Tests.TelnetParserTests.SendWont" executed="True" success="True" time="0.000" asserts="4" />
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

@@ -4,10 +4,12 @@ using ArtheaServer.Commands;
 using ArtheaServer.Creation;
 using NLog;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using Thought.Net.Telnet;
 
 namespace ArtheaServer
@@ -37,7 +39,7 @@ namespace ArtheaServer
 			client.DoReceived += TelnetDoRecieved;
 			client.DontReceived += TelnetDontRecieved;
 			client.WontReceived += TelnetWontRecieved;
-			client.SubNegotiationReceived += TelnetSubNegotiationRecieved;
+			client.SubnegotiationReceived += TelnetSubNegotiationRecieved;
 			var stream = new TelnetStream (client);
 			_writer = new ColorWriter (stream, this) {AutoFlush = true};
 			_reader = new StreamReader (stream);
@@ -128,6 +130,19 @@ namespace ArtheaServer
 			Client.Close ();
 			SetState (null);
 		}
+
+        public void Start()
+        {
+            new Thread(Run) { IsBackground = true }.Start();
+        }
+
+        public override string ToString()
+        {
+            if (Client.Parser.Socket != null)
+                return Client.Parser.Socket.RemoteEndPoint.ToString();
+
+            return base.ToString();
+        }
 
 		public void DisplayPrompt ()
 		{
@@ -223,13 +238,17 @@ namespace ArtheaServer
 
 		public void Run ()
 		{
-			WriteLine ("Welcome to " + Server.World.Name + "!");
+            Debugger.Launch();
 
-			RequestEchoOn ();
+            if (_state == null)
+            {
+                WriteLine("Welcome to " + Server.World.Name + "!");
 
-			Write ("Account Login: ");
-			SetState (GetAccountName);
+                RequestEchoOn();
 
+                Write("Account Login: ");
+                SetState(GetAccountName);
+            }
 			while (Server.State != ServerState.Stopped && _state != null && Connected) {
 				try {
 					var line = _reader.ReadLine ();
@@ -712,7 +731,7 @@ namespace ArtheaServer
 				Close ();
 				Dispose ();
 			} catch (ProcessControlException e) {
-				e.Execute (Server);
+				e.Execute ();
 			} catch (Exception ex) {
 				Log.Error (ex.Message);
 			}
@@ -722,6 +741,26 @@ namespace ArtheaServer
 		{
 			_state = newState;
 		}
+
+        public string State
+        {
+            get
+            {
+                return _state.Method.Name;
+            }
+            set
+            {
+                try
+                {
+                    Debugger.Launch();
+                    _state = (StateHandler) StateHandler.CreateDelegate(typeof(StateHandler), this, value);
+                }
+                catch (Exception e)
+                {
+                    Log.Debug(e);
+                }
+            }
+        }
 
 		private void TelnetDoRecieved (object o, TelnetOptionEventArgs args)
 		{
@@ -733,7 +772,7 @@ namespace ArtheaServer
 			}
 		}
 
-		private void TelnetSubNegotiationRecieved (object o, TelnetOptionEventArgs args)
+		private void TelnetSubNegotiationRecieved (object o, TelnetSubNegotiationEventArgs args)
 		{
 			switch (args.Option) {
 			case TelnetOption.WindowSize:
@@ -755,7 +794,7 @@ namespace ArtheaServer
 				break;
 			case TelnetOption.TerminalType:
 				args.Agreed = true;
-				Client.SendSubnegotiation (TelnetOption.TerminalType);
+                Client.SendSubNegotiation(TelnetOption.TerminalType, Encoding.ASCII.GetBytes("VT100"));
 				break;
 			case TelnetOption.SuppressGoAhead:
 				args.Agreed = true;

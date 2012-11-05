@@ -15,69 +15,6 @@ namespace ArtheaServer
 
     #endregion Enumerations
 
-	/*
-    public class RebootRecovery : MarshalByRefObject
-    {
-        #region Fields
-
-        public const short Port = 8773;
-
-        /// <summary>
-        /// Signals this recovery is done
-        /// </summary>
-        public static bool Done = false;
-
-        static readonly Logger Log = LogManager.GetCurrentClassLogger();
-
-        #endregion Fields
-
-        #region Methods
-
-        public void Finished()
-        {
-            Done = true;
-        }
-
-        /// <summary>
-        /// Transfers the connections.
-        /// </summary>
-        /// <param name="processId">The process id.</param>
-        /// <returns></returns>
-        public Dictionary<string, RebootRecoveryData> TransferConnections(int processId)
-        {
-            Log.Info("Transferring connections...");
-
-            var connections =
-                new Dictionary<string, RebootRecoveryData>();
-
-            foreach (var s in TelnetServer.List)
-            {
-                foreach (TelnetConnection con in s.Connections)
-                {
-                    if (!con.IsPlaying())
-                    {
-                        continue;
-                    }
-                    connections.Add(con.World.Id, new RebootRecoveryData { PlayerName = con.Playing.Name, SockInfo = con.Client.Parser.Socket.DuplicateAndClose(processId) });
-                }
-            }
-
-            return connections;
-        }
-
-        #endregion Methods
-    }
-
-    public class RebootRecoveryData : MarshalByRefObject
-    {
-        #region Fields
-
-        public string PlayerName;
-        public SocketInformation SockInfo;
-
-        #endregion Fields
-    }*/
-
     public class TelnetServer : IDisposable, IServer
     {
         #region Fields
@@ -178,15 +115,34 @@ namespace ArtheaServer
             _listenThread.Start();
         }
 
-        public void StartClient(TelnetClient client)
+        public TelnetConnection StartClient(TelnetClient client)
         {
             var connection = new TelnetConnection(client, this);
 
             Connections.Add(connection);
 
-            Log.Info(client.Parser.Socket.RemoteEndPoint + " connected");
+            Log.Info(connection + " connected");
 
-            new Thread(connection.Run) { IsBackground = true }.Start();
+            connection.Start();
+
+            return connection;
+        }
+
+        public TelnetConnection StartClient(ConnectionConfig config)
+        {
+            var connection = new TelnetConnection(new TelnetClient(new Socket(config.SockInfo)), this);
+
+            Connections.Add(connection);
+
+            Log.Info(connection + " reconnected");
+
+            connection.State = config.State;
+
+            connection.Playing = DbManager.Lookup<Player>(config.PlayerId);
+
+            connection.Start();
+
+            return connection;
         }
 
         public void Stop()

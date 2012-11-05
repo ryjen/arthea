@@ -26,16 +26,14 @@
 
             foreach (var entry in DbManager.Query<World>())
             {
-				var saved = RebootHelper.Recover(entry);
-
                 var mi = new ToolStripMenuItem(entry.Name);
 
 				ToolStripMenuItem miStart;
 
-				if(saved == null)
-                	miStart = new ToolStripMenuItem("Start") { Tag = entry };
-				else
-					miStart = new ToolStripMenuItem("Stop") { Tag = saved };
+                if (!GameServer.IsWorldActive(entry))
+                    miStart = new ToolStripMenuItem("Start") { Tag = entry };
+                else
+                    miStart = new ToolStripMenuItem("Stop") { Tag = entry };
 
                 miStart.Click += miStart_Click;
                 mi.DropDownItems.Add(miStart);
@@ -176,11 +174,16 @@
             tabControl1.TabPages.Add(tabPage);
 
             server.Start();
+
+            GameServer.Servers.Add(server);
         }
 
         private World StopWorld(TelnetServer server)
         {
             server.Stop();
+
+            GameServer.Servers.Remove(server);
+
             foreach (TabPage tabPage in tabControl1.TabPages)
             {
                 if (tabPage.Tag.Equals(server.World.Id))
@@ -246,82 +249,4 @@
         #endregion Methods
     }
 
-    public class WorldConfig
-    {
-        #region Constructors
-
-        public WorldConfig()
-        {
-            Connections = new List<ConnectionConfig>();
-        }
-
-		public WorldConfig (World world) : this()
-		{
-			Id = world.Id;
-			Name = world.Name;
-			Port = world.Port;
-		}
-
-		public WorldConfig(TelnetServer server) : this(server.World)
-		{
-				foreach(var c in server.Connections)
-				{
-					var sockInfo = c.Socket.DuplicateAndClose(Process.GetCurrentProcess().Id);
-
-					Connections.Add(new ConnectionConfig { PlayerId = c.Playing.Id, SockInfo = sockInfo });
-				}
-		}
-
-        #endregion Constructors
-
-        #region Properties
-
-        public List<ConnectionConfig> Connections
-        {
-            get; set;
-        }
-
-        public string Id
-        {
-            get;
-            set;
-        }
-
-        public string Name
-        {
-            get;
-            set;
-        }
-
-        public short Port
-        {
-            get;
-            set;
-        }
-
-        #endregion Properties
-
-        #region Nested Types
-
-        public class ConnectionConfig
-        {
-            #region Properties
-
-            public string PlayerId
-            {
-                get;
-                set;
-            }
-
-            public SocketInformation SockInfo
-            {
-                get;
-                set;
-            }
-
-            #endregion Properties
-        }
-
-        #endregion Nested Types
-    }
 }

@@ -1,0 +1,38 @@
+﻿<project schemaVersion="1.3.3.1">
+    <assemblies>
+        <assembly assemblyPath="..\Solution\Thought.Net.Telnet\bin\Debug\Thought.Net.Telnet.dll" xmlCommentsPath="..\Solution\Thought.Net.Telnet\bin\Debug\Thought.Net.Telnet.xml" commentsOnly="False" />
+    </assemblies>
+    <namespaceSummaries>
+        <namespaceSummaryItem name="" isDocumented="False" />
+        <namespaceSummaryItem name="Thought.Net.Telnet" isDocumented="True">Classes for implementing the Telnet protocol.</namespaceSummaryItem>
+    </namespaceSummaries>
+    <contentPlacement>AboveNamespaces</contentPlacement>
+    <projectSummary />
+    <sandcastlePath />
+    <hhcPath />
+    <hxcompPath />
+    <outputPath>.\Help\</outputPath>
+    <helpFileFormat>HtmlHelp1x</helpFileFormat>
+    <cleanIntermediates>True</cleanIntermediates>
+    <purgeDuplicateTopics>True</purgeDuplicateTopics>
+    <cppCommentsFixup>False</cppCommentsFixup>
+    <frameworkVersion>2.0.50727</frameworkVersion>
+    <binaryTOC>True</binaryTOC>
+    <includeFavorites>False</includeFavorites>
+    <preliminary>True</preliminary>
+    <rootNSContainer>False</rootNSContainer>
+    <helpTitle>A Telnet Class Library for .NET</helpTitle>
+    <htmlHelpName>TelnetDocumentation</htmlHelpName>
+    <language>en-US</language>
+    <copyrightHref />
+    <copyrightText>Copyright 2007 David Pinch</copyrightText>
+    <feedbackEMailAddress>dave@thoughtproject.com</feedbackEMailAddress>
+    <headerText />
+    <projectLinks>Local</projectLinks>
+    <sdkLinks>Msdn</sdkLinks>
+    <presentationStyle>Prototype</presentationStyle>
+    <namingMethod>Guid</namingMethod>
+    <syntaxFilters>Standard</syntaxFilters>
+    <missingTags>Summary, Parameter, Returns, AutoDocumentCtors</missingTags>
+    <visibleItems>InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</visibleItems>
+</project>

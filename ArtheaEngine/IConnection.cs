@@ -50,6 +50,11 @@ namespace ArtheaEngine
             get; set;
         }
 
+        string State
+        {
+            get;
+        }
+
         /// <summary>
         /// Gets the height of the screen.
         /// </summary>

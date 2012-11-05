@@ -16,6 +16,8 @@
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -26,6 +28,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Commandlineparameters>/console</Commandlineparameters>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,6 +37,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
@@ -54,17 +58,22 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Xml" />
-    <Reference Include="Thought.Net.Telnet">
-      <HintPath>ThirdParty\Thought.Net.Telnet\Release\Thought.Net.Telnet.dll</HintPath>
-    </Reference>
-    <Reference Include="Thought.Terminals">
-      <HintPath>ThirdParty\Thought.Terminals\Release\Thought.Terminals.dll</HintPath>
+    <Reference Include="Thought.Net.Telnet, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>ThirdParty\Thought.Net.Telnet\Debug\Thought.Net.Telnet.dll</HintPath>
     </Reference>
     <Reference Include="NLog">
       <HintPath>..\ThirdParty\NLog.dll</HintPath>
     </Reference>
+    <Reference Include="Thought.Terminals, Version=0.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>ThirdParty\Thought.Terminals\Debug\Thought.Terminals.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arguments.cs" />
+    <Compile Include="Console\ConsoleProgram.cs" />
+    <Compile Include="GameServer.cs" />
     <Compile Include="GUI\ArtheaSplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -91,6 +100,9 @@
     <Compile Include="Creation\ObjectEditor.cs" />
     <Compile Include="Creation\RoomEditor.cs" />
     <Compile Include="Creation\TextEditor.cs" />
+    <Compile Include="GUI\GUIProgram.cs" />
+    <Compile Include="IProgram.cs" />
+    <Compile Include="ServerConfig.cs" />
     <Compile Include="TelnetConnection.cs" />
     <Compile Include="GUI\MainGame.Designer.cs">
       <DependentUpon>MainGame.cs</DependentUpon>
@@ -144,7 +156,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <Folder Include="Console\" />
-  </ItemGroup>
+  <ItemGroup />
 </Project>
