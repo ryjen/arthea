@@ -32,6 +32,9 @@ namespace ArtheaServer
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainGame));
             this.mainMenu = new System.Windows.Forms.MenuStrip();
             this.worldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rebootToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.shutdownToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.minimizeToTrayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -48,6 +51,7 @@ namespace ArtheaServer
             // 
             this.mainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.worldToolStripMenuItem,
+            this.serverToolStripMenuItem,
             this.optionsToolStripMenuItem,
             this.aboutToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
@@ -61,6 +65,29 @@ namespace ArtheaServer
             this.worldToolStripMenuItem.Name = "worldToolStripMenuItem";
             this.worldToolStripMenuItem.Size = new System.Drawing.Size(51, 20);
             this.worldToolStripMenuItem.Text = "&World";
+            // 
+            // serverToolStripMenuItem
+            // 
+            this.serverToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.rebootToolStripMenuItem,
+            this.shutdownToolStripMenuItem});
+            this.serverToolStripMenuItem.Name = "serverToolStripMenuItem";
+            this.serverToolStripMenuItem.Size = new System.Drawing.Size(51, 20);
+            this.serverToolStripMenuItem.Text = "&Server";
+            // 
+            // rebootToolStripMenuItem
+            // 
+            this.rebootToolStripMenuItem.Name = "rebootToolStripMenuItem";
+            this.rebootToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.rebootToolStripMenuItem.Text = "&Reboot";
+            this.rebootToolStripMenuItem.Click += new System.EventHandler(this.RebootToolStripMenuItemClick);
+            // 
+            // shutdownToolStripMenuItem
+            // 
+            this.shutdownToolStripMenuItem.Name = "shutdownToolStripMenuItem";
+            this.shutdownToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.shutdownToolStripMenuItem.Text = "&Shutdown";
+            this.shutdownToolStripMenuItem.Click += new System.EventHandler(this.ShutdownToolStripMenuItemClick);
             // 
             // optionsToolStripMenuItem
             // 
@@ -89,7 +116,6 @@ namespace ArtheaServer
             this.notifier.ContextMenuStrip = this.notifierContextMenu;
             this.notifier.Icon = ((System.Drawing.Icon)(resources.GetObject("notifier.Icon")));
             this.notifier.Text = "Arthea Server";
-            //this.notifier.Visible = true;
             this.notifier.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifier_MouseDoubleClick);
             // 
             // notifierContextMenu
@@ -105,14 +131,14 @@ namespace ArtheaServer
             // restoreToolStripMenuItem
             // 
             this.restoreToolStripMenuItem.Name = "restoreToolStripMenuItem";
-            this.restoreToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.restoreToolStripMenuItem.Size = new System.Drawing.Size(113, 22);
             this.restoreToolStripMenuItem.Text = "&Restore";
             this.restoreToolStripMenuItem.Click += new System.EventHandler(this.restoreToolStripMenuItem_Click);
             // 
             // aboutToolStripMenuItem1
             // 
             this.aboutToolStripMenuItem1.Name = "aboutToolStripMenuItem1";
-            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem1.Size = new System.Drawing.Size(113, 22);
             this.aboutToolStripMenuItem1.Text = "&About";
             this.aboutToolStripMenuItem1.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -125,7 +151,7 @@ namespace ArtheaServer
             this.tabControl1.Size = new System.Drawing.Size(478, 238);
             this.tabControl1.TabIndex = 1;
             // 
-            // MainForm
+            // MainGame
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -134,7 +160,7 @@ namespace ArtheaServer
             this.Controls.Add(this.mainMenu);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.mainMenu;
-            this.Name = "MainForm";
+            this.Name = "MainGame";
             this.Text = "Arthea Server";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
@@ -159,6 +185,9 @@ namespace ArtheaServer
         private System.Windows.Forms.ContextMenuStrip notifierContextMenu;
         private System.Windows.Forms.ToolStripMenuItem restoreToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem serverToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem rebootToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem shutdownToolStripMenuItem;
     }
 }
 

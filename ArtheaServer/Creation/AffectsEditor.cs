@@ -1,18 +1,18 @@
-﻿namespace ArtheaServer.Creation
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System.Collections.ObjectModel;
-    using System.Linq;
-    using System.Reflection;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reflection;
+using ArtheaEngine;
+using ArtheaEngine.Model;
 
+namespace ArtheaServer.Creation
+{
     public class AffectsEditor : Editor
     {
         #region Fields
 
-        private Collection<Affect> _affects;
-        private object _data;
-        private PropertyInfo _prop;
+        private readonly Collection<Affect> _affects;
+        private readonly object _data;
+        private readonly PropertyInfo _prop;
 
         #endregion Fields
 
@@ -41,60 +41,60 @@
 
         public override bool Execute(Argument argument)
         {
-            var arg = argument.Next();
-             int num;
-             AffectEditor ed;
+            string arg = argument.Next();
+            int num;
+            AffectEditor ed;
 
-             if (base.Execute(arg))
-                 return true;
+            if (base.Execute(arg))
+                return true;
 
-             if (arg.Is("A") || arg.Is("add"))
-             {
-                 var paf = new Affect();
-                 ed = new AffectEditor(_connection, paf);
-                 Forward(ed);
-                 return true;
-             }
+            if (arg.Is("A") || arg.Is("add"))
+            {
+                var paf = new Affect();
+                ed = new AffectEditor(_connection, paf);
+                Forward(ed);
+                return true;
+            }
 
-             if (arg.Is("D") || arg.Is("delete"))
-             {
-                 if (!int.TryParse(argument, out num))
-                 {
-                     WriteLine("~CSyntax: ~W'delete #'~x");
-                     return true;
-                 }
+            if (arg.Is("D") || arg.Is("delete"))
+            {
+                if (!int.TryParse(argument, out num))
+                {
+                    WriteLine("~CSyntax: ~W'delete #'~x");
+                    return true;
+                }
 
-                 if (num < 0 || num >= _affects.Count)
-                 {
-                     WriteLine("~CInvalid affect.");
-                     return true;
-                 }
+                if (num < 0 || num >= _affects.Count)
+                {
+                    WriteLine("~CInvalid affect.");
+                    return true;
+                }
 
-                 _affects.RemoveAt(num);
+                _affects.RemoveAt(num);
 
-                 Show();
-                 return true;
-             }
+                Show();
+                return true;
+            }
 
-             if (arg.IsNumber())
-             {
-                 if (!int.TryParse(arg, out num))
-                 {
-                     WriteLine("~CSyntax: ~W'edit #'~x");
-                     return true;
-                 }
+            if (arg.IsNumber())
+            {
+                if (!int.TryParse(arg, out num))
+                {
+                    WriteLine("~CSyntax: ~W'edit #'~x");
+                    return true;
+                }
 
-                 if (num < 0 || num >= _affects.Count)
-                 {
-                     WriteLine("~CInvalid affect~x");
-                     return true;
-                 }
+                if (num < 0 || num >= _affects.Count)
+                {
+                    WriteLine("~CInvalid affect~x");
+                    return true;
+                }
 
-                 ed = new AffectEditor(_connection, _affects.ElementAt(num));
-                 Forward(ed);
-                 return true;
-             }
-             return false;
+                ed = new AffectEditor(_connection, _affects.ElementAt(num));
+                Forward(ed);
+                return true;
+            }
+            return false;
         }
 
         public override void Save()
@@ -106,15 +106,15 @@
         {
             Reset();
 
-             WriteLine("~YA) ~CAdd affect");
-             WriteLine("~YD) ~CDelete affect");
-             WriteLine("~Y#) ~CEdit affect");
-             WriteLine();
+            WriteLine("~YA) ~CAdd affect");
+            WriteLine("~YD) ~CDelete affect");
+            WriteLine("~Y#) ~CEdit affect");
+            WriteLine();
 
-             for (var i = 0; i < _affects.Count; i++)
-             {
-                 WriteLine("~Y{0,2})~C {1}", i + 1, _affects[i]);
-             }
+            for (int i = 0; i < _affects.Count; i++)
+            {
+                WriteLine("~Y{0,2})~C {1}", i + 1, _affects[i]);
+            }
         }
 
         #endregion Methods

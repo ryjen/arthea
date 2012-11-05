@@ -1,9 +1,8 @@
-﻿namespace ArtheaServer.Commands
+﻿using ArtheaEngine;
+using ArtheaEngine.Model;
+
+namespace ArtheaServer.Commands
 {
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-
     public class LookCommand : Command
     {
         #region Constructors
@@ -45,7 +44,7 @@
                 {
                     ch.WriteLine();
 
-                    foreach (var rch in ch.Room.Characters)
+                    foreach (Character rch in ch.Room.Characters)
                     {
                         if (rch == ch) continue;
 
@@ -57,7 +56,7 @@
                 {
                     ch.WriteLine();
 
-                    foreach (var obj in ch.Room.Objects)
+                    foreach (Object obj in ch.Room.Objects)
                     {
                         ch.Act("{0:L}", obj);
                     }

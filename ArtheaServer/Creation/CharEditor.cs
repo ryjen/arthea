@@ -1,14 +1,14 @@
-﻿namespace ArtheaServer.Creation
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System;
+﻿using System;
+using ArtheaEngine;
+using ArtheaEngine.Model;
 
+namespace ArtheaServer.Creation
+{
     public class CharEditor : Editor
     {
         #region Fields
 
-        private Character _data;
+        private readonly Character _data;
 
         #endregion Fields
 
@@ -35,7 +35,7 @@
 
         public override bool Execute(Argument argument)
         {
-            var arg = argument.Next();
+            string arg = argument.Next();
 
             if (base.Execute(arg))
                 return true;
@@ -50,7 +50,7 @@
             if (arg.Is("E") || arg.Is("sex"))
             {
                 Sex sex;
-                if (!Enum.TryParse<Sex>(argument, true, out sex))
+                if (!Enum.TryParse(argument, true, out sex))
                 {
                     ShowValidEnumValues<Sex>();
                     return true;
@@ -72,7 +72,7 @@
                 if (!arg.IsNumber())
                 {
                     Size size;
-                    if (!Enum.TryParse<Size>(argument, true, out size))
+                    if (!Enum.TryParse(argument, true, out size))
                     {
                         ShowValidEnumValues<Size>();
                         WriteLine("~CYou may also enter a number in the form of #.#~x");
@@ -88,9 +88,9 @@
                         WriteLine("Invalid size");
                         return true;
                     }
-                    if (size > (float)Size.Giant || size < 0)
+                    if (size > (float) Size.Giant || size < 0)
                     {
-                        WriteLine("~CValid sizes are from 0 to {0}", (float)Size.Giant);
+                        WriteLine("~CValid sizes are from 0 to {0}", (float) Size.Giant);
                         return true;
                     }
                     _data.Size = size;
@@ -102,7 +102,7 @@
             if (arg.Is("D") || arg.Is("position"))
             {
                 Position pos;
-                if (!Enum.TryParse<Position>(argument, true, out pos))
+                if (!Enum.TryParse(argument, true, out pos))
                 {
                     ShowValidEnumValues<Position>();
                     return true;
@@ -220,18 +220,18 @@
 
         public override void Save()
         {
-			_data.Save();
+            _data.Save();
         }
 
         public override void Show()
         {
             Reset();
 
-            ColumnFormatter cols = new ColumnFormatter(2, _connection.ScreenWidth);
+            var cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
             cols.Add("~YA) ~CName: ~W{0}", _data.Name);
-			cols.SetSpan (2);
-			cols.Add(TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
+            cols.SetSpan(2);
+            cols.Add(TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
             cols.Add("~YC) ~CSize: ~W{0}", _data.Size);
             cols.Add("~YD) ~CPosition: ~W{0}", _data.Position);
             cols.Add("~YE) ~CSex: ~W{0}", _data.Sex);
@@ -257,7 +257,7 @@
                 cols.Add("~RK) ~CShop: ~W{0}", npc.Shop == null ? "None" : npc.Shop.Id);
             }
 
-			_connection.Page(cols.GetBuffer());
+            _connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods

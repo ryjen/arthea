@@ -1,15 +1,15 @@
-﻿using ArtheaEngine;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using ArtheaEngine;
+using ArtheaEngine.Model;
+using NLog;
+using Thought.Net.Telnet;
 
 namespace ArtheaServer
 {
-    using ArtheaEngine.Model;
-    using NLog;
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Net.Sockets;
-    using System.Threading;
-    using Thought.Net.Telnet;
 
     #region Enumerations
 
@@ -23,8 +23,8 @@ namespace ArtheaServer
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        private TelnetListener _listener;
         private Thread _listenThread;
+        private TelnetListener _listener;
 
         #endregion Fields
 
@@ -41,27 +41,17 @@ namespace ArtheaServer
 
         #region Properties
 
-        public HashSet<IConnection> Connections
-        {
-            get;
-            private set;
-        }
+        public HashSet<IConnection> Connections { get; private set; }
 
-        public ServerState State
-        {
-            get; set;
-        }
+        public ServerState State { get; set; }
 
-        public World World
-        {
-            get; private set;
-        }
+        public World World { get; private set; }
 
         #endregion Properties
 
         #region Methods
 
-		/*
+        /*
         public static void Shutdown()
         {
             if (Application.MessageLoop)
@@ -76,10 +66,16 @@ namespace ArtheaServer
             }
         }*/
 
+        #region IDisposable Members
+
         public void Dispose()
         {
             List.Remove(this);
         }
+
+        #endregion
+
+        #region IServer Members
 
         public void Listen()
         {
@@ -97,7 +93,7 @@ namespace ArtheaServer
             {
                 try
                 {
-                    var client = _listener.Accept();
+                    TelnetClient client = _listener.Accept();
 
                     StartClient(client);
                 }
@@ -114,6 +110,24 @@ namespace ArtheaServer
             _listenThread = new Thread(Listen) {Name = World.Name};
             _listenThread.Start();
         }
+
+        public void Stop()
+        {
+            State = ServerState.Stopped;
+
+            if (_listener != null)
+            {
+                _listener.Stop();
+                _listener = null;
+            }
+
+            if (_listenThread != null)
+                _listenThread.Join(500);
+
+            Dispose();
+        }
+
+        #endregion
 
         public TelnetConnection StartClient(TelnetClient client)
         {
@@ -143,22 +157,6 @@ namespace ArtheaServer
             connection.Start();
 
             return connection;
-        }
-
-        public void Stop()
-        {
-            State = ServerState.Stopped;
-
-            if (_listener != null)
-            {
-                _listener.Stop();
-                _listener = null;
-            }
-
-			if(_listenThread != null)
-	            _listenThread.Join(500);
-
-            Dispose();
         }
 
         #endregion Methods

@@ -1,15 +1,15 @@
-﻿namespace ArtheaServer.Creation
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System;
-    using Object = ArtheaEngine.Model.Object;
+﻿using System;
+using ArtheaEngine;
+using ArtheaEngine.Model;
+using Object = ArtheaEngine.Model.Object;
 
+namespace ArtheaServer.Creation
+{
     public class ExitEditor : Editor
     {
         #region Fields
 
-        private Exit _data;
+        private readonly Exit _data;
 
         #endregion Fields
 
@@ -36,7 +36,7 @@
 
         public override bool Execute(Argument argument)
         {
-            var arg = argument.Next();
+            string arg = argument.Next();
 
             if (base.Execute(arg))
                 return true;
@@ -72,7 +72,7 @@
 
             if (arg.Is("D") || arg.Is("key"))
             {
-				Object key;
+                Object key;
 
                 if ((key = Object.Lookup(argument)) == null || key.Type != ObjectType.Key)
                 {
@@ -89,7 +89,6 @@
 
         public override void Save()
         {
-
         }
 
         public override void Show()
@@ -104,12 +103,13 @@
             cols.Add("   ~CDirection: ~W{0}", _data.Direction);
             cols.Add("~YA) ~CName: ~W{0}", _data.Keyword);
 
-            cols.SetSpan(2).Add (TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
+            cols.SetSpan(2).Add(TextEditor.Preview("~YB) ~CDescription", _data.Description, cols.Width));
 
             cols.Add("~YC) ~CFlags: ~W{0}", _data.Flags);
-            cols.Add("~YD) ~CKey: ~W{0}", _data.Key == null ? "None" : string.Format("{0} ({1})", _data.Key.Id, _data.Key.Name));
+            cols.Add("~YD) ~CKey: ~W{0}",
+                     _data.Key == null ? "None" : string.Format("{0} ({1})", _data.Key.Id, _data.Key.Name));
 
-			_connection.Page (cols.GetBuffer());
+            _connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods

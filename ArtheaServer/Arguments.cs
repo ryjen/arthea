@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
 namespace ArtheaServer
 {
-
     internal class Arguments
     {
         #region Fields
@@ -16,7 +11,7 @@ namespace ArtheaServer
         // Variables
         private readonly StringDictionary Parameters;
 
-        private string[] value;
+        private readonly string[] value;
 
         #endregion Fields
 
@@ -31,11 +26,11 @@ namespace ArtheaServer
             value = Args;
 
             Parameters = new StringDictionary();
-            Regex Spliter = new Regex(@"^-{1,2}|^/|=|:",
-                                      RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var Spliter = new Regex(@"^-{1,2}|^/|=|:",
+                                    RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-            Regex Remover = new Regex(@"^['""]?(.*?)['""]?$",
-                                      RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var Remover = new Regex(@"^['""]?(.*?)['""]?$",
+                                    RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
             string Parameter = null;
             string[] Parts;
@@ -53,8 +48,8 @@ namespace ArtheaServer
 
                 switch (Parts.Length)
                 {
-                    // Found a value (for the last parameter
-                    // found (space separator))
+                        // Found a value (for the last parameter
+                        // found (space separator))
                     case 1:
                         if (Parameter != null)
                         {
@@ -70,7 +65,7 @@ namespace ArtheaServer
                         // else Error: no parameter waiting for a value (skipped)
                         break;
 
-                    // Found just a parameter
+                        // Found just a parameter
                     case 2:
                         // The last parameter is still waiting.
                         // With no value, set it to true.
@@ -82,7 +77,7 @@ namespace ArtheaServer
                         Parameter = Parts[1];
                         break;
 
-                    // Parameter with enclosed value
+                        // Parameter with enclosed value
                     case 3:
                         // The last parameter is still waiting.
                         // With no value, set it to true.
@@ -138,5 +133,4 @@ namespace ArtheaServer
             return args.value;
         }
     }
-
 }

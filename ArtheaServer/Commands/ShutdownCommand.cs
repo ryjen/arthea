@@ -1,11 +1,9 @@
-﻿namespace ArtheaServer.Commands
+﻿using ArtheaEngine;
+using ArtheaEngine.Model;
+using NLog;
+
+namespace ArtheaServer.Commands
 {
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-
-    using NLog;
-
     public class ShutdownCommand : Command
     {
         #region Constructors

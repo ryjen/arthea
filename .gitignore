@@ -3,3 +3,7 @@ obj
 *.userprefs
 test-results
 .DS_Store
+"*.snk" 
+*.tmp
+*.snk
+*.pfx

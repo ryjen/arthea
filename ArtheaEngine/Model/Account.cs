@@ -23,7 +23,7 @@ namespace ArtheaEngine.Model
 	/// <summary>
 	/// Account.
 	/// </summary>
-    public class Account : IWritable, IRootLevelDocument
+    public sealed class Account : IWritable, IRootLevelDocument
     {
 		/// <summary>
 		/// Initializes the <see cref="ArtheaEngine.Model.Account"/> class.
@@ -59,7 +59,7 @@ namespace ArtheaEngine.Model
 		/// The connection.
 		/// </value>
 		[BsonIgnore]
-        public virtual IConnection Connection
+        public IConnection Connection
         {
             get; set;
         }
@@ -153,7 +153,7 @@ namespace ArtheaEngine.Model
 		/// <param name='buf'>
 		/// Buffer.
 		/// </param>
-        public virtual void Page(string buf)
+        public void Page(string buf)
         {
             Connection.Page(buf);
         }
@@ -164,7 +164,7 @@ namespace ArtheaEngine.Model
 		/// <param name='buf'>
 		/// Buffer.
 		/// </param>
-		public virtual void Page (StringBuilder buf)
+		public void Page (StringBuilder buf)
 		{
 			Connection.Page (buf);
 		}
@@ -178,7 +178,7 @@ namespace ArtheaEngine.Model
 		/// <param name='args'>
 		/// Arguments.
 		/// </param>
-        public virtual void Write(string format, params object[] args)
+        public void Write(string format, params object[] args)
         {
             Connection.Write(format, args);
         }
@@ -189,7 +189,7 @@ namespace ArtheaEngine.Model
 		/// <param name='value'>
 		/// Value.
 		/// </param>
-        public virtual void Write(byte[] value)
+        public void Write(byte[] value)
         {
             Connection.Write(value);
         }
@@ -203,7 +203,7 @@ namespace ArtheaEngine.Model
 		/// <param name='obj'>
 		/// Object.
 		/// </param>
-        public virtual void Write(object obj)
+        public void Write(object obj)
         {
             Connection.Write(obj);
         }
@@ -211,7 +211,7 @@ namespace ArtheaEngine.Model
 		/// <summary>
 		/// Writes the line.
 		/// </summary>
-        public virtual void WriteLine()
+        public void WriteLine()
         {
             Connection.WriteLine();
         }
@@ -222,7 +222,7 @@ namespace ArtheaEngine.Model
 		/// <param name='value'>
 		/// Value.
 		/// </param>
-        public virtual void WriteLine(object value)
+        public void WriteLine(object value)
         {
             Connection.WriteLine(value);
         }
@@ -236,7 +236,7 @@ namespace ArtheaEngine.Model
 		/// <param name='args'>
 		/// Arguments.
 		/// </param>
-        public virtual void WriteLine(string format, params object[] args)
+        public void WriteLine(string format, params object[] args)
         {
             Connection.WriteLine(format, args);
         }

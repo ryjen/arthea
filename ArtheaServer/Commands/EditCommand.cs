@@ -1,13 +1,9 @@
-﻿namespace ArtheaServer.Commands
+﻿using ArtheaEngine;
+using ArtheaEngine.Model;
+using ArtheaServer.Creation;
+
+namespace ArtheaServer.Commands
 {
-
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-
-    using ArtheaServer.Creation;
-
-    using Object = ArtheaEngine.Model.Object;
-
     public class CreateCommand : Command
     {
         #region Constructors
@@ -23,12 +19,12 @@
 
         public override void Execute(Character ch, Argument argument)
         {
-            var arg = argument.Next();
-            Player p = ch as Player;
+            string arg = argument.Next();
+            var p = ch as Player;
 
             if (p == null) return;
 
-            TelnetConnection conn = p.Account.Connection as TelnetConnection;
+            var conn = p.Account.Connection as TelnetConnection;
 
             if (arg.IsPrefixOf("character"))
             {
@@ -43,7 +39,7 @@
 
             if (arg.IsPrefixOf("object"))
             {
-                var obj = new ArtheaEngine.Model.Object();
+                var obj = new Object();
 
                 obj.Name = !argument ? "NewObj" : argument.ToString();
 
@@ -55,7 +51,7 @@
             if (arg.IsPrefixOf("help"))
             {
                 var help = new Help();
-                if(!argument.IsEmpty())
+                if (!argument.IsEmpty())
                     help.Keywords.Add(argument);
 
                 conn.Editing = new HelpEditor(conn, help);
@@ -91,18 +87,18 @@
 
         #region Methods
 
-        public override void Execute(Character ch, ArtheaEngine.Argument argument)
+        public override void Execute(Character ch, Argument argument)
         {
-            var arg = argument.Next();
-            Player p = ch as Player;
+            string arg = argument.Next();
+            var p = ch as Player;
 
-            if(p == null) return;
+            if (p == null) return;
 
-            TelnetConnection conn = p.Account.Connection as TelnetConnection;
+            var conn = p.Account.Connection as TelnetConnection;
 
             if (arg.IsPrefixOf("character"))
             {
-                var vict = Character.Lookup(argument);
+                Character vict = Character.Lookup(argument);
                 if (vict == null)
                 {
                     ch.WriteLine("No such character.");
@@ -115,7 +111,7 @@
 
             if (arg.IsPrefixOf("room"))
             {
-                var room = ch.Room;
+                Room room = ch.Room;
 
                 conn.Editing = new RoomEditor(conn, room);
 
@@ -125,7 +121,7 @@
 
             if (arg.IsPrefixOf("object"))
             {
-                var obj = Object.Lookup(argument);
+                Object obj = Object.Lookup(argument);
 
                 if (obj == null)
                 {

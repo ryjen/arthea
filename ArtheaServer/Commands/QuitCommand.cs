@@ -1,12 +1,11 @@
-﻿using NLog;
+﻿using System;
+using System.Runtime.Serialization;
+using ArtheaEngine;
+using ArtheaEngine.Model;
+using NLog;
 
 namespace ArtheaServer.Commands
 {
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System;
-    using System.Runtime.Serialization;
-
     public class QuitCommand : Command
     {
         #region Fields

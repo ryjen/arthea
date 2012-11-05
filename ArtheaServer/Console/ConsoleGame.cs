@@ -1,72 +1,67 @@
-using System;
+using System.Threading;
 using ArtheaEngine;
 using ArtheaEngine.Model;
-using System.Collections.Generic;
-using System.Linq;
 using NLog;
-using System.Threading;
 
 namespace ArtheaServer
 {
-	internal class ConsoleGame
-	{
-		private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    internal class ConsoleGame
+    {
+        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-		public ConsoleGame ()
-		{
-
-		}
-
-		public void Run (Arguments args)
-		{
-            
+        public void Run(Arguments args)
+        {
             GameServer.Servers = RebootHelper.Recover();
 
-			foreach (var entry in DbManager.Query<World>()) {
+            foreach (World entry in DbManager.Query<World>())
+            {
+                if (GameServer.IsWorldActive(entry))
+                {
+                    continue;
+                }
 
-				if (GameServer.IsWorldActive(entry)) {
-					continue;
-				}
-
-                if(args.Has("world")) {
-                    if(entry.Name.Equals(args["world"]) || entry.Id.Equals(args["world"]))
+                if (args.Has("world"))
+                {
+                    if (entry.Name.Equals(args["world"]) || entry.Id.Equals(args["world"]))
                     {
                         GameServer.Servers.Add(new TelnetServer(entry));
                         break;
                     }
                     continue;
-                } 
-				
-				GameServer.Servers.Add(new TelnetServer (entry));
-			}
+                }
 
-			if (args.Has ("world") && GameServer.Servers.Count == 0) {
-				Log.Error("Could not find world '{0}'.", args["world"]);
-				return;
-			}
+                GameServer.Servers.Add(new TelnetServer(entry));
+            }
 
-			foreach (var server in GameServer.Servers) {
-				Log.Info("Starting {0}...", server.World.Name);
-				server.Start ();
-			}
-			
+            if (args.Has("world") && GameServer.Servers.Count == 0)
+            {
+                Log.Error("Could not find world '{0}'.", args["world"]);
+                return;
+            }
 
-			MainLoop();
-		}
+            foreach (IServer server in GameServer.Servers)
+            {
+                Log.Info("Starting {0}...", server.World.Name);
+                server.Start();
+            }
 
-		private void MainLoop ()
-		{
-			bool alive = true;
 
-			while (alive) {
+            MainLoop();
+        }
 
-				Thread.Sleep(1000);
+        private void MainLoop()
+        {
+            bool alive = true;
+
+            while (alive)
+            {
+                Thread.Sleep(1000);
 
                 int index = 0;
 
                 while (index < GameServer.Servers.Count)
                 {
-                    var server = GameServer.Servers[index];
+                    IServer server = GameServer.Servers[index];
 
                     if (server.State == ServerState.Stopped)
                     {
@@ -76,9 +71,8 @@ namespace ArtheaServer
 
                     index++;
                 }
-				alive = GameServer.Servers.Count != 0;
-			}
-		}
-	}
+                alive = GameServer.Servers.Count != 0;
+            }
+        }
+    }
 }
-

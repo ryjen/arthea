@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace ArtheaServer
+﻿namespace ArtheaServer
 {
     internal interface IProgram
     {

@@ -1,9 +1,9 @@
-﻿namespace ArtheaServer.Creation
-{
-    using ArtheaEngine;
-    using System;
-    using System.Text;
+﻿using System;
+using System.Text;
+using ArtheaEngine;
 
+namespace ArtheaServer.Creation
+{
     public abstract class Editor : IWritable
     {
         #region Fields
@@ -25,7 +25,7 @@
 
         public delegate void ActionHandler();
 
-        #endregion Delegates
+        #endregion
 
         #region Events
 
@@ -35,19 +35,53 @@
 
         #region Properties
 
-        public abstract string Title
-        {
-            get;
-        }
+        public abstract string Title { get; }
 
-        protected Editor Next
-        {
-            get; set;
-        }
+        protected Editor Next { get; set; }
 
         #endregion Properties
 
         #region Methods
+
+        public void Page(string buf)
+        {
+            _connection.Page(buf);
+        }
+
+        public void Page(StringBuilder buf)
+        {
+            _connection.Page(buf);
+        }
+
+        public void Write(string format, params object[] args)
+        {
+            _connection.Write(format, args);
+        }
+
+        public void Write(byte[] value)
+        {
+            _connection.Write(value);
+        }
+
+        public void Write(object obj)
+        {
+            _connection.Write(obj);
+        }
+
+        public void WriteLine()
+        {
+            _connection.WriteLine();
+        }
+
+        public void WriteLine(object value)
+        {
+            _connection.WriteLine(value);
+        }
+
+        public void WriteLine(string format, params object[] args)
+        {
+            _connection.WriteLine(format, args);
+        }
 
         public void Back()
         {
@@ -95,16 +129,6 @@
             editor.Show();
         }
 
-        public void Page(string buf)
-        {
-            _connection.Page(buf);
-        }
-
-		public void Page (StringBuilder buf)
-		{
-			_connection.Page (buf);
-		}
-
         public virtual void Prompt()
         {
             if (this is TextEditor)
@@ -121,36 +145,6 @@
 
         public abstract void Show();
 
-        public void Write(string format, params object[] args)
-        {
-            _connection.Write(format, args);
-        }
-
-        public void Write(byte[] value)
-        {
-            _connection.Write(value);
-        }
-
-        public void Write(object obj)
-        {
-            _connection.Write(obj);
-        }
-
-        public void WriteLine()
-        {
-            _connection.WriteLine();
-        }
-
-        public void WriteLine(object value)
-        {
-            _connection.WriteLine(value);
-        }
-
-        public void WriteLine(string format, params object[] args)
-        {
-            _connection.WriteLine(format, args);
-        }
-
         protected void Reset()
         {
             _connection.ClearScreen();
@@ -163,14 +157,14 @@
         protected void ShowValidEnumValues<T>()
         {
             WriteLine("~CValid values are:~W");
-            var cols = new ColumnFormatter(5,_connection.ScreenWidth);
+            var cols = new ColumnFormatter(5, _connection.ScreenWidth);
 
-            foreach(var n in Enum.GetNames(typeof(T)))
+            foreach (string n in Enum.GetNames(typeof (T)))
             {
                 cols.Add(n);
             }
 
-			_connection.Page (cols.GetBuffer());
+            _connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods

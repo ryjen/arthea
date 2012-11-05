@@ -1,20 +1,16 @@
-using ArtheaEngine;
-using ArtheaEngine.Model;
-using Microsoft.Win32.TaskScheduler;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
 using System.Xml.Serialization;
-using Thought.Net.Telnet;
+using ArtheaEngine.Model;
+using Microsoft.Win32.TaskScheduler;
+using NLog;
 
 namespace ArtheaServer
 {
@@ -30,16 +26,16 @@ namespace ArtheaServer
         public static readonly int Port = 8080;
         public static readonly string Uri = "Reboot";
 
+        #region IRebootService Members
+
         public string GetServerConfig(int processId)
         {
-
             var config = new ServerConfig(processId, GameServer.Servers);
 
-            XmlSerializer s = new XmlSerializer(config.GetType());
+            var s = new XmlSerializer(config.GetType());
 
             using (var sw = new StringWriter())
             {
-
                 s.Serialize(sw, config);
 
                 return sw.ToString();
@@ -50,76 +46,20 @@ namespace ArtheaServer
         {
             GameServer.Exit();
         }
+
+        #endregion
     }
 
-	public static class RebootHelper
-	{
-        
-        class RemotingClient : IDisposable
-        {
-            IChannel channel = new TcpChannel();
-
-            IRebootService service;
-
-            public RemotingClient()
-            {
-                ChannelServices.RegisterChannel(channel, false);
-
-                service = (IRebootService)Activator.GetObject(
-                      typeof(IRebootService), "tcp://localhost:" + RebootService.Port + "/" + RebootService.Uri);
-
-            }
-
-            public ServerConfig GetServerConfig()
-            {
-
-                XmlSerializer s = new XmlSerializer(typeof(ServerConfig));
-
-                using (var sr = new StringReader(service.GetServerConfig(Process.GetCurrentProcess().Id)))
-                {
-                    return (ServerConfig)s.Deserialize(sr);
-                }
-            }
-
-            public void Dispose()
-            {
-                if (service != null)
-                {
-                    service.Finish();
-                }
-                ChannelServices.UnregisterChannel(channel);
-            }
-        }
-
-        class RemotingServer : IDisposable
-        {
-            IChannel channel;
-
-            public RemotingServer()
-            {
-                channel = new TcpChannel(RebootService.Port);
-
-                ChannelServices.RegisterChannel(channel, false);
-
-                RemotingConfiguration.RegisterWellKnownServiceType(
-                   typeof(RebootService), RebootService.Uri,
-                   WellKnownObjectMode.Singleton);
-            }
-
-            public void Dispose()
-            {
-                ChannelServices.UnregisterChannel(channel);
-            }
-        }
-
-        private static RemotingServer remotingServer;
+    public static class RebootHelper
+    {
+        private static RemotingServer _remotingServer;
 
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-        public static void Reboot ()
-		{
-            if(remotingServer == null)
-                remotingServer = new RemotingServer();
+        public static void Reboot()
+        {
+            if (_remotingServer == null)
+                _remotingServer = new RemotingServer();
 
             foreach (var s in GameServer.Servers)
             {
@@ -128,67 +68,71 @@ namespace ArtheaServer
                 s.Stop();
             }
 
-			var assm = Assembly.GetEntryAssembly ();
 
-			switch (Environment.OSVersion.Platform) {
-			case PlatformID.MacOSX:
-			case PlatformID.Unix:
-				StartPosixTask (assm);
-				break;
-			default:
-				StartWin32Task (assm);
-				break;
-			}
+            var assm = Assembly.GetEntryAssembly();
+
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.MacOSX:
+                case PlatformID.Unix:
+                    StartPosixTask(assm);
+                    break;
+                default:
+                    StartWin32Task(assm);
+                    break;
+            }
 
         }
 
-		// starts a secondary process
-		private static void StartPosixTask (Assembly assm)
-		{
-			Process.Start(assm.Location, "/reboot");
-		}
+        // starts a secondary process
+        private static void StartPosixTask(Assembly assm)
+        {
+            Process.Start(assm.Location, "/reboot");
+        }
 
-		// adds a win32 task to restart the executable 
-		private static void StartWin32Task(Assembly assm)
-		{
-			var taskName = new AssemblyName (assm.FullName).Name;
-			var dir = Path.GetDirectoryName (assm.Location);
+        // adds a win32 task to restart the executable 
+        private static void StartWin32Task(Assembly assm)
+        {
+            /*var taskName = new AssemblyName(assm.FullName).Name;
+            var dir = Path.GetDirectoryName(assm.Location);
 
-			Log.Info ("Creating task");
-			
-			using (var ts = new TaskService())
+            Log.Info("Creating restart task...");
+
+            using (var ts = new TaskService())
             {
-                Log.Info("current dir " + dir);
+                var folder = ts.RootFolder.CreateFolder(taskName);
+
+                taskName = RebootService.Uri;
 
                 var task = ts.AddTask(taskName,
-                    new TimeTrigger(DateTime.Now.AddSeconds(5)),
-                    new ExecAction(assm.Location, "/reboot", dir));
-                ts.RootFolder.RegisterTaskDefinition(taskName, task.Definition);
-            }
-		}
+                                       new TimeTrigger(DateTime.Now.AddSeconds(10)),
+                                       new ExecAction(assm.Location, "/reboot", dir));
+
+                folder.RegisterTaskDefinition(taskName, task.Definition);
+            }*/
+            StartPosixTask(assm);
+        }
 
         public static List<IServer> Recover()
         {
             var servers = new List<IServer>();
-            ServerConfig config = null;
 
             try
             {
+                Debugger.Launch();
+
                 using (var client = new RemotingClient())
                 {
-                    config = client.GetServerConfig();
+                    var config = client.GetServerConfig();
 
                     if (config.Worlds == null)
                         return servers;
 
                     Debug.WriteLine("Got server configuration....");
 
-                    foreach (var worldConfig in config.Worlds)
+                    foreach (WorldConfig worldConfig in config.Worlds)
                     {
-                        var world = new World();
-                        world.Name = worldConfig.Name;
-                        world.Port = worldConfig.Port;
-                        world.Id = worldConfig.Id;
+                        var world = new World {Name = worldConfig.Name, Port = worldConfig.Port, Id = worldConfig.Id};
 
                         Debug.WriteLine("Recovering world " + world.Name + "...");
 
@@ -198,15 +142,12 @@ namespace ArtheaServer
 
                         server.Start();
 
-                        foreach (var conConfig in worldConfig.Connections)
+                        foreach (ConnectionConfig conConfig in worldConfig.Connections)
                         {
                             server.StartClient(conConfig);
-
                         }
-
                     }
                 }
-
             }
             catch (Exception e)
             {
@@ -214,39 +155,109 @@ namespace ArtheaServer
             }
             return servers;
         }
-	}
-	
-	public abstract class ProcessControlException : Exception
-	{
-		public ProcessControlException()
-            : base()
+
+        #region Nested type: RemotingClient
+
+        private class RemotingClient : IDisposable
+        {
+            private readonly IChannel _channel = new TcpChannel();
+
+            private readonly IRebootService _service;
+
+            public RemotingClient()
+            {
+                ChannelServices.RegisterChannel(_channel, false);
+
+                _service = (IRebootService) Activator.GetObject(
+                    typeof (IRebootService), "tcp://localhost:" + RebootService.Port + "/" + RebootService.Uri);
+            }
+
+            #region IDisposable Members
+
+            public void Dispose()
+            {
+                if (_service != null)
+                {
+                    _service.Finish();
+                }
+                ChannelServices.UnregisterChannel(_channel);
+            }
+
+            #endregion
+
+            public ServerConfig GetServerConfig()
+            {
+                var s = new XmlSerializer(typeof (ServerConfig));
+
+                using (var sr = new StringReader(_service.GetServerConfig(Process.GetCurrentProcess().Id)))
+                {
+                    return (ServerConfig) s.Deserialize(sr);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Nested type: RemotingServer
+
+        private class RemotingServer : IDisposable
+        {
+            private readonly IChannel _channel;
+
+            public RemotingServer()
+            {
+                _channel = new TcpChannel(RebootService.Port);
+
+                ChannelServices.RegisterChannel(_channel, false);
+
+                RemotingConfiguration.RegisterWellKnownServiceType(
+                    typeof (RebootService), RebootService.Uri,
+                    WellKnownObjectMode.Singleton);
+            }
+
+            #region IDisposable Members
+
+            public void Dispose()
+            {
+                ChannelServices.UnregisterChannel(_channel);
+            }
+
+
+            #endregion
+        }
+
+        #endregion
+    }
+
+    public abstract class ProcessControlException : Exception
+    {
+        protected ProcessControlException()
         {
         }
 
-        public ProcessControlException(string msg)
+        protected ProcessControlException(string msg)
             : base(msg)
         {
         }
 
-        public ProcessControlException(string msg, Exception innerEx)
+        protected ProcessControlException(string msg, Exception innerEx)
             : base(msg, innerEx)
         {
         }
 
-        public ProcessControlException(SerializationInfo info, StreamingContext context)
+        protected ProcessControlException(SerializationInfo info, StreamingContext context)
             : base(info, context)
         {
         }
 
-		public abstract void Execute();
-	}
-	
+        public abstract void Execute();
+    }
+
     public class RebootException : ProcessControlException
     {
         #region Constructors
 
         public RebootException()
-            : base()
         {
         }
 
@@ -267,10 +278,10 @@ namespace ArtheaServer
 
         #endregion Constructors
 
-		public override void Execute ()
-		{
-			RebootHelper.Reboot();
-		}
+        public override void Execute()
+        {
+            RebootHelper.Reboot();
+        }
     }
 
     public class ShutdownException : ProcessControlException
@@ -278,7 +289,6 @@ namespace ArtheaServer
         #region Constructors
 
         public ShutdownException()
-            : base()
         {
         }
 
@@ -299,11 +309,9 @@ namespace ArtheaServer
 
         #endregion Constructors
 
-		public override void Execute ()
-		{
-
+        public override void Execute()
+        {
             GameServer.Exit();
-		}
+        }
     }
 }
-

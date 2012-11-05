@@ -113,7 +113,7 @@ namespace ArtheaEngine.Model
             get { return Area == null ? null : Area.World; }
         }
 
-		/// <summary>
+	    /// <summary>
 		/// Page the specified buf.
 		/// </summary>
 		/// <param name='buf'>

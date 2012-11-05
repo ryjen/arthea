@@ -1,19 +1,19 @@
-﻿namespace ArtheaServer.Creation
-{
-    using ArtheaEngine;
-    using System;
-    using System.Reflection;
-    using System.Text;
+﻿using System;
+using System.Reflection;
+using System.Text;
+using ArtheaEngine;
 
+namespace ArtheaServer.Creation
+{
     public class TextEditor : Editor
     {
         #region Fields
 
-        const char KEY = '\\';
+        private const char KEY = '\\';
 
+        private readonly object _data;
+        private readonly PropertyInfo _prop;
         private StringBuilder buf;
-        private object _data;
-        private PropertyInfo _prop;
 
         #endregion Fields
 
@@ -24,8 +24,8 @@
         {
             _prop = prop;
             _data = data;
-            var temp = prop.GetValue(data, null);
-            if(temp == null)
+            object temp = prop.GetValue(data, null);
+            if (temp == null)
                 buf = new StringBuilder();
             else
                 buf = new StringBuilder(temp.ToString());
@@ -57,7 +57,7 @@
             int indent = header.DisplayLength() + 2;
             int lineLen = Math.Min(pstr.GetLineCountLength(1), width - indent);
 
-            StringBuilder output = new StringBuilder();
+            var output = new StringBuilder();
 
             int pos = 0;
             string temp = pstr.Substring(pos, lineLen);
@@ -82,7 +82,7 @@
         {
             if (argument.Length > 1 && argument[0] == KEY && argument[1] != KEY)
             {
-                var arg = argument.Next();
+                string arg = argument.Next();
 
                 switch (arg.Substring(1))
                 {
@@ -103,7 +103,7 @@
                         _connection.Page(buf.ToString());
                         return true;
                     case "r":
-                        var arg1 = argument.Next();
+                        string arg1 = argument.Next();
 
                         if (string.IsNullOrEmpty(arg1))
                         {
@@ -111,7 +111,7 @@
                         }
                         else
                         {
-                            var arg2 = argument.Next();
+                            string arg2 = argument.Next();
 
                             buf = buf.Replace(arg1, arg2);
                             _connection.WriteLine("'{0}' replaced with '{1}'.", arg1, arg2);
@@ -206,7 +206,7 @@
         {
             string[] lines = buf.ToString().GetLines();
 
-            StringBuilder newText = new StringBuilder();
+            var newText = new StringBuilder();
 
             for (int i = 0; i < lines.Length - 2; i++)
             {
@@ -218,7 +218,7 @@
         private StringBuilder LineAdd(int line, String addStr)
         {
             string[] lines = buf.ToString().GetLines();
-            StringBuilder newText = new StringBuilder();
+            var newText = new StringBuilder();
 
             for (int i = 0; i < lines.Length - 1; i++)
             {
@@ -234,7 +234,7 @@
         private StringBuilder LineDelete(int line)
         {
             string[] lines = buf.ToString().GetLines();
-            StringBuilder newText = new StringBuilder();
+            var newText = new StringBuilder();
 
             for (int i = 0; i < lines.Length - 1; i++)
             {
@@ -250,7 +250,7 @@
         private StringBuilder LineReplace(int line, String addStr)
         {
             string[] lines = buf.ToString().GetLines();
-            StringBuilder newText = new StringBuilder();
+            var newText = new StringBuilder();
 
             for (int i = 0; i < lines.Length - 1; i++)
             {

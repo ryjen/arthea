@@ -1,18 +1,18 @@
-﻿namespace ArtheaServer.Creation
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System;
-    using System.Collections.Generic;
-    using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using ArtheaEngine;
+using ArtheaEngine.Model;
 
+namespace ArtheaServer.Creation
+{
     public class ExitsEditor : Editor
     {
         #region Fields
 
-        private Room _data;
-        private Dictionary<Direction, Exit> _exits;
-        private PropertyInfo _prop;
+        private readonly Room _data;
+        private readonly Dictionary<Direction, Exit> _exits;
+        private readonly PropertyInfo _prop;
 
         #endregion Fields
 
@@ -41,169 +41,168 @@
 
         public override bool Execute(Argument argument)
         {
-            var arg = argument.Next();
-             Room room;
-             //long id;
-             Direction dir;
-             string arg2;
-             Exit exit;
+            string arg = argument.Next();
+            Room room;
+            //long id;
+            Direction dir;
+            string arg2;
+            Exit exit;
 
-             if (base.Execute(arg))
-                 return true;
+            if (base.Execute(arg))
+                return true;
 
-             if (arg.Is("L") || arg.Is("link"))
-             {
-                 arg2 = argument.Next();
+            if (arg.Is("L") || arg.Is("link"))
+            {
+                arg2 = argument.Next();
 
-                 if (!Enum.TryParse(arg2, true, out dir))
-                 {
-                     WriteLine("~CSyntax: 'link <direction> <room>'");
-                     return true;
-                 }
+                if (!Enum.TryParse(arg2, true, out dir))
+                {
+                    WriteLine("~CSyntax: 'link <direction> <room>'");
+                    return true;
+                }
 
-                 if (_exits.ContainsKey(dir))
-                 {
-                     WriteLine("~CThere is already an exit in that direction.~x");
-                     return true;
-                 }
+                if (_exits.ContainsKey(dir))
+                {
+                    WriteLine("~CThere is already an exit in that direction.~x");
+                    return true;
+                }
 
-				Room r;
+                Room r;
 
-                 //if (!World.Rooms.ContainsKey(argument) || (r = Room.Lookup(World.Rooms[argument])) == null )
-                 
-				 if((r = DbManager.Find<Room> (argument)) == null)
-				 { 
-                     WriteLine("~CInvalid room to link to.");
-                     return true;
-                 }
+                //if (!World.Rooms.ContainsKey(argument) || (r = Room.Lookup(World.Rooms[argument])) == null )
 
-                 exit = new Exit();
-				exit.ToRoom = r;
-                 exit.Room = _data;
+                if ((r = DbManager.Find<Room>(argument)) == null)
+                {
+                    WriteLine("~CInvalid room to link to.");
+                    return true;
+                }
 
-                 _exits.Add(dir, exit);
-                 Show();
-                 return true;
+                exit = new Exit();
+                exit.ToRoom = r;
+                exit.Room = _data;
 
-             }
+                _exits.Add(dir, exit);
+                Show();
+                return true;
+            }
 
-             if (arg.Is("B") || arg.Is("build"))
-             {
-                 arg2 = argument.Next();
+            if (arg.Is("B") || arg.Is("build"))
+            {
+                arg2 = argument.Next();
 
-                 if (!Enum.TryParse(arg2, true, out dir))
-                 {
-                     WriteLine("~CSyntax: 'build <dir>'");
-                     return true;
-                 }
+                if (!Enum.TryParse(arg2, true, out dir))
+                {
+                    WriteLine("~CSyntax: 'build <dir>'");
+                    return true;
+                }
 
-                 if (_exits.ContainsKey(dir))
-                 {
-                     WriteLine("~CCan't build an exit in that direction, one already exists.~x");
-                     return true;
-                 }
+                if (_exits.ContainsKey(dir))
+                {
+                    WriteLine("~CCan't build an exit in that direction, one already exists.~x");
+                    return true;
+                }
 
-                 var revRoom = new Room();
-				 
-                 exit = new Exit();
-                 exit.ToRoom = revRoom;
-                 exit.Room = _data;
-                 exit.Direction = dir;
+                var revRoom = new Room();
 
-                 var revExit = new Exit();
-                 revExit.ToRoom = _data;
-                 revExit.Room = revRoom;
-                 revExit.Direction = dir.Reverse();
+                exit = new Exit();
+                exit.ToRoom = revRoom;
+                exit.Room = _data;
+                exit.Direction = dir;
 
-                 revRoom.Exits.Add(dir.Reverse(), revExit);
-                 _exits.Add(dir, exit);
+                var revExit = new Exit();
+                revExit.ToRoom = _data;
+                revExit.Room = revRoom;
+                revExit.Direction = dir.Reverse();
 
-                 Show();
-                 return true;
-             }
+                revRoom.Exits.Add(dir.Reverse(), revExit);
+                _exits.Add(dir, exit);
 
-             if (arg.Is("A") || arg.Is("add"))
-             {
-                 arg2 = argument.Next();
+                Show();
+                return true;
+            }
 
-                 if (!Enum.TryParse(arg2, true, out dir))
-                 {
-                     WriteLine("~CSyntax: 'add <direction> <room>'");
-                     return true;
-                 }
+            if (arg.Is("A") || arg.Is("add"))
+            {
+                arg2 = argument.Next();
 
-                 if (_exits.ContainsKey(dir))
-                 {
-                     WriteLine("~CThere is already an exit in that direction.~x");
-                     return true;
-                 }
+                if (!Enum.TryParse(arg2, true, out dir))
+                {
+                    WriteLine("~CSyntax: 'add <direction> <room>'");
+                    return true;
+                }
 
-                 if ((room = Room.Lookup(argument)) == null)
-                 {
-                     WriteLine("~CInvalid room to add exit to.");
-                     return true;
-                 }
+                if (_exits.ContainsKey(dir))
+                {
+                    WriteLine("~CThere is already an exit in that direction.~x");
+                    return true;
+                }
 
-                 if(room.Exits.ContainsKey(dir.Reverse()))
-                 {
-                     WriteLine("~CThere is already an exit to the {0} of that room.", dir.Reverse());
-                     return true;
-                 }
+                if ((room = Room.Lookup(argument)) == null)
+                {
+                    WriteLine("~CInvalid room to add exit to.");
+                    return true;
+                }
 
-                 exit = new Exit();
-                 exit.ToRoom = room;
-                 exit.Room = _data;
-                 exit.Direction = dir;
+                if (room.Exits.ContainsKey(dir.Reverse()))
+                {
+                    WriteLine("~CThere is already an exit to the {0} of that room.", dir.Reverse());
+                    return true;
+                }
 
-                 var revExit = new Exit();
-                 revExit.ToRoom = _data;
-                 revExit.Room = room;
-                 revExit.Direction = dir.Reverse();
+                exit = new Exit();
+                exit.ToRoom = room;
+                exit.Room = _data;
+                exit.Direction = dir;
 
-                 _exits.Add(dir, exit);
-                 room.Exits.Add(dir.Reverse(), revExit);
+                var revExit = new Exit();
+                revExit.ToRoom = _data;
+                revExit.Room = room;
+                revExit.Direction = dir.Reverse();
 
-                 Show();
-             }
+                _exits.Add(dir, exit);
+                room.Exits.Add(dir.Reverse(), revExit);
 
-             if (arg.Is("D") || arg.Is("delete"))
-             {
-                 if (!Enum.TryParse(argument, true, out dir))
-                 {
-                     WriteLine("~CSyntax: 'delete <direction>'~x");
-                     return true;
-                 }
+                Show();
+            }
 
-                 if (!_exits.ContainsKey(dir))
-                 {
-                     WriteLine("~CNo exit in that direction.~x");
-                     return true;
-                 }
+            if (arg.Is("D") || arg.Is("delete"))
+            {
+                if (!Enum.TryParse(argument, true, out dir))
+                {
+                    WriteLine("~CSyntax: 'delete <direction>'~x");
+                    return true;
+                }
 
-                 _exits.Remove(dir);
-                 Show();
-                 return true;
-             }
+                if (!_exits.ContainsKey(dir))
+                {
+                    WriteLine("~CNo exit in that direction.~x");
+                    return true;
+                }
 
-             if (arg.Is("E") || arg.Is("edit"))
-             {
-                 if (!Enum.TryParse(argument, true, out dir))
-                 {
-                     WriteLine("~CSyntax: 'edit <direction>'~x");
-                     return true;
-                 }
+                _exits.Remove(dir);
+                Show();
+                return true;
+            }
 
-                 if (!_exits.ContainsKey(dir))
-                 {
-                     WriteLine("~CNo exit in that direction.~x");
-                     return true;
-                 }
+            if (arg.Is("E") || arg.Is("edit"))
+            {
+                if (!Enum.TryParse(argument, true, out dir))
+                {
+                    WriteLine("~CSyntax: 'edit <direction>'~x");
+                    return true;
+                }
 
-                 var ed = new ExitEditor(_connection, _exits[dir]);
-                 Forward(ed);
-                 return true;
-             }
-             return false;
+                if (!_exits.ContainsKey(dir))
+                {
+                    WriteLine("~CNo exit in that direction.~x");
+                    return true;
+                }
+
+                var ed = new ExitEditor(_connection, _exits[dir]);
+                Forward(ed);
+                return true;
+            }
+            return false;
         }
 
         public override void Save()
@@ -215,16 +214,16 @@
         {
             Reset();
 
-             WriteLine("~YA) ~CAdd a two way exit");
-             WriteLine("~YL) ~CLink a one way exit");
-             WriteLine("~YB) ~CBuild an exit and room");
-             WriteLine("~YD) ~CDelete exit");
-             WriteLine("~YE) ~CEdit exit");
+            WriteLine("~YA) ~CAdd a two way exit");
+            WriteLine("~YL) ~CLink a one way exit");
+            WriteLine("~YB) ~CBuild an exit and room");
+            WriteLine("~YD) ~CDelete exit");
+            WriteLine("~YE) ~CEdit exit");
 
-             foreach (var entry in _exits)
-             {
-                 WriteLine("~W{0}) ~CExit to ~W{1}~C ({2})", entry.Key, entry.Value.ToRoom.Id, entry.Value.ToRoom.Name);
-             }
+            foreach (var entry in _exits)
+            {
+                WriteLine("~W{0}) ~CExit to ~W{1}~C ({2})", entry.Key, entry.Value.ToRoom.Id, entry.Value.ToRoom.Name);
+            }
         }
 
         #endregion Methods

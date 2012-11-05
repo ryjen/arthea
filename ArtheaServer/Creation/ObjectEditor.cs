@@ -1,16 +1,16 @@
-﻿namespace ArtheaServer.Creation
-{
-    using ArtheaEngine;
-    using ArtheaEngine.Model;
-    using System;
-    using System.Globalization;
-    using Object = ArtheaEngine.Model.Object;
+﻿using System;
+using System.Globalization;
+using ArtheaEngine;
+using ArtheaEngine.Model;
+using Object = ArtheaEngine.Model.Object;
 
+namespace ArtheaServer.Creation
+{
     public class ObjectEditor : Editor
     {
         #region Fields
 
-        Object _data;
+        private readonly Object _data;
 
         #endregion Fields
 
@@ -37,7 +37,7 @@
 
         public override bool Execute(Argument argument)
         {
-            var arg = argument.Next();
+            string arg = argument.Next();
 
             if (base.Execute(arg))
                 return true;
@@ -114,7 +114,9 @@
             if (arg.Is("H") || arg.Is("cost"))
             {
                 decimal value;
-                if (!decimal.TryParse(argument, NumberStyles.Currency, CultureInfo.CurrentCulture.NumberFormat,out value))
+                if (
+                    !decimal.TryParse(argument, NumberStyles.Currency, CultureInfo.CurrentCulture.NumberFormat,
+                                      out value))
                 {
                     WriteLine("Invalid cost");
                     return true;
@@ -175,7 +177,7 @@
         {
             Reset();
 
-            ColumnFormatter cols = new ColumnFormatter(2, _connection.ScreenWidth);
+            var cols = new ColumnFormatter(2, _connection.ScreenWidth);
 
             cols.Add("   ~CArea: ~W{0}", _data.Area.Name);
             cols.Add("   ~CId: ~W{0}", _data.Id);
@@ -192,7 +194,7 @@
 
             cols.Add("~RK) Affects: ~W{0}~C affects", _data.Affects.Count);
 
-			_connection.Page (cols.GetBuffer());
+            _connection.Page(cols.GetBuffer());
         }
 
         #endregion Methods
