@@ -1,4 +1,6 @@
 
+using System;
+
 namespace ArtheaEngine.Scripting
 {
 	/// <summary>
@@ -51,7 +53,7 @@ namespace ArtheaEngine.Scripting
 		/// <param name='script'>
 		/// Script.
 		/// </param>
-		public virtual void Apply (ArtheaScript script)
+		public virtual void Apply (ScriptEngine script)
 		{
 
 			int count = 1;

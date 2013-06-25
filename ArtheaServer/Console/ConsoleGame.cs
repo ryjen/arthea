@@ -9,9 +9,12 @@ namespace ArtheaServer
     {
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
+		private bool _alive = false;
+
         public void Run(Arguments args)
         {
-            GameServer.Servers = RebootHelper.Recover();
+			if(args.Has("reboot"))
+	            GameServer.Servers = RebootHelper.Recover();
 
             foreach (World entry in DbManager.Query<World>())
             {
@@ -49,11 +52,16 @@ namespace ArtheaServer
             MainLoop();
         }
 
+		public void Exit ()
+		{
+			_alive = false;
+		}
+
         private void MainLoop()
         {
-            bool alive = true;
+            _alive = true;
 
-            while (alive)
+            while (_alive)
             {
                 Thread.Sleep(1000);
 
@@ -71,7 +79,6 @@ namespace ArtheaServer
 
                     index++;
                 }
-                alive = GameServer.Servers.Count != 0;
             }
         }
     }

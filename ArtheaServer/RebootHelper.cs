@@ -9,8 +9,8 @@ using System.Runtime.Remoting.Channels.Tcp;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using ArtheaEngine.Model;
-using Microsoft.Win32.TaskScheduler;
 using NLog;
+using System.Threading;
 
 namespace ArtheaServer
 {
@@ -54,21 +54,15 @@ namespace ArtheaServer
     {
         private static RemotingServer _remotingServer;
 
-        private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+        //private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         public static void Reboot()
         {
             if (_remotingServer == null)
                 _remotingServer = new RemotingServer();
 
-            foreach (var s in GameServer.Servers)
-            {
-                Log.Info("Stopping " + s.World.Name + "...");
-
-                s.Stop();
-            }
-
-
+			GameServer.StopAll();
+            
             var assm = Assembly.GetEntryAssembly();
 
             switch (Environment.OSVersion.Platform)
@@ -87,7 +81,7 @@ namespace ArtheaServer
         // starts a secondary process
         private static void StartPosixTask(Assembly assm)
         {
-            Process.Start(assm.Location, "/reboot");
+            Process.Start(assm.Location, "/reboot " + GameServer.Arguments);
         }
 
         // adds a win32 task to restart the executable 
@@ -119,8 +113,6 @@ namespace ArtheaServer
 
             try
             {
-                Debugger.Launch();
-
                 using (var client = new RemotingClient())
                 {
                     var config = client.GetServerConfig();
@@ -221,7 +213,6 @@ namespace ArtheaServer
             {
                 ChannelServices.UnregisterChannel(_channel);
             }
-
 
             #endregion
         }

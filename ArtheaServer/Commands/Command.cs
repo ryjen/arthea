@@ -101,6 +101,11 @@ namespace ArtheaServer.Commands
                 return true;
             }
 
+			if (Ability.Interpret(ch, argument))
+			{
+				return true;
+			}
+
             string arg = argument.Next();
             foreach (Command cmd in Commands)
             {

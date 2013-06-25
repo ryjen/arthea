@@ -92,12 +92,9 @@ namespace ArtheaEngine
 
 		public static T Find<T>(string key) where T : INamedEntity, IRootLevelDocument
 		{
-
 			var regex = new Regex("^" + key, RegexOptions.IgnoreCase);
 
 			return Query<T>().Where(x => regex.IsMatch(x.Name) || key.Equals (x.Id)).FirstOrDefault();
-
-			//return Collection<T>().FindOne( DBQuery.Or( DBQuery.Matches("Name", key), DBQuery.EQ("_id", key) ) );
 		}
 
         /// <summary>

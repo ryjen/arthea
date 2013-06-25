@@ -16,8 +16,6 @@
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation />
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -57,7 +55,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>True</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Arthea.snk</AssemblyOriginatorKeyFile>
@@ -75,10 +73,6 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.VisualBasic" />
-    <Reference Include="Microsoft.Win32.TaskScheduler">
-      <HintPath>Libraries\Microsoft.Win32.TaskScheduler.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -87,23 +81,23 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Xml" />
-    <Reference Include="Thought.Net.Telnet, Version=0.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>ThirdParty\Thought.Net.Telnet\Debug\Thought.Net.Telnet.dll</HintPath>
-    </Reference>
     <Reference Include="NLog">
       <HintPath>..\ThirdParty\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="Thought.Terminals, Version=0.1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Thought.Net.Telnet">
+      <HintPath>ThirdParty\Thought.Net.Telnet\Debug\Thought.Net.Telnet.dll</HintPath>
+    </Reference>
+    <Reference Include="Thought.Terminals">
       <HintPath>ThirdParty\Thought.Terminals\Debug\Thought.Terminals.dll</HintPath>
+    </Reference>
+    <Reference Include="MongoDB.Bson">
+      <HintPath>..\ThirdParty\MongoDB\MongoDB.Bson.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -174,8 +168,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Console\ConsoleGame.cs" />
     <Compile Include="IServer.cs" />
-    <None Include="Arthea.snk" />
-    <None Include="ArtheaServer_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ArtheaEngine\ArtheaEngine.csproj">

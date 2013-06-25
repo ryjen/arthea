@@ -1,4 +1,4 @@
-﻿using MongoDB.Bson;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using MongoDB.Bson.Serialization.Options;
@@ -327,9 +327,14 @@ namespace ArtheaEngine.Model
 		/// </summary>
         public void Tick ()
 		{
-			if (string.IsNullOrEmpty(Reset)) {
-				new ArtheaScript(new ResetScript(this)).Run(Reset);
+			if (string.IsNullOrEmpty(Reset)) 
+				return;
+
+			using(var script = new ScriptEngine(new ResetScript(this)))
+			{
+				script.Run(Reset);
 			}
+
         }
 
 		/// <summary>

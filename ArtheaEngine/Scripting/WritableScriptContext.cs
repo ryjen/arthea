@@ -47,7 +47,7 @@ namespace ArtheaEngine.Scripting
 		/// <param name='script'>
 		/// Script.
 		/// </param>
-		public override void Apply (ArtheaScript script)
+		public override void Apply (ScriptEngine script)
 		{
 			base.Apply (script);
 

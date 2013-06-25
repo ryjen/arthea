@@ -132,5 +132,10 @@ namespace ArtheaServer
         {
             return args.value;
         }
+
+		public override string ToString ()
+		{
+			return string.Join(" ", value);
+		}
     }
 }

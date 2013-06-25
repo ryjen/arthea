@@ -130,7 +130,7 @@ namespace Thought.Net.Telnet
         /// </summary>
         protected void OnStarted()
         {
-            TelnetListenerEventHandler handler = this.started;
+            //TelnetListenerEventHandler handler = this.started;
             if (started != null)
             {
                 started(this, new EventArgs());
@@ -143,7 +143,7 @@ namespace Thought.Net.Telnet
         /// </summary>
         protected void OnStarting()
         {
-            TelnetListenerEventHandler handler = this.starting;
+            //TelnetListenerEventHandler handler = this.starting;
             if (starting != null)
             {
                 starting(this, new EventArgs());
