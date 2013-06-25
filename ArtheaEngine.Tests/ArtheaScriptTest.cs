@@ -25,7 +25,7 @@ namespace ArtheaEngine.Tests
 		{
 			var script = @"print('Hello, World!');";
 
-			new ArtheaScript(context).Run (script);
+			new ScriptEngine(context).Run (script);
 
 			Assert.AreEqual("Hello, World!" + Environment.NewLine, writer.ToString());
 		}
@@ -35,7 +35,7 @@ namespace ArtheaEngine.Tests
 		{
 			context.SetParameters( "a", "b", "c", "d" );
 
-			var engine = new ArtheaScript(context);
+			var engine = new ScriptEngine(context);
 			
 			var script = @"print($1)";
 
@@ -65,7 +65,7 @@ namespace ArtheaEngine.Tests
 
 			context.SetParameters(npc);
 
-			var engine = new ArtheaScript(context);
+			var engine = new ScriptEngine(context);
 
 			var script = "print($1.Name)";
 
@@ -169,13 +169,12 @@ namespace ArtheaEngine.Tests
 					return ch.Name != '';
 				};
 
-
 				$1.Execute = function(ch, arg) {
 					ch.Write('hello, ' + arg);
 				};
 			";
 
-			var engine = new ArtheaScript(context);
+			var engine = new ScriptEngine(context);
 
 			engine.Run (script);
 

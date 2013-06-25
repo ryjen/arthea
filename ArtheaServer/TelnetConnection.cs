@@ -282,8 +282,6 @@ namespace ArtheaServer
 
         public void Run()
         {
-            Debugger.Launch();
-
             if (_state == null)
             {
                 WriteLine("Welcome to " + Server.World.Name + "!");

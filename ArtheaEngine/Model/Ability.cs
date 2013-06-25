@@ -25,11 +25,14 @@ namespace ArtheaEngine.Model
         #region Properties
 
 		[BsonRequired]
-		protected string Script {
+		public string Script {
 			get { return _script; }
-			set { 
+			protected set { 
 				_script = value;
-				new ArtheaScript(new ScriptContext(this)).Run(value);
+				using(var script = new ScriptEngine(new ScriptContext(this)))
+				{
+					script.Run(value);
+				}
 			}
 		}
 
@@ -94,9 +97,10 @@ namespace ArtheaEngine.Model
 			set;
 		}
 
+		[BsonIgnore]
 		public Func<Character, bool> CanUse { get; set; }
 
-
+		[BsonIgnore]
 		public Action<Character, Argument> Execute { get; set; }
 
         #endregion Properties
@@ -192,5 +196,21 @@ namespace ArtheaEngine.Model
         }
 
         #endregion Methods
+
+		public static bool Interpret (Character ch, Argument argument)
+		{
+			var arg = argument.Peek ();
+			
+			var ability = DbManager.Find<Ability> (arg);
+			
+			if (ability != null) {
+				
+				argument.Next();
+				
+				ability.Execute(ch, argument);
+				return true;
+			}
+			return false;
+		}
     }
 }

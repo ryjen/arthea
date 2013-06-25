@@ -30,8 +30,6 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -53,7 +51,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>True</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>Arthea.snk</AssemblyOriginatorKeyFile>
@@ -131,9 +129,9 @@
     <Compile Include="ColumnFormatter.cs" />
     <Compile Include="Currency.cs" />
     <Compile Include="Scripting\ScriptContext.cs" />
-    <Compile Include="Scripting\ArtheaScript.cs" />
     <Compile Include="Scripting\WritableScriptContext.cs" />
     <Compile Include="Scripting\ResetScriptContext.cs" />
+    <Compile Include="Scripting\ScriptEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
@@ -147,10 +145,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <None Include="arg3.pfx" />
-    <None Include="arthea.pfx" />
-    <None Include="Arthea.snk" />
-    <None Include="ArtheaEngine.pfx" />
-  </ItemGroup>
 </Project>

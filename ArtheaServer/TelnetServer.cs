@@ -19,8 +19,6 @@ namespace ArtheaServer
     {
         #region Fields
 
-        public static readonly HashSet<TelnetServer> List = new HashSet<TelnetServer>();
-
         private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
         private Thread _listenThread;
@@ -34,7 +32,6 @@ namespace ArtheaServer
         {
             World = world;
             Connections = new HashSet<IConnection>();
-            List.Add(this);
         }
 
         #endregion Constructors
@@ -68,9 +65,11 @@ namespace ArtheaServer
 
         #region IDisposable Members
 
-        public void Dispose()
-        {
-            List.Remove(this);
+        public void Dispose ()
+		{
+			if (_listener != null) {
+				_listener.Stop ();
+			}
         }
 
         #endregion

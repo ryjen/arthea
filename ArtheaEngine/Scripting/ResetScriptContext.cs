@@ -1,4 +1,4 @@
-﻿using MongoDB.Bson;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using NLog;
@@ -26,7 +26,7 @@ namespace ArtheaEngine.Scripting
 			Room = room;
 		}
 
-		public override void Apply (ArtheaScript script)
+		public override void Apply (ScriptEngine script)
 		{
 			base.Apply(script);
 

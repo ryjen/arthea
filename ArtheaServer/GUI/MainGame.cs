@@ -69,12 +69,9 @@ namespace ArtheaServer
             MessageBox.Show(buf.ToString(), "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            foreach (TelnetServer s in TelnetServer.List.Reverse())
-            {
-                s.Stop();
-            }
+        private void MainForm_FormClosing (object sender, FormClosingEventArgs e)
+		{
+			GameServer.StopAll();
         }
 
         private void MainForm_Load(object sender, EventArgs e)

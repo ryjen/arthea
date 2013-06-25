@@ -6,7 +6,7 @@ namespace ArtheaEngine.Scripting
 	/// <summary>
 	/// Arthea script.
 	/// </summary>
-	public class ArtheaScript : JintEngine
+	public class ScriptEngine : JintEngine, IDisposable
 	{
 		/// <summary>
 		/// Gets the context.
@@ -19,7 +19,7 @@ namespace ArtheaEngine.Scripting
 			get; private set;
 		}
 
-		public ArtheaScript ()
+		public ScriptEngine ()
 		{
 			//base.AllowClr = false;
 			base.EnableSecurity();
@@ -35,13 +35,17 @@ namespace ArtheaEngine.Scripting
 		/// <param name='context'>
 		/// Context.
 		/// </param>
-		public ArtheaScript (ScriptContext context) : this()
+		public ScriptEngine (ScriptContext context) : this()
 		{
 			Context = context;
 
 			Context.Apply(this);
 		}
 
+		public void Dispose()
+		{
+
+		}
 	}
 }
 
