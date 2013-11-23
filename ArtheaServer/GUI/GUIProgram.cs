@@ -4,43 +4,50 @@ using ArtheaEngine.Model;
 
 namespace ArtheaServer.GUI
 {
-	internal class GUIProgram : Form, IProgram
+	internal class GUIProgram : IProgram
 	{
-        #region Methods
 
-		private bool reboot;
+		#region Methods
 
+		//private bool reboot;
 		public void Run (Arguments args)
 		{
-			reboot = args.Has ("reboot");
+			if (args.Has ("reboot"))
+				GameServer.Servers = RebootHelper.Recover ();
 
-			base.Run (args);
+			if (DbManager.Count<World> () == 0) {
+				World.GetDefault ();
+			}
+				
+			// Then create the main form, the splash screen will automatically close
+			Application.Run (new MainGame ());
 		}
 
 		public void Exit ()
 		{
 			Application.Exit ();
 		}
+		//		protected override void OnCreateMainForm ()
+		//		{
+		//			// Do your initialization here
+		//
+		//			if (reboot)
+		//				GameServer.Servers = RebootHelper.Recover ();
+		//
+		//			if (DbManager.Count<World> () == 0) {
+		//				World.GetDefault ();
+		//			}
+		//
+		//			// Then create the main form, the splash screen will automatically close
+		//			MainForm = new MainGame ();
+		//		}
+		//
+		//		protected override void OnCreateSplashScreen ()
+		//		{
+		//			SplashScreen = new ArtheaSplashScreen ();
+		//		}
 
-		protected override void OnCreateMainForm ()
-		{
-			// Do your initialization here
+		#endregion Methods
 
-			if (reboot)
-				GameServer.Servers = RebootHelper.Recover ();
-
-			if (DbManager.Count<World> () == 0) {
-				World.GetDefault ();
-			}
-
-			// Then create the main form, the splash screen will automatically close
-			MainForm = new MainGame ();
-		}
-
-		protected override void OnCreateSplashScreen ()
-		{
-			SplashScreen = new ArtheaSplashScreen ();
-		}
-        #endregion Methods
 	}
 }
