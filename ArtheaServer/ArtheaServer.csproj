@@ -86,12 +86,6 @@
     <Reference Include="NLog">
       <HintPath>..\ThirdParty\NLog.dll</HintPath>
     </Reference>
-    <Reference Include="Thought.Net.Telnet">
-      <HintPath>ThirdParty\Thought.Net.Telnet\Debug\Thought.Net.Telnet.dll</HintPath>
-    </Reference>
-    <Reference Include="Thought.Terminals">
-      <HintPath>ThirdParty\Thought.Terminals\Debug\Thought.Terminals.dll</HintPath>
-    </Reference>
     <Reference Include="MongoDB.Bson">
       <HintPath>..\ThirdParty\MongoDB\MongoDB.Bson.dll</HintPath>
     </Reference>
@@ -169,6 +163,14 @@
     <ProjectReference Include="..\ArtheaEngine\ArtheaEngine.csproj">
       <Project>{BDE17C69-A398-4FFD-B8B1-2454066ED64E}</Project>
       <Name>ArtheaEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ThirdParty\Thought-Net-Telnet\Solution\Thought.Net.Telnet\Thought.Net.Telnet.csproj">
+      <Project>{7CA62F6C-37B9-4B9F-8132-81E02FBC7C11}</Project>
+      <Name>Thought.Net.Telnet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ThirdParty\Thought-Terminals\Solution\Thought.Terminals\Thought.Terminals.csproj">
+      <Project>{72DDFE21-D546-46B1-9B9A-06AE1C36E9EB}</Project>
+      <Name>Thought.Terminals</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
