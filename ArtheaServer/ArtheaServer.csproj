@@ -55,9 +55,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>True</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
     <AssemblyOriginatorKeyFile>Arthea.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup>
@@ -75,10 +72,10 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data.DataSetExtensions">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
