@@ -1,16 +1,18 @@
-﻿using System.Windows.Forms;
+using System.Windows.Forms;
 
 namespace ArtheaServer
 {
-    public partial class ArtheaSplashScreen : Form
-    {
-        #region Constructors
+	public partial class ArtheaSplashScreen : Form
+	{
 
-        public ArtheaSplashScreen()
-        {
-            InitializeComponent();
-        }
+		#region Constructors
 
-        #endregion Constructors
-    }
+		public ArtheaSplashScreen ()
+		{
+			InitializeComponent ();
+		}
+
+		#endregion Constructors
+
+	}
 }
