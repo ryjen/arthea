@@ -6,7 +6,6 @@ namespace ArtheaEngine
     using MongoDB.Driver.Linq;
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Linq;
 	using DBQuery = MongoDB.Driver.Builders.Query;
 
@@ -22,9 +21,13 @@ namespace ArtheaEngine
         /// </summary>
         static DbManager()
         {
-            //var connectionString = "mongodb://localhost/Arthea?safe=true";
-            var connectionString = ConfigurationManager.ConnectionStrings["MongoDB"].ConnectionString;
+            // Legacy entry points receive database settings only from the environment.
+            var connectionString = Environment.GetEnvironmentVariable("ARTHEA_MONGODB_URI");
+            if (String.IsNullOrWhiteSpace(connectionString))
+                throw new InvalidOperationException("ARTHEA_MONGODB_URI is required for database access.");
             var url = MongoUrl.Create(connectionString);
+            if (String.IsNullOrWhiteSpace(url.DatabaseName))
+                throw new InvalidOperationException("ARTHEA_MONGODB_URI must specify a database name.");
             Instance = MongoServer.Create(url.ToServerSettings()).GetDatabase(url.DatabaseName);
         }
 
