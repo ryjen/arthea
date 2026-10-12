@@ -207,6 +207,25 @@ static byte[] GmcpSub(string value) =>
     [255, 250, 201, ..Encoding.UTF8.GetBytes(value), 255, 240];
 
 // Case-insensitive command verbs: the user's message text and secret bytes are not case folded.
+// Telnet option frames must not leave a partial-command timer active after
+// negotiation completes; subsequent legitimate human idle time is permitted.
+var timedGmcpSessions = new RoomSessionCoordinator(new RoomChatRuntime(rooms), auth);
+await using var timedGmcpServer = new LoopbackTlsGameServer(timedGmcpSessions, certificate,
+    enableTelnetGmcp: true, preAuthReadTimeout: TimeSpan.FromSeconds(3),
+    authenticatedIdleTimeout: TimeSpan.FromSeconds(3),
+    incompleteCommandTimeout: TimeSpan.FromMilliseconds(150));
+var timedGmcp = await ConnectTelnet(timedGmcpServer.Start(), certificate);
+await timedGmcp.Stream.WriteAsync(new byte[] { 255, 253, 201 });
+await Login(timedGmcp.Stream, "alice", "sample-alice-only-123!");
+await Task.Delay(450);
+await Send(timedGmcp.Stream, "PING");
+Check(await Read(timedGmcp.Stream) == "PONG",
+    "completed Telnet negotiation leaves authenticated client idle");
+await Send(timedGmcp.Stream, "QUIT");
+Check(await Read(timedGmcp.Stream) == "BYE", "Telnet idle test logs out");
+timedGmcp.Stream.Dispose();
+timedGmcp.Socket.Dispose();
+
 var structured = await ConnectTelnet(telnetEndpoint, certificate);
 await structured.Stream.WriteAsync(new byte[] { 255, 253, 201 });
 await structured.Stream.WriteAsync(GmcpSub("Core.Hello {\"client\":\"ArtheaTest\",\"version\":\"1\"}"));
@@ -276,5 +295,43 @@ catch (Exception e) when (e is IOException ||
 Check(preAuthClosed, "listener remains available and does not accept unauthenticated gameplay");
 afterMalformed.Stream.Dispose();
 afterMalformed.Socket.Dispose();
+
+
+// Session liveness has a distinct idle deadline: 250 ms of silence should NOT
+// be treated as an incomplete command with a 150 ms progress budget.
+var timedSessions = new RoomSessionCoordinator(new RoomChatRuntime(rooms), auth);
+await using var timedServer = new LoopbackTlsGameServer(timedSessions, certificate,
+    maxConnections: 2, preAuthReadTimeout: TimeSpan.FromMilliseconds(250),
+    authenticatedIdleTimeout: TimeSpan.FromSeconds(3),
+    incompleteCommandTimeout: TimeSpan.FromMilliseconds(150));
+var timedEndpoint = timedServer.Start();
+var timedAlice = await Connect(timedEndpoint, certificate);
+await Login(timedAlice.Ssl, "alice", "sample-alice-only-123!");
+await Task.Delay(450);
+await Send(timedAlice.Ssl, "ping");
+Check(await Read(timedAlice.Ssl) == "PONG",
+    "authenticated idle session outlives incomplete-command deadline");
+await timedAlice.Ssl.WriteAsync(Encoding.UTF8.GetBytes("pi"));
+await Task.Delay(350);
+bool slowClosed = false;
+try { _ = await Read(timedAlice.Ssl); }
+catch (Exception e) when (e is IOException || e.Message == "Unexpected connection closure.") { slowClosed = true; }
+Check(slowClosed, "partial command cannot extend its fixed read deadline");
+timedAlice.Ssl.Dispose();
+timedAlice.Socket.Dispose();
+var stalled = await Connect(timedEndpoint, certificate);
+await Task.Delay(500);
+bool preAuthClosed = false;
+try { _ = await Read(stalled.Ssl); }
+catch (Exception e) when (e is IOException || e.Message == "Unexpected connection closure.") { preAuthClosed = true; }
+Check(preAuthClosed, "stalled unauthenticated client reaches shorter admission deadline");
+stalled.Ssl.Dispose();
+stalled.Socket.Dispose();
+var timedBob = await Connect(timedEndpoint, certificate);
+await Login(timedBob.Ssl, "bob", "sample-bob-only-123!");
+await Send(timedBob.Ssl, "quit");
+Check(await Read(timedBob.Ssl) == "BYE", "listener recovers after read deadlines");
+timedBob.Ssl.Dispose();
+timedBob.Socket.Dispose();
 
 Console.WriteLine("Loopback TLS handshake, negative certificate, room chat, reconnect and live GMCP tests passed.");
