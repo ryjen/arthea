@@ -15,7 +15,7 @@ dotnet build "$legacy" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.Legacy.Characterization/bin/Debug/net10.0/Arthea.Legacy.Characterization.dll"
 
 bson="$root/tests/Arthea.LegacyBson.Tests/Arthea.LegacyBson.Tests.csproj"
-dotnet restore "$bson" -p:UseAppHost=false
+dotnet restore "$bson" --locked-mode -p:UseAppHost=false
 dotnet build "$bson" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.LegacyBson.Tests/bin/Debug/net10.0/Arthea.LegacyBson.Tests.dll"
 

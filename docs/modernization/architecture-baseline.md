@@ -49,6 +49,8 @@ The original `Room.Exits` is keyed by `Direction`, while each `Exit` also has a 
 
 \`tests/Arthea.LegacyBson.Tests\` generates **synthetic binary BSON** with the supported MongoDB.Bson writer, reads it through the importer, and checks navigation, negative inputs, direction-key precedence, one-way exits, and boundary rejection. A synthetic roundtrip does **not establish wire-level compatibility** with the actual historical MongoDB driver/production documents. Capture and sanitize a representative real legacy BSON export before upgrading this to a data-migration contract; confirm \`_id\` string representation, field naming, nested exit shape, enum dictionary serialization, and whether old world data contains missing/dangling refs. Historical export must remain private and may not be committed.
 
+The package-dependent BSON reader and its executable tests carry checked-in `packages.lock.json` files. The verification script uses NuGet `--locked-mode` for that project graph. Changes to MongoDB.Bson or its transitive dependencies require an explicit lockfile update and review; no NuGet packages are needed by the core, legacy parser characterization, or room projection modules.
+
 ## Next migration steps
 
 1. Keep the pinned .NET 10 SDK and all checks repeatable on an ordinary supported Linux/macOS/Windows CI runner; a validated local Nix-specific wrapper is not yet repo-integrated.
