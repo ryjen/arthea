@@ -19,5 +19,10 @@ dotnet restore "$bson" --locked-mode -p:UseAppHost=false
 dotnet build "$bson" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.LegacyBson.Tests/bin/Debug/net10.0/Arthea.LegacyBson.Tests.dll"
 
+social="$root/tests/Arthea.Social.SmokeTests/Arthea.Social.SmokeTests.csproj"
+dotnet restore "$social" --ignore-failed-sources -p:UseAppHost=false
+dotnet build "$social" --no-restore -warnaserror -p:UseAppHost=false
+dotnet "$root/tests/Arthea.Social.SmokeTests/bin/Debug/net10.0/Arthea.Social.SmokeTests.dll"
+
 python3 -B -m unittest discover -s "$root/tools/tests" -v
 python3 -B "$root/tools/check_config_hygiene.py"
