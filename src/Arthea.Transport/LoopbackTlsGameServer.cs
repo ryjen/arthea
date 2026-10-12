@@ -98,17 +98,17 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
                 var initial = await Receive(tls, gmcp, null, cancellation);
                 if (initial is null) return;
                 SessionHandle handle;
-                if (initial.StartsWith("LOGIN ", StringComparison.Ordinal))
+                if (initial.StartsWith("LOGIN ", StringComparison.OrdinalIgnoreCase))
                 {
                     var playerId = initial[6..];
                     await Send(tls, "PASSWORD", cancellation);
                     var passwordLine = await Receive(tls, gmcp, null, cancellation);
                     if (passwordLine is null ||
-                        !passwordLine.StartsWith("PASS ", StringComparison.Ordinal))
+                        !passwordLine.StartsWith("PASS ", StringComparison.OrdinalIgnoreCase))
                         return;
                     handle = _sessions.Connect(playerId + "\n" + passwordLine[5..], "tavern");
                 }
-                else if (initial.StartsWith("RESUME ", StringComparison.Ordinal))
+                else if (initial.StartsWith("RESUME ", StringComparison.OrdinalIgnoreCase))
                     handle = _sessions.Resume(initial[7..]);
                 else return;
 
@@ -119,21 +119,21 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
                 {
                     var line = await Receive(tls, gmcp, token, cancellation);
                     if (line is null) break;
-                    if (line == "QUIT")
+                    if (line.Equals("QUIT", StringComparison.OrdinalIgnoreCase))
                     {
                         _sessions.Logout(token);
                         token = null;
                         await Send(tls, "BYE", cancellation);
                         break;
                     }
-                    if (line == "LOOK")
+                    if (line.Equals("LOOK", StringComparison.OrdinalIgnoreCase))
                         await SendRoom(tls, gmcp, token, cancellation);
-                    else if (line.StartsWith("SAY ", StringComparison.Ordinal))
+                    else if (line.StartsWith("SAY ", StringComparison.OrdinalIgnoreCase))
                     {
                         var message = _sessions.Say(token, line[4..]);
                         await Send(tls, "SENT " + message.Sequence, cancellation);
                     }
-                    else if (line.StartsWith("POLL ", StringComparison.Ordinal) &&
+                    else if (line.StartsWith("POLL ", StringComparison.OrdinalIgnoreCase) &&
                              long.TryParse(line[5..], out var cursor) && cursor >= 0)
                     {
                         var replay = _sessions.Replay(token, cursor, maxCount: 32);
@@ -149,7 +149,7 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
                             await SendRoom(tls, gmcp, token, cancellation);
                         else await Send(tls, "ERR no_exit", cancellation);
                     }
-                    else if (line == "PING") await Send(tls, "PONG", cancellation);
+                    else if (line.Equals("PING", StringComparison.OrdinalIgnoreCase)) await Send(tls, "PONG", cancellation);
                     else await Send(tls, "ERR command", cancellation);
                 }
             }
@@ -173,7 +173,7 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
 
     private static bool TryDirection(string text, out Direction direction)
     {
-        direction = text switch
+        direction = text.ToUpperInvariant() switch
         {
             "NORTH" => Direction.North, "SOUTH" => Direction.South,
             "EAST" => Direction.East, "WEST" => Direction.West,

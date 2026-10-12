@@ -206,13 +206,14 @@ static async Task<string> ReadGmcp(SslStream ssl)
 static byte[] GmcpSub(string value) =>
     [255, 250, 201, ..Encoding.UTF8.GetBytes(value), 255, 240];
 
+// Case-insensitive command verbs: the user's message text and secret bytes are not case folded.
 var structured = await ConnectTelnet(telnetEndpoint, certificate);
 await structured.Stream.WriteAsync(new byte[] { 255, 253, 201 });
 await structured.Stream.WriteAsync(GmcpSub("Core.Hello {\"client\":\"ArtheaTest\",\"version\":\"1\"}"));
 await structured.Stream.WriteAsync(GmcpSub("Core.Supports.Set [\"Room 1\"]"));
-await Send(structured.Stream, "LOGIN alice");
+await Send(structured.Stream, "login alice");
 Check(await Read(structured.Stream) == "PASSWORD", "negotiation precedes encrypted login");
-await Send(structured.Stream, "PASS sample-alice-only-123!");
+await Send(structured.Stream, "pass sample-alice-only-123!");
 Check((await Read(structured.Stream)).StartsWith("SESSION ", StringComparison.Ordinal),
     "authenticated token issued under TLS/Telnet");
 Check(await Read(structured.Stream) == "ROOM tavern", "text room delivered with GMCP");
@@ -221,30 +222,35 @@ Check(metadata.StartsWith("Room.Info ", StringComparison.Ordinal) &&
     metadata.Contains("\"num\":\"tavern\"", StringComparison.Ordinal) &&
     metadata.Contains("\"id\":\"tavern\"", StringComparison.Ordinal),
     "GMCP room metadata matches authoritative current room");
-await Send(structured.Stream, "NORTH");
+await Send(structured.Stream, "north");
 Check(await Read(structured.Stream) == "ROOM square", "Telnet direction works");
+await Send(structured.Stream, "say MixedCASE stays Here");
+Check(await Read(structured.Stream) == "SENT 1", "lowercase say verb works without changing payload");
+await Send(structured.Stream, "poll 0");
+Check(await Read(structured.Stream) == "MSG 1 alice: MixedCASE stays Here", "chat content case preserved");
+Check(await Read(structured.Stream) == "END", "lowercase poll completes");
 Check((await ReadGmcp(structured.Stream)).Contains("\"num\":\"square\"", StringComparison.Ordinal),
     "GMCP room follows same movement");
 await structured.Stream.WriteAsync(GmcpSub("Core.Supports.Remove [\"Room\"]"));
-await Send(structured.Stream, "LOOK");
+await Send(structured.Stream, "look");
 Check(await Read(structured.Stream) == "ROOM square", "text LOOK survives module removal");
-await Send(structured.Stream, "PING");
+await Send(structured.Stream, "ping");
 Check(await Read(structured.Stream) == "PONG", "removed Room emits no interleaved frame");
-await Send(structured.Stream, "QUIT");
+await Send(structured.Stream, "quit");
 Check(await Read(structured.Stream) == "BYE", "Telnet-mode logout");
 structured.Stream.Dispose();
 structured.Socket.Dispose();
 
 var textOnly = await ConnectTelnet(telnetEndpoint, certificate);
-await Send(textOnly.Stream, "LOGIN bob");
+await Send(textOnly.Stream, "login bob");
 Check(await Read(textOnly.Stream) == "PASSWORD", "Telnet client may decline GMCP");
-await Send(textOnly.Stream, "PASS sample-bob-only-123!");
+await Send(textOnly.Stream, "pass sample-bob-only-123!");
 Check((await Read(textOnly.Stream)).StartsWith("SESSION ", StringComparison.Ordinal),
     "text-only authenticated session");
 Check(await Read(textOnly.Stream) == "ROOM tavern", "text-only room");
-await Send(textOnly.Stream, "PING");
+await Send(textOnly.Stream, "ping");
 Check(await Read(textOnly.Stream) == "PONG", "no metadata for non-GMCP client");
-await Send(textOnly.Stream, "QUIT");
+await Send(textOnly.Stream, "quit");
 Check(await Read(textOnly.Stream) == "BYE", "text-only logout");
 textOnly.Stream.Dispose();
 textOnly.Socket.Dispose();
