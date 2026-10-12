@@ -73,6 +73,9 @@ Check(!client.SupportsRoomInfo, "re-enable requires fresh capability advertiseme
 client.Feed(Sub("Core.Supports.Set [\"Room 1\"]"));
 Check(client.SupportsRoomInfo, "fresh advert re-enables metadata");
 
+Reject<InvalidDataException>(() => client.Feed(Sub("Core.Supports.Set [\"Room 1\",\"Char 0\"]")),
+    "invalid capability batch rejected as a unit");
+Check(client.SupportsRoomInfo, "invalid Set cannot replace prior negotiated capabilities");
 Reject<InvalidDataException>(() => client.Feed(Sub("Core.Supports.Set [\"Room 0\"]")),
     "invalid version rejected");
 Reject<InvalidDataException>(() => client.Feed(Sub("Core.Supports.Set nope")),
@@ -88,6 +91,12 @@ Reject<InvalidDataException>(() => new TelnetGmcpCodec().Feed(new byte[] { 255, 
     "raw IAC rejected");
 Check(new TelnetGmcpCodec().Feed(Sub("Core.Supports.Set [\"Room 1\"]")).Lines.Count == 0,
     "GMCP bytes ignored without negotiation");
+var oversizedFragments = new TelnetGmcpCodec();
+oversizedFragments.Feed(new byte[] { 255, 253, 201, 255, 250, 201 });
+for (var i = 0; i < 4; i++)
+    oversizedFragments.Feed(Enumerable.Repeat((byte)'x', 1024).ToArray());
+Reject<InvalidDataException>(() => oversizedFragments.Feed(new byte[] { (byte)'z' }),
+    "GMCP subnegotiation limit holds across separate chunks");
 Check(new TelnetGmcpCodec().Feed([255, 250, 42, 1, 2, 255, 240]).Lines.Count == 0,
     "unknown subnegotiation ignored");
 
