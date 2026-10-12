@@ -203,6 +203,13 @@ public sealed class TelnetGmcpCodec
         if (!SupportsRoomInfo) return null;
         if (!world.TryGetRoom(roomId, out var room) || room is null)
             throw new ArgumentException("Unknown room.", nameof(roomId));
+        return EncodeRoomInfo(room);
+    }
+
+    public byte[]? EncodeRoomInfo(RoomDefinition room)
+    {
+        ArgumentNullException.ThrowIfNull(room);
+        if (!SupportsRoomInfo) return null;
         var exits = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var (direction, target) in room.Exits)
         {

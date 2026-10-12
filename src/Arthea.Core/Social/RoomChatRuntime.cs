@@ -67,6 +67,18 @@ public sealed class RoomChatRuntime
         }
     }
 
+    public RoomDefinition DescribeRoom(string playerId)
+    {
+        ValidateIdentity(playerId);
+        lock (_gate)
+        {
+            var id = Member(playerId).RoomId;
+            if (!_world.TryGetRoom(id, out var room) || room is null)
+                throw new InvalidOperationException("Player room unavailable.");
+            return room;
+        }
+    }
+
     public string CurrentRoom(string playerId)
     {
         ValidateIdentity(playerId);

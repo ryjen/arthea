@@ -161,4 +161,91 @@ await Send(a2.Ssl, "QUIT");
 Check(await Read(a2.Ssl) == "BYE", "logout succeeds");
 a2.Ssl.Dispose();
 a2.Socket.Dispose();
-Console.WriteLine("Loopback TLS handshake, negative certificate, room chat and reconnect tests passed.");
+
+// A second isolated listener tests the opt-in RFC-854 Telnet/GMCP negotiation
+// over TLS without changing existing plain line-protocol behavior.
+var telnetSessions = new RoomSessionCoordinator(new RoomChatRuntime(rooms), auth);
+await using var telnet = new LoopbackTlsGameServer(telnetSessions, certificate,
+    enableTelnetGmcp: true);
+var telnetEndpoint = telnet.Start();
+static async Task<(TcpClient Socket, SslStream Stream)> ConnectTelnet(
+    IPEndPoint endpoint, X509Certificate2 expected)
+{
+    var socket = new TcpClient();
+    await socket.ConnectAsync(endpoint.Address, endpoint.Port);
+    var ssl = new SslStream(socket.GetStream(), false, (_, cert, _, _) =>
+        cert?.GetCertHashString() == expected.GetCertHashString());
+    await ssl.AuthenticateAsClientAsync("localhost");
+    var prefix = new byte[3];
+    await ssl.ReadExactlyAsync(prefix);
+    Check(prefix.SequenceEqual(new byte[] { 255, 251, 201 }), "Telnet WILL GMCP offered");
+    Check(await Read(ssl) == "HELLO ARTHEA-TLS/0", "telnet greeting");
+    return (socket, ssl);
+}
+static async Task<string> ReadGmcp(SslStream ssl)
+{
+    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+    var prefix = new byte[3];
+    await ssl.ReadExactlyAsync(prefix, timeout.Token);
+    Check(prefix.SequenceEqual(new byte[] { 255, 250, 201 }), "GMCP IAC SB header");
+    using var data = new MemoryStream();
+    var one = new byte[1];
+    while (data.Length < 4096)
+    {
+        await ssl.ReadExactlyAsync(one, timeout.Token);
+        if (one[0] == 255)
+        {
+            await ssl.ReadExactlyAsync(one, timeout.Token);
+            if (one[0] == 240) return Encoding.UTF8.GetString(data.ToArray());
+            if (one[0] != 255) throw new Exception("Invalid GMCP escaped byte");
+        }
+        data.WriteByte(one[0]);
+    }
+    throw new Exception("Oversized GMCP test response");
+}
+static byte[] GmcpSub(string value) =>
+    [255, 250, 201, ..Encoding.UTF8.GetBytes(value), 255, 240];
+
+var structured = await ConnectTelnet(telnetEndpoint, certificate);
+await structured.Stream.WriteAsync(new byte[] { 255, 253, 201 });
+await structured.Stream.WriteAsync(GmcpSub("Core.Hello {\"client\":\"ArtheaTest\",\"version\":\"1\"}"));
+await structured.Stream.WriteAsync(GmcpSub("Core.Supports.Set [\"Room 1\"]"));
+await Send(structured.Stream, "LOGIN alice");
+Check(await Read(structured.Stream) == "PASSWORD", "negotiation precedes encrypted login");
+await Send(structured.Stream, "PASS sample-alice-only-123!");
+Check((await Read(structured.Stream)).StartsWith("SESSION ", StringComparison.Ordinal),
+    "authenticated token issued under TLS/Telnet");
+Check(await Read(structured.Stream) == "ROOM tavern", "text room delivered with GMCP");
+var metadata = await ReadGmcp(structured.Stream);
+Check(metadata.StartsWith("Room.Info ", StringComparison.Ordinal) &&
+    metadata.Contains("\"id\":\"tavern\"", StringComparison.Ordinal),
+    "GMCP room metadata matches authoritative current room");
+await Send(structured.Stream, "NORTH");
+Check(await Read(structured.Stream) == "ROOM square", "Telnet direction works");
+Check((await ReadGmcp(structured.Stream)).Contains("\"id\":\"square\"", StringComparison.Ordinal),
+    "GMCP room follows same movement");
+await structured.Stream.WriteAsync(GmcpSub("Core.Supports.Remove [\"Room\"]"));
+await Send(structured.Stream, "LOOK");
+Check(await Read(structured.Stream) == "ROOM square", "text LOOK survives module removal");
+await Send(structured.Stream, "PING");
+Check(await Read(structured.Stream) == "PONG", "removed Room emits no interleaved frame");
+await Send(structured.Stream, "QUIT");
+Check(await Read(structured.Stream) == "BYE", "Telnet-mode logout");
+structured.Stream.Dispose();
+structured.Socket.Dispose();
+
+var textOnly = await ConnectTelnet(telnetEndpoint, certificate);
+await Send(textOnly.Stream, "LOGIN bob");
+Check(await Read(textOnly.Stream) == "PASSWORD", "Telnet client may decline GMCP");
+await Send(textOnly.Stream, "PASS sample-bob-only-123!");
+Check((await Read(textOnly.Stream)).StartsWith("SESSION ", StringComparison.Ordinal),
+    "text-only authenticated session");
+Check(await Read(textOnly.Stream) == "ROOM tavern", "text-only room");
+await Send(textOnly.Stream, "PING");
+Check(await Read(textOnly.Stream) == "PONG", "no metadata for non-GMCP client");
+await Send(textOnly.Stream, "QUIT");
+Check(await Read(textOnly.Stream) == "BYE", "text-only logout");
+textOnly.Stream.Dispose();
+textOnly.Socket.Dispose();
+
+Console.WriteLine("Loopback TLS handshake, negative certificate, room chat, reconnect and live GMCP tests passed.");

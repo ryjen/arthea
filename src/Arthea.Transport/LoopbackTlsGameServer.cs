@@ -25,9 +25,10 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
     private readonly object _gate = new();
     private Task? _accept;
     private bool _started;
+    private readonly bool _enableTelnetGmcp;
 
     public LoopbackTlsGameServer(RoomSessionCoordinator sessions, X509Certificate2 certificate,
-        int maxConnections = 4)
+        int maxConnections = 4, bool enableTelnetGmcp = false)
     {
         _sessions = sessions ?? throw new ArgumentNullException(nameof(sessions));
         _certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
@@ -36,6 +37,7 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
         if (maxConnections is < 1 or > 64)
             throw new ArgumentOutOfRangeException(nameof(maxConnections));
         _slots = new SemaphoreSlim(maxConnections, maxConnections);
+        _enableTelnetGmcp = enableTelnetGmcp;
     }
 
     public IPEndPoint Start()
@@ -89,15 +91,18 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
                     EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
                 }, deadline.Token);
 
+                var gmcp = _enableTelnetGmcp ? new TelnetGmcpCodec() : null;
+                if (gmcp is not null)
+                    await tls.WriteAsync(TelnetGmcpCodec.OfferGmcp(), cancellation);
                 await Send(tls, "HELLO ARTHEA-TLS/0", cancellation);
-                var initial = await Receive(tls, cancellation);
+                var initial = await Receive(tls, gmcp, null, cancellation);
                 if (initial is null) return;
                 SessionHandle handle;
                 if (initial.StartsWith("LOGIN ", StringComparison.Ordinal))
                 {
                     var playerId = initial[6..];
                     await Send(tls, "PASSWORD", cancellation);
-                    var passwordLine = await Receive(tls, cancellation);
+                    var passwordLine = await Receive(tls, gmcp, null, cancellation);
                     if (passwordLine is null ||
                         !passwordLine.StartsWith("PASS ", StringComparison.Ordinal))
                         return;
@@ -109,10 +114,10 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
 
                 token = handle.Token;
                 await Send(tls, "SESSION " + handle.Token, cancellation);
-                await Send(tls, "ROOM " + _sessions.CurrentRoom(token), cancellation);
+                await SendRoom(tls, gmcp, token, cancellation);
                 while (!cancellation.IsCancellationRequested)
                 {
-                    var line = await Receive(tls, cancellation);
+                    var line = await Receive(tls, gmcp, token, cancellation);
                     if (line is null) break;
                     if (line == "QUIT")
                     {
@@ -122,7 +127,7 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
                         break;
                     }
                     if (line == "LOOK")
-                        await Send(tls, "ROOM " + _sessions.CurrentRoom(token), cancellation);
+                        await SendRoom(tls, gmcp, token, cancellation);
                     else if (line.StartsWith("SAY ", StringComparison.Ordinal))
                     {
                         var message = _sessions.Say(token, line[4..]);
@@ -141,7 +146,7 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
                     else if (TryDirection(line, out var direction))
                     {
                         if (_sessions.TryMove(token, direction))
-                            await Send(tls, "ROOM " + _sessions.CurrentRoom(token), cancellation);
+                            await SendRoom(tls, gmcp, token, cancellation);
                         else await Send(tls, "ERR no_exit", cancellation);
                     }
                     else if (line == "PING") await Send(tls, "PONG", cancellation);
@@ -178,7 +183,41 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
         return Enum.IsDefined(direction);
     }
 
-    private static async Task<string?> Receive(SslStream stream, CancellationToken cancellation)
+    private async Task SendRoom(SslStream stream, TelnetGmcpCodec? gmcp,
+        string token, CancellationToken cancellation)
+    {
+        var room = _sessions.RoomInfo(token); // Identity derived from authenticated bearer.
+        await Send(stream, "ROOM " + room.Id, cancellation);
+        if (gmcp?.EncodeRoomInfo(room) is { } bytes)
+            await stream.WriteAsync(bytes, cancellation);
+    }
+
+    private async Task<string?> Receive(SslStream stream, TelnetGmcpCodec? gmcp,
+        string? token, CancellationToken cancellation)
+    {
+        if (gmcp is null) return await ReceivePlain(stream, cancellation);
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        timeout.CancelAfter(TimeSpan.FromSeconds(15));
+        var single = new byte[1];
+        while (true)
+        {
+            var count = await stream.ReadAsync(single, timeout.Token);
+            if (count == 0) return null;
+            var advertised = gmcp.SupportsRoomInfo;
+            var batch = gmcp.Feed(single);
+            foreach (var response in batch.Replies)
+                await stream.WriteAsync(response, timeout.Token);
+            if (!advertised && gmcp.SupportsRoomInfo && token is not null)
+            {
+                var room = _sessions.RoomInfo(token);
+                if (gmcp.EncodeRoomInfo(room) is { } frame)
+                    await stream.WriteAsync(frame, timeout.Token);
+            }
+            if (batch.Lines.Count > 0) return batch.Lines[0];
+        }
+    }
+
+    private static async Task<string?> ReceivePlain(SslStream stream, CancellationToken cancellation)
     {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         timeout.CancelAfter(TimeSpan.FromSeconds(15));
