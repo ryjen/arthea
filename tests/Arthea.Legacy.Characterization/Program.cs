@@ -15,10 +15,10 @@ static void Tokens(string input, params string[] expected)
 }
 
 Tokens("north", "north");
-Tokens("say \"hello there\" now", "say", "hello there", "now");
-Tokens("say 'hello there' now", "say", "hello there", "now");
-Tokens("say (hello there) now", "say", "hello there", "now");
-Tokens("  look    north  ", "look", "north");
+Tokens("say \"hello there\" now", "say", "hello there\"", "now");
+Tokens("say 'hello there' now", "say", "hello there'", "now");
+Tokens("say (hello there) now", "say", "hello there)", "now");
+Tokens("  look    north  ", "", "look", "north");
 
 var peek = new Argument("look north");
 Equal("look", peek.Peek(), "peek token");
@@ -31,7 +31,7 @@ Equal("two", comma.Next(','), "custom delimiter second");
 
 var all = new Argument("tell \"two words\" now").All();
 Equal(3, all.Length, "All token count");
-Equal("two words", all[1], "All retains quoted phrase");
+Equal("two words\"", all[1], "All retains legacy quote suffix");
 
 var missingQuote = new Argument("\"unfinished");
 Equal("\"", missingQuote.Next(), "legacy unmatched-quote behavior");

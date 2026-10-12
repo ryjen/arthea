@@ -35,7 +35,7 @@ The initial .NET 10 project compiled and its smoke executable ran successfully o
 
 ## Legacy parser characterization scope
 
-`tests/Arthea.Legacy.Characterization` compiles the historic `ArtheaEngine/Argument.cs` **from its original path** with a test-only fail-closed shim for the unrelated `IsNumber` string extension (whose containing original utility module depends on the full legacy world/DB graph). It exercises quoting, token consumption, peek, custom delimiters and a known unmatched-quote oddity. This documents behavior; it does **not** endorse that edge case as safe input handling. It does not characterize `Argument.IsNumber` or the full Telnet command interpreter.
+`tests/Arthea.Legacy.Characterization` compiles the historic `ArtheaEngine/Argument.cs` **from its original path** with a test-only fail-closed shim for the unrelated `IsNumber` string extension (whose containing original utility module depends on the full legacy world/DB graph). It exercises token consumption, peek, custom delimiters and **observed quirks**: a closing quote/parenthesis is retained in the returned token, leading whitespace produces an empty first token, and an unmatched opening quote is emitted separately. These results were discovered by running the original source and are preserved as characterization evidence—not as desired parser behavior. This documents behavior; it does **not** endorse that edge case as safe input handling. It does not characterize `Argument.IsNumber` or the full Telnet command interpreter.
 
 ## Next migration steps
 
