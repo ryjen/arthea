@@ -224,13 +224,13 @@ Check(metadata.StartsWith("Room.Info ", StringComparison.Ordinal) &&
     "GMCP room metadata matches authoritative current room");
 await Send(structured.Stream, "north");
 Check(await Read(structured.Stream) == "ROOM square", "Telnet direction works");
+Check((await ReadGmcp(structured.Stream)).Contains("\"num\":\"square\"", StringComparison.Ordinal),
+    "GMCP room follows same movement");
 await Send(structured.Stream, "say MixedCASE stays Here");
 Check(await Read(structured.Stream) == "SENT 1", "lowercase say verb works without changing payload");
 await Send(structured.Stream, "poll 0");
 Check(await Read(structured.Stream) == "MSG 1 alice: MixedCASE stays Here", "chat content case preserved");
 Check(await Read(structured.Stream) == "END", "lowercase poll completes");
-Check((await ReadGmcp(structured.Stream)).Contains("\"num\":\"square\"", StringComparison.Ordinal),
-    "GMCP room follows same movement");
 await structured.Stream.WriteAsync(GmcpSub("Core.Supports.Remove [\"Room\"]"));
 await Send(structured.Stream, "look");
 Check(await Read(structured.Stream) == "ROOM square", "text LOOK survives module removal");
