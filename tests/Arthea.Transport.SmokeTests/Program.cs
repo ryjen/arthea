@@ -98,6 +98,29 @@ using (var plain = new TcpClient())
     // Plaintext cannot trigger game login; subsequent authenticated login proves
     // no account slot or session was created by an unencrypted credential attempt.
 }
+
+var denied = await Connect(endpoint, certificate);
+await Send(denied.Ssl, "LOGIN alice");
+Check(await Read(denied.Ssl) == "PASSWORD", "TLS-only credential prompt");
+await Send(denied.Ssl, "PASS wrong-synthetic-password");
+var deniedClosed = false;
+try { await Read(denied.Ssl); }
+catch (Exception e) when (e is IOException ||
+    e.Message == "Unexpected connection closure.") { deniedClosed = true; }
+Check(deniedClosed, "incorrect password cannot create a session");
+denied.Ssl.Dispose();
+denied.Socket.Dispose();
+
+var oversized = await Connect(endpoint, certificate);
+await Send(oversized.Ssl, "LOGIN " + new string('x', 1100));
+var oversizedClosed = false;
+try { await Read(oversized.Ssl); }
+catch (Exception e) when (e is IOException ||
+    e.Message == "Unexpected connection closure.") { oversizedClosed = true; }
+Check(oversizedClosed, "oversized TLS command is rejected");
+oversized.Ssl.Dispose();
+oversized.Socket.Dispose();
+
 var a = await Connect(endpoint, certificate);
 var b = await Connect(endpoint, certificate);
 var aliceToken = await Login(a.Ssl, "alice", "sample-alice-only-123!");

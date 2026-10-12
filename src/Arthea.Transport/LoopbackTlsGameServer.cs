@@ -65,7 +65,8 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
             _ = task.ContinueWith(completed =>
             {
                 _ = completed.Exception; // Observe faults without leaking secrets to logs.
-                _slots.Release();
+                try { _slots.Release(); }
+                catch (ObjectDisposedException) { }
                 lock (_gate) _pending.Remove(completed);
             }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously,
                 TaskScheduler.Default);
