@@ -3,9 +3,15 @@ obj
 *.userprefs
 test-results
 .DS_Store
-"*.snk" 
 *.tmp
 *.snk
 *.pfx
 .nuget
 *.suo
+
+# Local runtime secrets and overrides
+.env
+.env.*
+!.env.example
+*.local.config
+secrets/
