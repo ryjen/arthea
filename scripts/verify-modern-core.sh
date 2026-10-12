@@ -34,5 +34,10 @@ dotnet restore "$transport" --ignore-failed-sources -p:UseAppHost=false
 dotnet build "$transport" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.Transport.SmokeTests/bin/Debug/net10.0/Arthea.Transport.SmokeTests.dll"
 
+gmcp="$root/tests/Arthea.Gmcp.SmokeTests/Arthea.Gmcp.SmokeTests.csproj"
+dotnet restore "$gmcp" --ignore-failed-sources -p:UseAppHost=false
+dotnet build "$gmcp" --no-restore -warnaserror -p:UseAppHost=false
+dotnet "$root/tests/Arthea.Gmcp.SmokeTests/bin/Debug/net10.0/Arthea.Gmcp.SmokeTests.dll"
+
 python3 -B -m unittest discover -s "$root/tools/tests" -v
 python3 -B "$root/tools/check_config_hygiene.py"
