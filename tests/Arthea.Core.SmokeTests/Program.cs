@@ -64,4 +64,55 @@ AssertThrows<ArgumentException>(() => new RoomGraph(new[] {
     new RoomDefinition("r", "", new Dictionary<Direction, string>())
 }), "empty room name");
 
-Console.WriteLine("Arthea.Core room topology smoke tests passed.");
+
+// Legacy persistence extraction contract (not a MongoDB driver integration).
+var legacy = new[]
+{
+    new Arthea.LegacyBridge.LegacyRoomSnapshot("a", "Tavern",
+        new Dictionary<string, Arthea.LegacyBridge.LegacyExitSnapshot>
+        {
+            ["North"] = new("b", "South"), // Legacy link editor may leave mismatched stored field.
+            ["DOWN"] = new("c", null),
+        }),
+    new Arthea.LegacyBridge.LegacyRoomSnapshot("b", "Square",
+        new Dictionary<string, Arthea.LegacyBridge.LegacyExitSnapshot>()),
+    new Arthea.LegacyBridge.LegacyRoomSnapshot("c", "Cellar",
+        new Dictionary<string, Arthea.LegacyBridge.LegacyExitSnapshot>()),
+};
+var projected = Arthea.LegacyBridge.LegacyRoomProjection.Build(legacy);
+Assert(projected.RoomCount == 3, "legacy projection retains rooms");
+Assert(projected.TryMove("a", Direction.North, out var projectedNorth) && projectedNorth == "b",
+    "dictionary direction is authoritative over stored Exit.Direction");
+Assert(projected.TryMove("a", Direction.Down, out var projectedDown) && projectedDown == "c",
+    "case-insensitive canonical direction name");
+Assert(!projected.TryMove("b", Direction.South, out _),
+    "one-way legacy link must not synthesize a reverse edge");
+AssertThrows<ArgumentException>(() => Arthea.LegacyBridge.LegacyRoomProjection.Build(new[]
+{
+    new Arthea.LegacyBridge.LegacyRoomSnapshot("a", "Tavern",
+        new Dictionary<string, Arthea.LegacyBridge.LegacyExitSnapshot> { ["North"] = new("missing", null) })
+}), "dangling legacy destination fails closed");
+AssertThrows<ArgumentException>(() => Arthea.LegacyBridge.LegacyRoomProjection.Build(new[]
+{
+    new Arthea.LegacyBridge.LegacyRoomSnapshot("a", "Tavern",
+        new Dictionary<string, Arthea.LegacyBridge.LegacyExitSnapshot> { ["0"] = new("a", null) })
+}), "numeric direction key is rejected as ambiguous");
+AssertThrows<ArgumentException>(() => Arthea.LegacyBridge.LegacyRoomProjection.Build(new[]
+{
+    new Arthea.LegacyBridge.LegacyRoomSnapshot("a", "Tavern",
+        new Dictionary<string, Arthea.LegacyBridge.LegacyExitSnapshot>
+        {
+            ["North"] = new("a", null),
+            ["north"] = new("a", null)
+        })
+}), "duplicate keys after direction normalization are rejected");
+AssertThrows<ArgumentException>(() => Arthea.LegacyBridge.LegacyRoomProjection.Build(new[]
+{
+    new Arthea.LegacyBridge.LegacyRoomSnapshot("a", "Tavern",
+        new Dictionary<string, Arthea.LegacyBridge.LegacyExitSnapshot>
+        {
+            ["South"] = new(null, null)
+        })
+}), "missing destination is rejected");
+
+Console.WriteLine("Arthea.Core room topology and legacy projection smoke tests passed.");

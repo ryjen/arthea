@@ -8,5 +8,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Arthea.Core/Arthea.Core.csproj" />
+    <ProjectReference Include="../../src/Arthea.LegacyBridge/Arthea.LegacyBridge.csproj" />
   </ItemGroup>
 </Project>
