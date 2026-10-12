@@ -12,6 +12,8 @@ Arthea is a C# multi-user dungeon (MUD), originally implemented using .NET Frame
 - Introduce safe authentication and TLS before Internet deployment; keep AI NPCs explicitly identified and bounded.
 - Audit credentials throughout Git history and the redistribution rights of third-party assets before making source public.
 
+Run the narrow current-file configuration check with python3 tools/check_config_hygiene.py and its tests with python3 -m unittest discover -s tools/tests -v. These do not scan history or validate a public release.
+
 See [publication readiness](docs/modernization/publication-readiness.md) and [project issues](https://github.com/ryjen/arthea/issues).
 
 ## Legacy configuration

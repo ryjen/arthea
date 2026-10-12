@@ -35,6 +35,13 @@ This is a scoped risk inventory, not a security certification. Modernization sta
 - Constrain connection count, input size, timeouts, command handling and scripting; prevent private chat and account data leakage.
 - Establish reproducible builds, layered tests, secure deployment defaults and rollback procedures.
 
+## Scoped local checks
+
+    python3 tools/check_config_hygiene.py
+    python3 -m unittest discover -s tools/tests -v
+
+These verify selected current application XML configuration files only; they do not scan history or verify the C# runtime.
+
 ## Validation limits
 
 Current-file configuration checks do not prove clean history, licenses, safe authentication, or functional compatibility. See [issue #5](https://github.com/ryjen/arthea/issues/5).
