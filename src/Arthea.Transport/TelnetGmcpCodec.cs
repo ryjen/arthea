@@ -24,6 +24,7 @@ public sealed class TelnetGmcpCodec
     private int _ignoredSubBytes;
     private bool _roomAdvertised;
 
+    public bool HasPendingInput => _text.Count > 0 || _state != State.Data;
     public bool Enabled { get; private set; }
     public bool SupportsRoomInfo => Enabled && _roomAdvertised;
     public static byte[] OfferGmcp() => [Iac, Will, Gmcp];
