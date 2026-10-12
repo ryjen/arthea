@@ -28,6 +28,9 @@ Reject<InvalidOperationException>(() => service.Connect("alice", "missing"), "ca
 var alice = service.Connect("credential-alice", "tavern");
 var bob = service.Connect("credential-bob", "tavern");
 Check(alice.Token.Length == 64 && alice.Token != bob.Token, "random unique tokens");
+Check(!alice.ToString().Contains(alice.Token, StringComparison.Ordinal), "record formatting must not leak the bearer token");
+Check(!System.Text.Json.JsonSerializer.Serialize(alice).Contains(alice.Token, StringComparison.Ordinal),
+    "default JSON serialization must not disclose bearer tokens");
 Reject<InvalidOperationException>(() => service.Connect("credential-alice", "square"), "no duplicate session or teleport");
 Reject<InvalidOperationException>(() => service.Connect("credential-eve", "cellar"), "bounded session admission");
 Reject<InvalidOperationException>(() => service.Say("alice", "spoof"), "cannot use player ID as bearer token");

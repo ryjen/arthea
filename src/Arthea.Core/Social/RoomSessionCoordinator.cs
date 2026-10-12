@@ -15,7 +15,15 @@ public interface IPlayerAuthenticator
 }
 
 /// <summary>The bearer token is sensitive and must never be logged or persisted as plaintext.</summary>
-public sealed record SessionHandle(string Token, string PlayerId, DateTimeOffset ExpiresAt);
+public sealed record SessionHandle(
+    [property: System.Text.Json.Serialization.JsonIgnore] string Token,
+    string PlayerId,
+    DateTimeOffset ExpiresAt)
+{
+    // C# record-generated ToString normally includes ALL public properties,
+    // so both string logging and default JSON serialization must redact bearer tokens.
+    public override string ToString() => "SessionHandle([REDACTED])";
+}
 
 /// <summary>
 /// In-memory, single-process session ownership and short-lived reconnect prototype.
