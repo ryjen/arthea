@@ -156,7 +156,7 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
             catch (Exception ex) when (ex is AuthenticationException or IOException or
                                            SocketException or OperationCanceledException or
                                            InvalidOperationException or ArgumentException or
-                                           OverflowException)
+                                           OverflowException or InvalidDataException)
             {
                 // Fail closed. No exception details, tokens, or credentials are logged.
             }
