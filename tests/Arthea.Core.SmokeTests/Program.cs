@@ -52,6 +52,16 @@ AssertThrows<ArgumentException>(() => new RoomGraph(new[]
     new RoomDefinition("r", "One",
         new Dictionary<Direction, string> { [(Direction)99] = "r" }),
 }), "invalid legacy direction");
-Assert((int)Direction.North == 0 && (int)Direction.Down == 5, "legacy enum numeric contract");
+Assert((int)Direction.North == 0 && (int)Direction.South == 1
+    && (int)Direction.East == 2 && (int)Direction.West == 3
+    && (int)Direction.Up == 4 && (int)Direction.Down == 5, "legacy enum numeric contract");
+Assert(!graph.TryGetRoom("not-here", out _), "missing room lookup returns false");
+AssertThrows<ArgumentNullException>(() => new RoomGraph(null!), "null graph input");
+AssertThrows<ArgumentException>(() => new RoomGraph(new[] {
+    new RoomDefinition("", "Nameless room id", new Dictionary<Direction, string>())
+}), "empty room ID");
+AssertThrows<ArgumentException>(() => new RoomGraph(new[] {
+    new RoomDefinition("r", "", new Dictionary<Direction, string>())
+}), "empty room name");
 
 Console.WriteLine("Arthea.Core room topology smoke tests passed.");
