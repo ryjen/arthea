@@ -17,7 +17,7 @@ Note the randomly assigned port and displayed SHA-256 certificate fingerprint. T
 
 Create a new Mudlet profile targeting `127.0.0.1` and the displayed ephemeral port, with **Secure (TLS)** enabled. The sample certificate is ephemeral and self-signed: if the client cannot verify it through an explicit local-only trust mechanism, record a test blocker rather than switching off all certificate checks. After connecting, send `LOGIN alice`, followed by `PASS arthea-demo-alice-ONLY-2026!`. These are **literal synthetic fixture credentials**, never existing user credentials. The server's proof greeting and `SESSION` response are not yet a polished Mudlet login prompt and the bearer token remains visible in the terminal history.
 
-Send `LOOK`, `NORTH`, `SOUTH`, `SAY hello`, `POLL 0` and `QUIT`. Enable GMCP and inspect `gmcp.Room.Info` via the Mudlet debugging UI or a trusted console script. Expect `num` and `id` to be the same opaque room ID, with `name` and direction-to-target `exits`. Do not expect numeric-only IRE mapping scripts to work yet.
+Send `look`, `north`, `south`, `say hello`, `poll 0` and `quit` (command verbs are case-insensitive and chat message case is preserved). Enable GMCP and inspect `gmcp.Room.Info` via the Mudlet debugging UI or a trusted console script. Expect `num` and `id` to be the same opaque room ID, with `name` and direction-to-target `exits`. Do not expect numeric-only IRE mapping scripts to work yet.
 
 ## MudForge desktop
 
