@@ -29,9 +29,13 @@
 
     bash scripts/verify-modern-core.sh
 
-The repository pins .NET SDK 10.0.401 with latest-patch roll-forward in `global.json`. The script performs an isolated no-external-package restore, warning-as-error build, executable room-graph checks and Python configuration tests. It does not exercise the original .NET Framework server.
+The repository pins .NET SDK 10.0.401 with latest-patch roll-forward in `global.json`. The script performs isolated no-external-package restores, warning-as-error builds, executable room-graph tests, *directly compiled original* `ArtheaEngine.Argument` tokenization characterization tests, and Python configuration tests. It does not exercise the original .NET Framework server.
 
 The initial .NET 10 project compiled and its smoke executable ran successfully on the exact PR #8 head `736e7cc80cf35aad5615eb8f792b8e93eb7e4f59` using a SHA-512-verified Microsoft SDK installed in a disposable workspace with Nix ELF-loader adaptation (zero C# build warnings or errors). **The new verification script and added cases require re-validation at the next commit.**
+
+## Legacy parser characterization scope
+
+`tests/Arthea.Legacy.Characterization` compiles the historic `ArtheaEngine/Argument.cs` **from its original path** with a test-only fail-closed shim for the unrelated `IsNumber` string extension (whose containing original utility module depends on the full legacy world/DB graph). It exercises quoting, token consumption, peek, custom delimiters and a known unmatched-quote oddity. This documents behavior; it does **not** endorse that edge case as safe input handling. It does not characterize `Argument.IsNumber` or the full Telnet command interpreter.
 
 ## Next migration steps
 
