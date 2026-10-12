@@ -110,7 +110,7 @@ public sealed class RoomChatRuntime
             if (!_messages.TryGetValue(member.RoomId, out var history) || history.Count == 0)
                 return new RoomReplay(false, Array.Empty<RoomChatMessage>());
             var cursor = Math.Max(afterSequence, member.JoinedAfter);
-            var gap = history[0].Sequence > cursor + 1;
+            var gap = history[0].Sequence - 1 > cursor; // Avoid overflow at long.MaxValue.
             var visible = history.Where(m => m.Sequence > cursor).Take(maxCount).ToArray();
             return new RoomReplay(gap, Array.AsReadOnly(visible));
         }
