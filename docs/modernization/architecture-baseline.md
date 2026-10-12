@@ -37,11 +37,17 @@ The initial .NET 10 project compiled and its smoke executable ran successfully o
 
 `tests/Arthea.Legacy.Characterization` compiles the historic `ArtheaEngine/Argument.cs` **from its original path** with a test-only fail-closed shim for the unrelated `IsNumber` string extension (whose containing original utility module depends on the full legacy world/DB graph). It exercises token consumption, peek, custom delimiters and **observed quirks**: a closing quote/parenthesis is retained in the returned token, leading whitespace produces an empty first token, and an unmatched opening quote is emitted separately. These results were discovered by running the original source and are preserved as characterization evidence—not as desired parser behavior. This documents behavior; it does **not** endorse that edge case as safe input handling. It does not characterize `Argument.IsNumber` or the full Telnet command interpreter.
 
+## Legacy room projection boundary
+
+The original `Room.Exits` is keyed by `Direction`, while each `Exit` also has a `Direction` field and destination object/`ToRoomRef`. In `ArtheaServer/Creation/ExitsEditor.cs` the **`link`** path adds an exit to the dictionary without assigning `Exit.Direction`; the **`build`** and **`add`** paths set it. Therefore migration reads the dictionary key as the authoritative travel direction and does not infer reverse edges unless they actually exist.
+
+`src/Arthea.LegacyBridge` provides a **database-neutral projection contract**, accepting already-extracted `LegacyRoomSnapshot` records. It validates canonical direction names, destinations and duplicate keys and delegates graph validation (including dangling IDs) to `Arthea.Core`. The projection makes **no MongoDB network calls**, silently-created exits, or database repairs. It does **not** parse raw historic BSON documents or prove compatibility with real stored worlds: capture representative legacy BSON records and implement/test a separate deserialization adapter before migrating data.
+
 ## Next migration steps
 
 1. Keep the pinned .NET 10 SDK and all checks repeatable on an ordinary supported Linux/macOS/Windows CI runner; a validated local Nix-specific wrapper is not yet repo-integrated.
 2. Capture *legacy* command/room/movement semantics with runnable fixtures; identify mismatches against this seam.
-3. Add an explicit adapter from legacy persistence room records to the new read model; preserve IDs and fail safely on missing exits.
+3. Connect a real legacy BSON reader to the tested projection contract using sanitized historical fixtures; verify stored field names, representation, ID resolution, and missing/dangling links.
 4. Only then incrementally migrate room chat and world state behind tested interfaces (#3), and eventually protocol adapters (#1).
 5. Keep PR #6's credential cleanup and #5's historical secret/license gate independent of portable-core completion.
 
