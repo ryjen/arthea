@@ -26,9 +26,14 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
     private Task? _accept;
     private bool _started;
     private readonly bool _enableTelnetGmcp;
+    private readonly TimeSpan _preAuthReadTimeout;
+    private readonly TimeSpan _authenticatedIdleTimeout;
+    private readonly TimeSpan _incompleteCommandTimeout;
 
     public LoopbackTlsGameServer(RoomSessionCoordinator sessions, X509Certificate2 certificate,
-        int maxConnections = 4, bool enableTelnetGmcp = false)
+        int maxConnections = 4, bool enableTelnetGmcp = false,
+        TimeSpan? preAuthReadTimeout = null, TimeSpan? authenticatedIdleTimeout = null,
+        TimeSpan? incompleteCommandTimeout = null)
     {
         _sessions = sessions ?? throw new ArgumentNullException(nameof(sessions));
         _certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
@@ -38,6 +43,16 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
             throw new ArgumentOutOfRangeException(nameof(maxConnections));
         _slots = new SemaphoreSlim(maxConnections, maxConnections);
         _enableTelnetGmcp = enableTelnetGmcp;
+        _preAuthReadTimeout = ValidateDeadline(preAuthReadTimeout ?? TimeSpan.FromSeconds(15), nameof(preAuthReadTimeout));
+        _authenticatedIdleTimeout = ValidateDeadline(authenticatedIdleTimeout ?? TimeSpan.FromMinutes(15), nameof(authenticatedIdleTimeout));
+        _incompleteCommandTimeout = ValidateDeadline(incompleteCommandTimeout ?? TimeSpan.FromSeconds(15), nameof(incompleteCommandTimeout));
+    }
+
+    private static TimeSpan ValidateDeadline(TimeSpan deadline, string name)
+    {
+        if (deadline < TimeSpan.FromMilliseconds(100) || deadline > TimeSpan.FromHours(24))
+            throw new ArgumentOutOfRangeException(name, "Deadline must be between 100 ms and 24 hours.");
+        return deadline;
     }
 
     public IPEndPoint Start()
@@ -195,9 +210,12 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
     private async Task<string?> Receive(SslStream stream, TelnetGmcpCodec? gmcp,
         string? token, CancellationToken cancellation)
     {
-        if (gmcp is null) return await ReceivePlain(stream, cancellation);
+        if (gmcp is null)
+            return await ReceivePlain(stream, token is null ? _preAuthReadTimeout : _authenticatedIdleTimeout, cancellation);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
-        timeout.CancelAfter(TimeSpan.FromSeconds(15));
+        var idleDeadline = token is null ? _preAuthReadTimeout : _authenticatedIdleTimeout;
+        timeout.CancelAfter(idleDeadline);
+        var wasPartial = false;
         var single = new byte[1];
         while (true)
         {
@@ -205,6 +223,12 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
             if (count == 0) return null;
             var advertised = gmcp.SupportsRoomInfo;
             var batch = gmcp.Feed(single);
+            // Count incomplete commands/subnegotiations against one fixed budget:
+            // additional bytes cannot extend an in-progress frame indefinitely.
+            var isPartial = gmcp.HasPendingInput;
+            if (!wasPartial && isPartial) timeout.CancelAfter(_incompleteCommandTimeout);
+            else if (wasPartial && !isPartial) timeout.CancelAfter(idleDeadline);
+            wasPartial = isPartial;
             foreach (var response in batch.Replies)
                 await stream.WriteAsync(response, timeout.Token);
             if (!advertised && gmcp.SupportsRoomInfo && token is not null)
@@ -217,16 +241,19 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
         }
     }
 
-    private static async Task<string?> ReceivePlain(SslStream stream, CancellationToken cancellation)
+    private async Task<string?> ReceivePlain(SslStream stream, TimeSpan idleDeadline,
+        CancellationToken cancellation)
     {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
-        timeout.CancelAfter(TimeSpan.FromSeconds(15));
+        timeout.CancelAfter(idleDeadline);
         using var bytes = new MemoryStream(capacity: 128);
         var one = new byte[1];
         while (bytes.Length <= 1024)
         {
             var count = await stream.ReadAsync(one, timeout.Token);
             if (count == 0) return null;
+            if (bytes.Length == 0 && one[0] != '\n')
+                timeout.CancelAfter(_incompleteCommandTimeout);
             if (one[0] == '\n') break;
             if (one[0] == 0) throw new InvalidDataException("Invalid input.");
             bytes.WriteByte(one[0]);
