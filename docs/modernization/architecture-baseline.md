@@ -43,11 +43,17 @@ The original `Room.Exits` is keyed by `Direction`, while each `Exit` also has a 
 
 `src/Arthea.LegacyBridge` provides a **database-neutral projection contract**, accepting already-extracted `LegacyRoomSnapshot` records. It validates canonical direction names, destinations and duplicate keys and delegates graph validation (including dangling IDs) to `Arthea.Core`. The projection makes **no MongoDB network calls**, silently-created exits, or database repairs. It does **not** parse raw historic BSON documents or prove compatibility with real stored worlds: capture representative legacy BSON records and implement/test a separate deserialization adapter before migrating data.
 
+## Binary BSON import prototype
+
+\`src/Arthea.LegacyBson\` now contains a read-only, **bounded** binary BSON decoder using official \`MongoDB.Bson\` 3.12.0 (Apache-2.0), isolated from both \`Arthea.Core\` and the source-model projection. The importer consumes individual BSON-encoded room documents; it does **not** connect to MongoDB. It restricts document size and total bytes/rooms, accepts only string \`_id\`, string \`Name\`, an \`Exits\` BSON document keyed by the six named directions, and nested \`ToRoomRef\` strings; invalid input is rejected without echoing source values. Unrelated legacy fields are ignored rather than executed or materialized as legacy model objects.
+
+\`tests/Arthea.LegacyBson.Tests\` generates **synthetic binary BSON** with the supported MongoDB.Bson writer, reads it through the importer, and checks navigation, negative inputs, direction-key precedence, one-way exits, and boundary rejection. A synthetic roundtrip does **not establish wire-level compatibility** with the actual historical MongoDB driver/production documents. Capture and sanitize a representative real legacy BSON export before upgrading this to a data-migration contract; confirm \`_id\` string representation, field naming, nested exit shape, enum dictionary serialization, and whether old world data contains missing/dangling refs. Historical export must remain private and may not be committed.
+
 ## Next migration steps
 
 1. Keep the pinned .NET 10 SDK and all checks repeatable on an ordinary supported Linux/macOS/Windows CI runner; a validated local Nix-specific wrapper is not yet repo-integrated.
 2. Capture *legacy* command/room/movement semantics with runnable fixtures; identify mismatches against this seam.
-3. Connect a real legacy BSON reader to the tested projection contract using sanitized historical fixtures; verify stored field names, representation, ID resolution, and missing/dangling links.
+3. Validate the new binary BSON reader against a **sanitized representative legacy-driver export**; verify the old ID, dictionary, enum and nested exit representations, then define explicit repair/fail-closed rules for missing/dangling links.
 4. Only then incrementally migrate room chat and world state behind tested interfaces (#3), and eventually protocol adapters (#1).
 5. Keep PR #6's credential cleanup and #5's historical secret/license gate independent of portable-core completion.
 
