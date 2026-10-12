@@ -39,3 +39,9 @@ The proof protocol is line-based: `LOGIN name`, `PASS password`, `SESSION token`
 The only TLS certificate and account credentials in the test are synthetic and generated/initialized in memory. Tests validate successful TLS transport, rejected self-signed server certificates without explicit trust, room isolation, two-player conversation, and reconnect token rotation.
 
 **Do not expose this listener publicly** or use test certificate-pinning behavior as a production trust policy. The library lacks production TLS lifecycle, durable sessions, rate limiting, password provisioning, identity recovery, GMCP, browser/WebSocket transport, auditing, and the operational controls described in #5.
+
+## Authenticated idle and partial-command deadlines (#11)
+
+The loopback-only test transport now distinguishes TLS handshake (still 5 seconds), unauthenticated first-byte/read admission (default 15 seconds), authenticated idle time between complete commands (default 15 minutes), and an incomplete-command or unfinished GMCP/Telnet frame (default 15 seconds **from first input byte**, never extended by extra fragments). Completed Telnet negotiation frames return to the idle state, while incomplete control frames stay bound by the partial deadline. All read deadline knobs are constructor-injected for deterministic short socket tests, validated to 100 ms–24 hours; the default still fails closed and no public endpoint is enabled.
+
+An expired session coordinator bearer remains invalid regardless of socket liveness (default 15-minute absolute session TTL): longer idle socket policy does not constitute indefinite authorization. Reconnect still requires the correct suspended token. Production must choose an operational heartbeat/refresh design, explicit rate limits and protected session exchange; this socket test is not a deployable server.
