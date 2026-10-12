@@ -12,6 +12,12 @@ The `RoomSessionCoordinator` in `Arthea.Core.Social` is a single-process **contr
 - The session expiry is absolute and validated on every operation. An explicit `ExpireSessions` provides cleanup when idle; expired sessions have their membership revoked. **No background timer or persistent session storage exists.**
 - The `RoomChatRuntime` remains directly callable by trusted server code. Production must encapsulate both within an authenticated server boundary; do not expose its player-ID methods to remote clients.
 
+## Real password verifier, synthetic records
+
+The newly added `PasswordAccountAuthenticator` accepts only pre-provisioned account records with cryptographic password verifiers. Per-user random 16-byte salts, 600,000 PBKDF2-HMAC-SHA256 iterations, and 32-byte derived keys are stored in a versioned `v1` format. Unsupported work factors and malformed records fail closed. The verifier performs fixed-time comparison and dummy PBKDF2 work for unknown accounts. Default JSON serialization and record text formatting redact verifier values.
+
+The credential envelope is an internal `player-id + newline + password` contract, **not** a remote protocol. Production must provide a reviewed TLS-only ingress, credential provisioning/database, throttling and lockout, reset/recovery and secure secret lifetimes. Legacy plaintext password bytes are not accepted or migrated by this code. Only synthetic test identities are provisioned.
+
 ## Deliberate deferrals
 
 The system cannot yet serve remote players. Missing: real authenticator and credential lifecycle, TLS, secure ingress/identity binding, token replay prevention across a disconnected/stolen device, durable offline chat, cross-device revocation, password reset, room permissions, DMs/channels, rate limits, moderation, telemetry redaction, storage, and protocol interoperability. Tokens are per-process only and cannot survive restart. A reconnect after token expiry requires fresh authentication and rejoining without historic replay.

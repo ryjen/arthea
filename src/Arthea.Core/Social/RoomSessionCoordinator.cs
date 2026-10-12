@@ -102,6 +102,8 @@ public sealed class RoomSessionCoordinator
             var now = _time.GetUtcNow();
             PruneExpired(now);
             var (digest, session) = Lookup(token, requireActive: false);
+            if (session.Active)
+                throw new InvalidOperationException("Suspend before resuming a session.");
             var (nextToken, nextDigest) = NewToken();
             _sessions.Remove(digest);
             session.Active = true;
