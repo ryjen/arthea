@@ -1,7 +1,7 @@
 {
   description = "Arthea .NET 10 local/CI toolchain (not a deployable server)";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
   outputs = { self, nixpkgs }:
     let
