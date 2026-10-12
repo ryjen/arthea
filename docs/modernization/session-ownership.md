@@ -29,3 +29,13 @@ No confidential or real credentials, live data, database account migrations, or 
 `tests/Arthea.Session.SmokeTests` exercises identity forgery rejection, capacity, duplicate sessions, suspend/resume, token rotation and old-token invalidation, expired token cleanup, replay after disconnect, room movement, fresh-session replay restrictions and a concurrent resume race. Run `bash scripts/verify-modern-core.sh` from a supported .NET 10 environment.
 
 Publication remains blocked by the historical secret/licensing audit in #5. A passing test here does not authorize deployment.
+
+## Loopback TLS transport prototype
+
+A separate `Arthea.Transport` assembly binds **only to IPv4 loopback** on an ephemeral port and requires a server certificate with its private key before startup. It accepts TLS 1.2/1.3 connections through `SslStream`, has an explicit connection cap, handshake/read deadlines, strict UTF-8 and 1024-byte line bounds, and suppresses accidental exception/credential output.
+
+The proof protocol is line-based: `LOGIN name`, `PASS password`, `SESSION token`, `LOOK`, `NORTH`/`SOUTH`, `SAY text`, `POLL cursor`, `RESUME token`, and `QUIT`. **This is not Telnet/GMCP** and cannot yet be used as evidence that MudForge or Mudlet can connect. A future supported client protocol must be selected and reviewed separately (#1/#2).
+
+The only TLS certificate and account credentials in the test are synthetic and generated/initialized in memory. Tests validate successful TLS transport, rejected self-signed server certificates without explicit trust, room isolation, two-player conversation, and reconnect token rotation.
+
+**Do not expose this listener publicly** or use test certificate-pinning behavior as a production trust policy. The library lacks production TLS lifecycle, durable sessions, rate limiting, password provisioning, identity recovery, GMCP, browser/WebSocket transport, auditing, and the operational controls described in #5.
