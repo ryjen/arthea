@@ -174,7 +174,7 @@ public sealed class TelnetGmcpCodec
                 throw new InvalidDataException("Invalid Core.Supports module.");
             bool remove = command.Equals("Core.Supports.Remove", StringComparison.OrdinalIgnoreCase);
             bool reset = command.Equals("Core.Supports.Set", StringComparison.OrdinalIgnoreCase);
-            if (reset) _supports.Clear();
+            var validated = new List<string>(modules.Length);
             foreach (var raw in modules)
             {
                 var parts = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -185,6 +185,12 @@ public sealed class TelnetGmcpCodec
                 var name = parts[0];
                 if (!name.All(c => char.IsAsciiLetter(c) || c == '.') || name.Length > 64)
                     throw new InvalidDataException("Invalid GMCP module name.");
+                validated.Add(name);
+            }
+            // Do not partially mutate capability state when a declaration fails.
+            if (reset) _supports.Clear();
+            foreach (var name in validated)
+            {
                 if (remove) _supports.Remove(name);
                 else _supports.Add(name);
             }
