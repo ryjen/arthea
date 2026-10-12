@@ -24,5 +24,10 @@ dotnet restore "$social" --ignore-failed-sources -p:UseAppHost=false
 dotnet build "$social" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.Social.SmokeTests/bin/Debug/net10.0/Arthea.Social.SmokeTests.dll"
 
+sessions="$root/tests/Arthea.Session.SmokeTests/Arthea.Session.SmokeTests.csproj"
+dotnet restore "$sessions" --ignore-failed-sources -p:UseAppHost=false
+dotnet build "$sessions" --no-restore -warnaserror -p:UseAppHost=false
+dotnet "$root/tests/Arthea.Session.SmokeTests/bin/Debug/net10.0/Arthea.Session.SmokeTests.dll"
+
 python3 -B -m unittest discover -s "$root/tools/tests" -v
 python3 -B "$root/tools/check_config_hygiene.py"
