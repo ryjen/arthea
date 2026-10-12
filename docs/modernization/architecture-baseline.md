@@ -45,18 +45,22 @@ The original `Room.Exits` is keyed by `Direction`, while each `Exit` also has a 
 
 ## Binary BSON import prototype
 
-\`src/Arthea.LegacyBson\` now contains a read-only, **bounded** binary BSON decoder using official \`MongoDB.Bson\` 3.12.0 (Apache-2.0), isolated from both \`Arthea.Core\` and the source-model projection. The importer consumes individual BSON-encoded room documents; it does **not** connect to MongoDB. It restricts document size and total bytes/rooms, accepts only string \`_id\`, string \`Name\`, an \`Exits\` BSON document keyed by the six named directions, and nested \`ToRoomRef\` strings; invalid input is rejected without echoing source values. Unrelated legacy fields are ignored rather than executed or materialized as legacy model objects.
+`src/Arthea.LegacyBson` now contains a read-only, **bounded** binary BSON decoder using official `MongoDB.Bson` 3.12.0 (Apache-2.0), isolated from both `Arthea.Core` and the source-model projection. The importer consumes individual BSON-encoded room documents; it does **not** connect to MongoDB. It restricts document size and total bytes/rooms, accepts only string `_id`, string `Name`, an `Exits` BSON document keyed by the six named directions, and nested `ToRoomRef` strings; invalid input is rejected without echoing source values. Unrelated legacy fields are ignored rather than executed or materialized as legacy model objects.
 
-\`tests/Arthea.LegacyBson.Tests\` generates **synthetic binary BSON** with the supported MongoDB.Bson writer, reads it through the importer, and checks navigation, negative inputs, direction-key precedence, one-way exits, and boundary rejection. A synthetic roundtrip does **not establish wire-level compatibility** with the actual historical MongoDB driver/production documents. Capture and sanitize a representative real legacy BSON export before upgrading this to a data-migration contract; confirm \`_id\` string representation, field naming, nested exit shape, enum dictionary serialization, and whether old world data contains missing/dangling refs. Historical export must remain private and may not be committed.
+`tests/Arthea.LegacyBson.Tests` generates **synthetic binary BSON** with the supported MongoDB.Bson writer, reads it through the importer, and checks navigation, negative inputs, direction-key precedence, one-way exits, and boundary rejection. A synthetic roundtrip does **not establish wire-level compatibility** with the actual historical MongoDB driver/production documents. **Deferred by product decision:** do not collect or verify an authentic historical export for the initial release. The importer is an optional offline experiment and is **not an approved migration path**. If historical save import is ever requested, verify actual legacy encoding and use private sanitized data before enabling it; never commit real exports.
 
 The package-dependent BSON reader and its executable tests carry checked-in `packages.lock.json` files. The verification script uses NuGet `--locked-mode` for that project graph. Changes to MongoDB.Bson or its transitive dependencies require an explicit lockfile update and review; no NuGet packages are needed by the core, legacy parser characterization, or room projection modules.
+
+## Decision: no legacy data migration for the first playable release
+
+The first modern world will be created from fresh, non-sensitive room definitions. The optional BSON reader is retained with its existing synthetic regression tests but will not be connected to startup, deployment, or account migration. **Skipping authenticity verification is an accepted limitation, not evidence of compatibility.** Do not silently attempt to import old data or describe the importer as production-ready. This deferral does not relax the independent historic Git-secret and third-party license reviews required to make the original repository public (#5).
 
 ## Next migration steps
 
 1. Keep the pinned .NET 10 SDK and all checks repeatable on an ordinary supported Linux/macOS/Windows CI runner; a validated local Nix-specific wrapper is not yet repo-integrated.
 2. Capture *legacy* command/room/movement semantics with runnable fixtures; identify mismatches against this seam.
-3. Validate the new binary BSON reader against a **sanitized representative legacy-driver export**; verify the old ID, dictionary, enum and nested exit representations, then define explicit repair/fail-closed rules for missing/dangling links.
-4. Only then incrementally migrate room chat and world state behind tested interfaces (#3), and eventually protocol adapters (#1).
+3. **Start with a new, synthetic world** and a modern authoritative room/chat runtime; do not block initial modernization on authentic legacy-database migration. The BSON prototype remains unsupported for old-world imports until compatibility is separately tested.
+4. Implement isolated in-memory, room-scoped social chat and movement with explicit authorization and replay contracts (#3); later add protocol adapters (#1) behind secure transport.
 5. Keep PR #6's credential cleanup and #5's historical secret/license gate independent of portable-core completion.
 
 ### Known restrictions
