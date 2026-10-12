@@ -73,7 +73,9 @@ public sealed class RoomGraph
         _rooms = new ReadOnlyDictionary<string, RoomDefinition>(index);
     }
 
-    public IReadOnlyCollection<RoomDefinition> Rooms => _rooms.Values;
+    public int RoomCount => _rooms.Count;
+
+    public IEnumerable<RoomDefinition> Rooms => _rooms.Values;
 
     public bool TryGetRoom(string id, out RoomDefinition? room) =>
         _rooms.TryGetValue(id, out room);

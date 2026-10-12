@@ -25,7 +25,7 @@ var graph = new RoomGraph(new[]
         new Dictionary<Direction, string> { [Direction.South] = "tavern" }),
     new RoomDefinition("cellar", "Cellar", new Dictionary<Direction, string>()),
 });
-Assert(graph.Rooms.Count == 3, "all three rooms exist");
+Assert(graph.RoomCount == 3, "all three rooms exist");
 Assert(graph.TryMove("tavern", Direction.North, out var north) && north == "square", "north exit");
 Assert(graph.TryMove("tavern", Direction.Down, out var down) && down == "cellar", "vertical exit");
 Assert(!graph.TryMove("cellar", Direction.Up, out _), "one-way exit does not imply its reverse");
