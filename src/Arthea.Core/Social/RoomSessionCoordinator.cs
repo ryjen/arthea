@@ -145,6 +145,16 @@ public sealed class RoomSessionCoordinator
         }
     }
 
+    public RoomDefinition RoomInfo(string token)
+    {
+        lock (_gate)
+        {
+            PruneExpired(_time.GetUtcNow());
+            var (_, session) = Lookup(token, requireActive: true);
+            return _chat.DescribeRoom(session.PlayerId);
+        }
+    }
+
     public string CurrentRoom(string token)
     {
         lock (_gate)
