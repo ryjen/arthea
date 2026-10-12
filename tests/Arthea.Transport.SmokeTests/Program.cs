@@ -321,10 +321,10 @@ timedAlice.Ssl.Dispose();
 timedAlice.Socket.Dispose();
 var stalled = await Connect(timedEndpoint, certificate);
 await Task.Delay(500);
-bool preAuthClosed = false;
+bool stalledPreAuthClosed = false;
 try { _ = await Read(stalled.Ssl); }
-catch (Exception e) when (e is IOException || e.Message == "Unexpected connection closure.") { preAuthClosed = true; }
-Check(preAuthClosed, "stalled unauthenticated client reaches shorter admission deadline");
+catch (Exception e) when (e is IOException || e.Message == "Unexpected connection closure.") { stalledPreAuthClosed = true; }
+Check(stalledPreAuthClosed, "stalled unauthenticated client reaches shorter admission deadline");
 stalled.Ssl.Dispose();
 stalled.Socket.Dispose();
 var timedBob = await Connect(timedEndpoint, certificate);
