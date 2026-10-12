@@ -35,6 +35,7 @@ Reject<InvalidOperationException>(() => service.Connect("credential-alice", "squ
 Reject<InvalidOperationException>(() => service.Connect("credential-eve", "cellar"), "bounded session admission");
 Reject<InvalidOperationException>(() => service.Say("alice", "spoof"), "cannot use player ID as bearer token");
 Reject<InvalidOperationException>(() => service.Say(new string('a', 64), "spoof"), "unissued token rejected");
+Reject<InvalidOperationException>(() => service.Resume(alice.Token), "active session cannot rotate through reconnect");
 
 service.Say(alice.Token, "hello");
 Check(service.Replay(bob.Token, 0).Messages.Single().Text == "hello", "same-room authorized replay");
@@ -79,6 +80,42 @@ Parallel.For(0, 8, _ =>
 });
 Check(successes == 1, "parallel resume has exactly one winner");
 Reject<InvalidOperationException>(() => races.Resume(initial.Token), "old token still invalid after race");
+
+
+// Tested password verifier with synthetic-only account records.
+var provisioned = PasswordAccountAuthenticator.Provision("tester", "synthetic-password-only-123!");
+Check(provisioned.EncodedVerifier.StartsWith("v1$pbkdf2-sha256$600000$", StringComparison.Ordinal),
+    "versioned, work-factor-bound PBKDF2 record");
+Check(!provisioned.ToString().Contains(provisioned.EncodedVerifier, StringComparison.Ordinal),
+    "record formatting must redact password verifier");
+Check(!System.Text.Json.JsonSerializer.Serialize(provisioned).Contains(provisioned.EncodedVerifier, StringComparison.Ordinal),
+    "default JSON must not serialize password verifier");
+var verifiedAccounts = new PasswordAccountAuthenticator(new[] { provisioned });
+Check(verifiedAccounts.Authenticate("tester\nsynthetic-password-only-123!") == "tester",
+    "salted password hash successfully verified");
+Check(verifiedAccounts.Authenticate("tester\nincorrect-password-123!") is null,
+    "bad password rejected");
+Check(verifiedAccounts.Authenticate("unknown\nsynthetic-password-only-123!") is null,
+    "unknown account rejected");
+Check(verifiedAccounts.Authenticate("tester") is null &&
+      verifiedAccounts.Authenticate("tester\nbad\nformat") is null,
+    "malformed credential frames rejected");
+Reject<ArgumentException>(() => PasswordAccountAuthenticator.Provision("tester", "short"),
+    "weak password rejected");
+Reject<ArgumentException>(() => PasswordAccountAuthenticator.Provision("unsafe id", "synthetic-password-only-123!"),
+    "invalid account ID rejected");
+Reject<ArgumentException>(() => new PasswordAccountAuthenticator(new[] { provisioned, provisioned }),
+    "duplicate accounts rejected");
+Reject<ArgumentException>(() => new PasswordAccountAuthenticator(new[] {
+    new PasswordAccountRecord("tester", "v1$pbkdf2-sha256$1000$bad$bad")
+}), "weak hash work factor rejected");
+var cryptoCoordinator = new RoomSessionCoordinator(new RoomChatRuntime(world), verifiedAccounts, clock);
+Reject<InvalidOperationException>(() => cryptoCoordinator.Connect("tester\nincorrect-password-123!", "tavern"),
+    "incorrect cryptographic login denied");
+var cryptoHandle = cryptoCoordinator.Connect("tester\nsynthetic-password-only-123!", "tavern");
+Check(cryptoCoordinator.Say(cryptoHandle.Token, "hello").SenderId == "tester",
+    "cryptographically verified player identity owns chat messages");
+cryptoCoordinator.Logout(cryptoHandle.Token);
 
 Console.WriteLine("Session ownership, expiry, rotation, replay and reconnect contracts passed.");
 
