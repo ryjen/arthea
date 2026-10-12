@@ -4,7 +4,7 @@ The `TelnetGmcpCodec` in `Arthea.Transport` is a per-connection, bounded parser 
 
 - Server offers `IAC WILL 201`; a client must opt in with `IAC DO 201`.
 - `Core.Supports.Set`, `Add` and `Remove` govern optional `Room.Info`; text-only clients remain supported by the independent text path.
-- `Room.Info` emits stable opaque room IDs, name, directional exits, JSON-escaped values, no coordinates fabricated, and no account/chat/private data.
+- `Room.Info` emits `num` (the default MudForge mapper field) and `id` as the same stable **string** room ID, plus `name` and six canonical directional `exits` with target IDs. Room IDs are not assigned synthetic numeric vnums. Optional `zone`, `terrain`, and `coord` are absent until the world actually models them; some Mudlet mapper scripts demand numeric `num` and will need a separately tested adapter. No account/chat/private data is included.
 - Input parsing spans fragmented chunks and rejects malformed or oversized input. The codec never interprets GMCP content as gameplay commands.
 - Session state and negotiation must be restarted after reconnect; disabled GMCP yields no metadata.
 - Unknown Telnet commands/options are either rejected or ignored within bounded behavior, not treated as credentials.
@@ -18,3 +18,7 @@ The original insecure Telnet server remains unsuitable for public deployment. Th
 The opt-in loopback TLS server sends `IAC WILL 201`, processes fragmented Telnet negotiation and `Core.Supports`, and emits opt-in `Room.Info` on login, `LOOK`, and room movement. The same test proves a client that never sends `DO 201` receives only ordinary room text. The GMCP room ID is obtained from the authenticated session's authoritative world state; it is not accepted from the client.
 
 This is **not yet verified against real Mudlet/MudForge clients**, which may require Telnet terminal options, more careful prompt/echo handling, or different authentication UX. A displayed bearer token is inappropriate for production terminal scrollback; production must use a separately reviewed account/session protocol. Nothing here authorizes deployment or changes the existing legacy server.
+
+## Mapping profile decision
+
+MudForge's documented default room identity is `Room.Info.num`, while `id` is an optional alternative mapping. This prototype emits both using the same opaque ID. A generalized Mudlet GMCP consumer can read the string; numeric-only third-party Mudlet mappers are **not** automatically supported. Avoid inventing numeric identifiers from hashes or indices, which could collide or change after world edits. Define persistent numeric VNUMs in the data model only if numeric-only mapper support becomes a required milestone. Official client testing has not occurred.

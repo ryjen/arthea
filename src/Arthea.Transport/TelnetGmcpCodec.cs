@@ -228,7 +228,10 @@ public sealed class TelnetGmcpCodec
             };
             exits.Add(key, target);
         }
-        var json = JsonSerializer.Serialize(new { id = room.Id, name = room.Name, exits });
+        // `num` is the conventional mapper key (MudForge/Mudlet). Fresh-world
+        // room IDs are opaque, so emit the same stable string as `id` instead
+        // of inventing unstable numeric IDs. Optional zone/terrain are absent.
+        var json = JsonSerializer.Serialize(new { num = room.Id, id = room.Id, name = room.Name, exits });
         var payload = StrictUtf8.GetBytes("Room.Info " + json);
         if (payload.Length > 4096)
             throw new InvalidDataException("Room metadata exceeds GMCP limit.");

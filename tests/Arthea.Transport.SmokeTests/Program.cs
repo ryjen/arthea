@@ -218,11 +218,12 @@ Check((await Read(structured.Stream)).StartsWith("SESSION ", StringComparison.Or
 Check(await Read(structured.Stream) == "ROOM tavern", "text room delivered with GMCP");
 var metadata = await ReadGmcp(structured.Stream);
 Check(metadata.StartsWith("Room.Info ", StringComparison.Ordinal) &&
+    metadata.Contains("\"num\":\"tavern\"", StringComparison.Ordinal) &&
     metadata.Contains("\"id\":\"tavern\"", StringComparison.Ordinal),
     "GMCP room metadata matches authoritative current room");
 await Send(structured.Stream, "NORTH");
 Check(await Read(structured.Stream) == "ROOM square", "Telnet direction works");
-Check((await ReadGmcp(structured.Stream)).Contains("\"id\":\"square\"", StringComparison.Ordinal),
+Check((await ReadGmcp(structured.Stream)).Contains("\"num\":\"square\"", StringComparison.Ordinal),
     "GMCP room follows same movement");
 await structured.Stream.WriteAsync(GmcpSub("Core.Supports.Remove [\"Room\"]"));
 await Send(structured.Stream, "LOOK");

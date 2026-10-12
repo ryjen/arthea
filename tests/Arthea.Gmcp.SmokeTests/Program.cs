@@ -54,7 +54,12 @@ var raw = Encoding.UTF8.GetString(frame.AsSpan(3, frame.Length - 5));
 Check(raw.StartsWith("Room.Info ", StringComparison.Ordinal), "Room.Info package");
 using (var doc = JsonDocument.Parse(raw[10..]))
 {
+    Check(doc.RootElement.GetProperty("num").GetString() == "tavern", "mapper standard Room.Info.num");
     Check(doc.RootElement.GetProperty("id").GetString() == "tavern", "stable room id");
+    Check(doc.RootElement.GetProperty("num").GetString() == doc.RootElement.GetProperty("id").GetString(),
+        "legacy and standard room IDs agree");
+    Check(!doc.RootElement.TryGetProperty("zone", out _) && !doc.RootElement.TryGetProperty("terrain", out _),
+        "unknown zone/terrain remain omitted");
     Check(doc.RootElement.GetProperty("name").GetString() == "A \"Quoted\" Inn",
         "room name escaped in JSON");
     Check(doc.RootElement.GetProperty("exits").GetProperty("n").GetString() == "square" &&
