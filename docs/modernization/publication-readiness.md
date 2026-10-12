@@ -42,6 +42,12 @@ This is a scoped risk inventory, not a security certification. Modernization sta
 
 These verify selected current application XML configuration files only; they do not scan history or verify the C# runtime.
 
+## Bounded historical secret-pattern inventory
+
+    python3 tools/audit_git_history.py
+
+This read-only command walks unique reachable Git blobs and prints **category counts only**, never matched secret values. It deliberately exits nonzero for suspected credentials, private-key markers, or uninspected oversized/binary objects. Its results require independent triage: code examples can create false positives; data can be sensitive without matching patterns; deleting a file from HEAD cannot erase older commits; scan results do not prove credential revocation, license rights or publication safety.
+
 ## Validation limits
 
 Current-file configuration checks do not prove clean history, licenses, safe authentication, or functional compatibility. See [issue #5](https://github.com/ryjen/arthea/issues/5).
