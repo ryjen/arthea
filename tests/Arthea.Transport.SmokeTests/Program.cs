@@ -255,4 +255,26 @@ Check(await Read(textOnly.Stream) == "BYE", "text-only logout");
 textOnly.Stream.Dispose();
 textOnly.Socket.Dispose();
 
+// Parser failures are connection-local: reject malformed negotiated GMCP
+// without faulting the listener, then accept another valid client.
+var invalidGmcp = await ConnectTelnet(telnetEndpoint, certificate);
+await invalidGmcp.Stream.WriteAsync(new byte[] { 255, 253, 201 });
+await invalidGmcp.Stream.WriteAsync(GmcpSub("Core.Supports.Set broken-json"));
+bool malformedClosed = false;
+try { _ = await Read(invalidGmcp.Stream); }
+catch (Exception e) when (e is IOException ||
+    e.Message == "Unexpected connection closure.") { malformedClosed = true; }
+Check(malformedClosed, "malformed GMCP terminates only its own TLS session");
+invalidGmcp.Stream.Dispose();
+invalidGmcp.Socket.Dispose();
+var afterMalformed = await ConnectTelnet(telnetEndpoint, certificate);
+await Send(afterMalformed.Stream, "ping"); // Before login the server rejects commands.
+bool preAuthClosed = false;
+try { _ = await Read(afterMalformed.Stream); }
+catch (Exception e) when (e is IOException ||
+    e.Message == "Unexpected connection closure.") { preAuthClosed = true; }
+Check(preAuthClosed, "listener remains available and does not accept unauthenticated gameplay");
+afterMalformed.Stream.Dispose();
+afterMalformed.Socket.Dispose();
+
 Console.WriteLine("Loopback TLS handshake, negative certificate, room chat, reconnect and live GMCP tests passed.");

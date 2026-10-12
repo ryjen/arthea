@@ -104,5 +104,18 @@ Reject<InvalidDataException>(() => oversizedFragments.Feed(new byte[] { (byte)'z
     "GMCP subnegotiation limit holds across separate chunks");
 Check(new TelnetGmcpCodec().Feed([255, 250, 42, 1, 2, 255, 240]).Lines.Count == 0,
     "unknown subnegotiation ignored");
+var ignored = new TelnetGmcpCodec();
+ignored.Feed(new byte[] { 255, 250, 44 });
+for (var i = 0; i < 4; i++)
+    ignored.Feed(Enumerable.Repeat((byte)'q', 1024).ToArray());
+Reject<InvalidDataException>(() => ignored.Feed(new byte[] { (byte)'q' }),
+    "unknown Telnet subnegotiation is bounded across calls");
+var ignoredValid = new TelnetGmcpCodec();
+ignoredValid.Feed(new byte[] { 255, 250, 44 });
+ignoredValid.Feed(Enumerable.Repeat((byte)'q', 2000).ToArray());
+var recovered = ignoredValid.Feed([255, 240, ..Encoding.UTF8.GetBytes("LOOK\n")]);
+Check(recovered.Lines.Single() == "LOOK",
+    "bounded unknown subnegotiation does not corrupt following text");
+
 
 Console.WriteLine("Telnet/GMCP framing, fragmentation, capability gating and room metadata passed.");

@@ -22,3 +22,7 @@ This is **not yet verified against real Mudlet/MudForge clients**, which may req
 ## Mapping profile decision
 
 MudForge's documented default room identity is `Room.Info.num`, while `id` is an optional alternative mapping. This prototype emits both using the same opaque ID. A generalized Mudlet GMCP consumer can read the string; numeric-only third-party Mudlet mappers are **not** automatically supported. Avoid inventing numeric identifiers from hashes or indices, which could collide or change after world edits. Define persistent numeric VNUMs in the data model only if numeric-only mapper support becomes a required milestone. Official client testing has not occurred.
+
+## Review hardening — ignored Telnet frames and malformed packets
+
+All parsed and ignored Telnet subnegotiation frames now have a **cumulative 4096-byte ceiling per frame**, even when split across multiple network reads. Unknown options are still ignored when bounded, but oversized ignored content fails the connection closed. Malformed GMCP and other `InvalidDataException` decode failures are contained to the affected TLS handler without propagating to the listener. Contract and socket-negative tests verify both properties; this is not yet a full protocol fuzzer or an Internet deployment authorization.

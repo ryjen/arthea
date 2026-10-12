@@ -21,6 +21,7 @@ public sealed class TelnetGmcpCodec
     private State _state;
     private byte _verb;
     private byte _subOption;
+    private int _ignoredSubBytes;
     private bool _roomAdvertised;
 
     public bool Enabled { get; private set; }
@@ -75,6 +76,7 @@ public sealed class TelnetGmcpCodec
                 case State.SubOption:
                     _subOption = b;
                     _sub.Clear();
+                    _ignoredSubBytes = 0;
                     _state = b == Gmcp && Enabled ? State.SubData : State.Discard;
                     break;
                 case State.SubData:
@@ -95,9 +97,11 @@ public sealed class TelnetGmcpCodec
                     else throw new InvalidDataException("Malformed GMCP subnegotiation.");
                     break;
                 case State.Discard:
+                    CountIgnoredByte();
                     if (b == Iac) _state = State.DiscardIac;
                     break;
                 case State.DiscardIac:
+                    CountIgnoredByte();
                     if (b == Se) _state = State.Data;
                     else _state = State.Discard;
                     break;
@@ -123,6 +127,14 @@ public sealed class TelnetGmcpCodec
         if (text.Any(char.IsControl)) throw new InvalidDataException("Control character in command.");
         lines.Add(text);
         if (lines.Count > 64) throw new InvalidDataException("Too many commands per chunk.");
+    }
+
+    private void CountIgnoredByte()
+    {
+        // Unknown or disabled subnegotiations must be bounded across Feed calls;
+        // chunk-local length limits alone permit indefinitely growing streams.
+        if (++_ignoredSubBytes > 4096)
+            throw new InvalidDataException("Ignored Telnet subnegotiation exceeds limit.");
     }
 
     private void AddSub(byte b)
