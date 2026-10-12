@@ -25,16 +25,17 @@
 
 `tests/Arthea.Core.SmokeTests` is a minimal executable contract check with **no NuGet test-framework dependencies**. It covers graph navigation, vertical / one-way exits, invalid references, duplicate IDs, and immutable snapshot semantics. It does not prove parity for character or movement side effects.
 
-Run with .NET 10 SDK:
+**Verified validation entrypoint (supported .NET 10 SDK + Python 3):**
 
-    dotnet build src/Arthea.Core/Arthea.Core.csproj --no-restore
-    dotnet run --project tests/Arthea.Core.SmokeTests/Arthea.Core.SmokeTests.csproj
+    bash scripts/verify-modern-core.sh
 
-On a fresh machine, restore first (`dotnet restore`), then build. This environment has **not yet executed a C# compiler**. Do not claim these tests have passed until exact-head C# build and execution evidence exists.
+The repository pins .NET SDK 10.0.401 with latest-patch roll-forward in `global.json`. The script performs an isolated no-external-package restore, warning-as-error build, executable room-graph checks and Python configuration tests. It does not exercise the original .NET Framework server.
+
+The initial .NET 10 project compiled and its smoke executable ran successfully on the exact PR #8 head `736e7cc80cf35aad5615eb8f792b8e93eb7e4f59` using a SHA-512-verified Microsoft SDK installed in a disposable workspace with Nix ELF-loader adaptation (zero C# build warnings or errors). **The new verification script and added cases require re-validation at the next commit.**
 
 ## Next migration steps
 
-1. Obtain and pin a supported .NET 10 SDK/toolchain; run compile and smoke tests on exact head.
+1. Keep the pinned .NET 10 SDK and all checks repeatable on an ordinary supported Linux/macOS/Windows CI runner; a validated local Nix-specific wrapper is not yet repo-integrated.
 2. Capture *legacy* command/room/movement semantics with runnable fixtures; identify mismatches against this seam.
 3. Add an explicit adapter from legacy persistence room records to the new read model; preserve IDs and fail safely on missing exits.
 4. Only then incrementally migrate room chat and world state behind tested interfaces (#3), and eventually protocol adapters (#1).
