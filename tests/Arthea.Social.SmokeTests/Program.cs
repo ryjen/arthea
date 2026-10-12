@@ -40,6 +40,7 @@ Check(replay.HasGap && replay.Messages.Count == 2, "bounded retention reports re
 Check(replay.Messages[0].Sequence == 2 && replay.Messages[1].Sequence == 3, "strict per-room order");
 Check(chat.Replay("bob", 2).Messages.Single().Sequence == 3, "cursor resumes without duplicates");
 Check(!chat.Replay("bob", 3).HasGap && chat.Replay("bob", 3).Messages.Count == 0, "caught-up replay");
+Check(!chat.Replay("bob", long.MaxValue).HasGap && chat.Replay("bob", long.MaxValue).Messages.Count == 0, "future cursors cannot overflow");
 
 Check(chat.TryMove("alice", Direction.North), "valid linked movement");
 Check(chat.CurrentRoom("alice") == "square", "authoritative room changed");
