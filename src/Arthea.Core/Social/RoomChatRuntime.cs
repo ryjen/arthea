@@ -17,11 +17,9 @@ public sealed class RoomChatRuntime
     private sealed record Presence(string RoomId, long JoinedAfter);
     private readonly RoomGraph _world;
     private readonly Dictionary<string, Presence> _members = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, List<RoomChatMessage>> _messages = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, long> _latest = new(StringComparer.Ordinal);
     private readonly object _gate = new();
     private readonly int _retention;
-    private readonly IRoomChatJournal? _journal;
+    private readonly IRoomChatJournal _journal;
 
     public RoomChatRuntime(RoomGraph world, int retainedPerRoom = 100, IRoomChatJournal? journal = null)
     {
@@ -29,7 +27,7 @@ public sealed class RoomChatRuntime
         if (retainedPerRoom is < 1 or > 1000)
             throw new ArgumentOutOfRangeException(nameof(retainedPerRoom));
         _retention = retainedPerRoom;
-        _journal = journal;
+        _journal = journal ?? new InMemoryRoomChatJournal();
     }
 
     public void Enter(string playerId, string roomId)
@@ -97,17 +95,7 @@ public sealed class RoomChatRuntime
         lock (_gate)
         {
             var roomId = Member(playerId).RoomId;
-            if (_journal is not null)
-                return _journal.Append(roomId, playerId, text, _retention);
-            var sequence = checked(LastSequence(roomId) + 1);
-            var message = new RoomChatMessage(sequence, roomId, playerId, text);
-            if (!_messages.TryGetValue(roomId, out var history))
-                _messages[roomId] = history = new List<RoomChatMessage>();
-            history.Add(message);
-            if (history.Count > _retention)
-                history.RemoveAt(0);
-            _latest[roomId] = sequence;
-            return message;
+            return _journal.Append(roomId, playerId, text, _retention);
         }
     }
 
@@ -123,19 +111,11 @@ public sealed class RoomChatRuntime
         lock (_gate)
         {
             var member = Member(playerId);
-            if (_journal is not null)
-                return _journal.Replay(member.RoomId, Math.Max(afterSequence, member.JoinedAfter), maxCount);
-            if (!_messages.TryGetValue(member.RoomId, out var history) || history.Count == 0)
-                return new RoomReplay(false, Array.Empty<RoomChatMessage>());
-            var cursor = Math.Max(afterSequence, member.JoinedAfter);
-            var gap = history[0].Sequence - 1 > cursor; // Avoid overflow at long.MaxValue.
-            var visible = history.Where(m => m.Sequence > cursor).Take(maxCount).ToArray();
-            return new RoomReplay(gap, Array.AsReadOnly(visible));
+            return _journal.Replay(member.RoomId, Math.Max(afterSequence, member.JoinedAfter), maxCount);
         }
     }
 
-    private long LastSequence(string roomId) =>
-        _journal?.LastSequence(roomId) ?? (_latest.TryGetValue(roomId, out var sequence) ? sequence : 0);
+    private long LastSequence(string roomId) => _journal.LastSequence(roomId);
 
     private Presence Member(string playerId) =>
         _members.TryGetValue(playerId, out var p) ? p :
