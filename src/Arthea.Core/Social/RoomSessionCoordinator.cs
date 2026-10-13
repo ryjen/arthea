@@ -1,5 +1,4 @@
-using System.Buffers;
-using System.Globalization;
+using Arthea.Core;
 using System.Security.Cryptography;
 using System.Text;
 using Arthea.Core.World;
@@ -74,7 +73,7 @@ public sealed class RoomSessionCoordinator
             throw new InvalidOperationException("Authentication failed.");
         var playerId = _authenticator.Authenticate(credential);
         if (string.IsNullOrWhiteSpace(playerId) || playerId.Length > 128 ||
-            !ValidPlayerId(playerId))
+            !VisibleText.IsSafe(playerId))
             throw new InvalidOperationException("Authentication failed.");
 
         lock (_gate)
@@ -206,24 +205,6 @@ public sealed class RoomSessionCoordinator
         _sessions.Remove(digest);
         _byPlayer.Remove(session.PlayerId);
         _chat.Leave(session.PlayerId);
-    }
-
-    // Treat authenticator output as untrusted until it meets the same
-    // scalar/format boundary enforced by the room runtime.
-    private static bool ValidPlayerId(string value)
-    {
-        var remaining = value.AsSpan();
-        while (!remaining.IsEmpty)
-        {
-            if (Rune.DecodeFromUtf16(remaining, out var rune, out var consumed) != OperationStatus.Done)
-                return false;
-            var category = Rune.GetUnicodeCategory(rune);
-            if (Rune.IsControl(rune) || category is UnicodeCategory.Format or
-                UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
-                return false;
-            remaining = remaining[consumed..];
-        }
-        return true;
     }
 
     private (string Digest, Session Session) Lookup(string token, bool requireActive)
