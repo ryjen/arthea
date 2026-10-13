@@ -55,7 +55,8 @@ public sealed class InMemoryRoomChatJournal : IRoomChatJournal
 
     private static void ValidateRoom(string roomId)
     {
-        if (string.IsNullOrWhiteSpace(roomId))
+        if (string.IsNullOrWhiteSpace(roomId) || roomId.Length > 256 ||
+            roomId.Any(char.IsControl))
             throw new ArgumentException("Invalid room identity.", nameof(roomId));
     }
 }
