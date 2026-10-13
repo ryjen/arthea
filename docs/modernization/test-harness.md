@@ -41,3 +41,12 @@ intermediate step, **not** a conventional xUnit/NUnit/MSTest migration:
 it avoids new NuGet dependencies while demonstrating isolated case output
 and preserving full existing checks. A framework-backed migration still
 requires explicit version pinning and review.
+
+To isolate an individual regression from the repository root:
+
+```sh
+dotnet run --project tests/Arthea.Core.ContractTests -- --list
+dotnet run --project tests/Arthea.Core.ContractTests -- --case "caller changes cannot mutate graph"
+```
+
+Unknown case names return exit code 2 instead of silently passing zero cases.
