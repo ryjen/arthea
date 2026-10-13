@@ -102,6 +102,46 @@ var supplementary = new RoomGraph(new[]
 Assert(supplementary.TryGetRoom("garden", out _),
     "valid supplementary-plane Unicode metadata remains supported");
 
+// Seeded adversarial metadata sampling complements the targeted examples above.
+// Insert forbidden Unicode scalars into otherwise safe names, room IDs and
+// exit destinations. No network listener or security qualification is implied.
+var invalidMetadata = new[]
+{
+    "\u0000", "\u000A", "\u000D", "\u001B", "\u007F",
+    "\u202A", "\u202B", "\u202C", "\u202D", "\u202E",
+    "\u2066", "\u2067", "\u2068", "\u2069",
+    "\u2028", "\u2029", "\uD800", "\uDC00"
+};
+var metadataRandom = new Random(0xC0DE);
+foreach (var invalid in invalidMetadata)
+{
+    for (var sample = 0; sample < 8; sample++)
+    {
+        var prefix = new string('a', metadataRandom.Next(1, 20));
+        var suffix = new string('z', metadataRandom.Next(1, 20));
+        var crafted = prefix + invalid + suffix;
+        BadRoom(crafted, "Safe", "generated invalid room ID");
+        BadRoom("safe", crafted, "generated invalid room name");
+        AssertThrows<ArgumentException>(() => new RoomGraph(new[]
+        {
+            new RoomDefinition("safe", "Safe",
+                new Dictionary<Direction, string> { [Direction.North] = crafted })
+        }), "generated invalid destination");
+    }
+}
+var validScalars = new[] { "é", "漢", "🌳", "α", "ꙮ" };
+foreach (var scalar in validScalars)
+{
+    var safe = "room-" + scalar;
+    var validGraph = new RoomGraph(new[]
+    {
+        new RoomDefinition(safe, "Welcome " + scalar,
+            new Dictionary<Direction, string> { [Direction.North] = safe })
+    });
+    Assert(validGraph.TryMove(safe, Direction.North, out var resolved) &&
+           resolved == safe, "safe scalar metadata accepted");
+}
+
 // Reproducible graph-generation checks: edges always resolve to declared rooms,
 // and mutating any caller-owned exit map after construction cannot affect it.
 var random = new Random(0xA47E);
