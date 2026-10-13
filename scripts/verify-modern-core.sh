@@ -44,5 +44,10 @@ dotnet restore "$demo" --ignore-failed-sources -p:UseAppHost=false
 dotnet build "$demo" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/samples/Arthea.LocalDemo/bin/Debug/net10.0/Arthea.LocalDemo.dll" --self-check
 
+journal="$root/tests/Arthea.Persistence.SmokeTests/Arthea.Persistence.SmokeTests.csproj"
+dotnet restore "$journal" --locked-mode -p:UseAppHost=false
+dotnet build "$journal" --no-restore -warnaserror -p:UseAppHost=false
+dotnet "$root/tests/Arthea.Persistence.SmokeTests/bin/Debug/net10.0/Arthea.Persistence.SmokeTests.dll"
+
 python3 -B -m unittest discover -s "$root/tools/tests" -v
 python3 -B "$root/tools/check_config_hygiene.py"
