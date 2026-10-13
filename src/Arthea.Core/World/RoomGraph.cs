@@ -1,4 +1,7 @@
+using System.Buffers;
 using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Text;
 
 namespace Arthea.Core.World;
 
@@ -41,15 +44,17 @@ public sealed class RoomGraph
         foreach (var room in rooms)
         {
             ArgumentNullException.ThrowIfNull(room);
-            if (string.IsNullOrWhiteSpace(room.Id) || string.IsNullOrWhiteSpace(room.Name))
-                throw new ArgumentException("Rooms require a nonempty id and name.", nameof(rooms));
+            // Room IDs appear in line-oriented transport responses. Validate
+            // imported/synthetic graph metadata before it reaches any client.
+            if (!SafeMetadata(room.Id, 256) || !SafeMetadata(room.Name, 256))
+                throw new ArgumentException("Room id or name contains unsafe metadata.", nameof(rooms));
             ArgumentNullException.ThrowIfNull(room.Exits);
 
             var exits = new Dictionary<Direction, string>();
             foreach (var (direction, targetId) in room.Exits)
             {
-                if (!Enum.IsDefined(direction) || string.IsNullOrWhiteSpace(targetId))
-                    throw new ArgumentException("Exits require a supported direction and destination.", nameof(rooms));
+                if (!Enum.IsDefined(direction) || !SafeMetadata(targetId, 256))
+                    throw new ArgumentException("Exits require a supported direction and safe destination.", nameof(rooms));
                 exits.Add(direction, targetId);
             }
 
@@ -71,6 +76,32 @@ public sealed class RoomGraph
         }
 
         _rooms = new ReadOnlyDictionary<string, RoomDefinition>(index);
+    }
+
+    // Keep room identifiers opaque rather than restricting them to ASCII.
+    // Exclude control codes, newlines and invisible formatting (including
+    // bidirectional overrides) from text and terminal metadata boundaries.
+    private static bool SafeMetadata(string? value, int maxLength)
+    {
+        if (value is null || value.Length is 0 || value.Length > maxLength ||
+            string.IsNullOrWhiteSpace(value))
+            return false;
+
+        // Decode scalars rather than chars: reject unpaired surrogates without
+        // rejecting valid supplementary-plane Unicode (such as emoji).
+        var remaining = value.AsSpan();
+        while (!remaining.IsEmpty)
+        {
+            if (Rune.DecodeFromUtf16(remaining, out var rune, out var consumed) !=
+                OperationStatus.Done)
+                return false;
+            var category = Rune.GetUnicodeCategory(rune);
+            if (Rune.IsControl(rune) || category is UnicodeCategory.Format or
+                UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
+                return false;
+            remaining = remaining[consumed..];
+        }
+        return true;
     }
 
     public int RoomCount => _rooms.Count;

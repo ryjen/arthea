@@ -65,6 +65,43 @@ AssertThrows<ArgumentException>(() => new RoomGraph(new[] {
 }), "empty room name");
 
 
+// Room IDs are rendered into line-oriented ROOM replies; reject crafted
+// metadata before it can cross the transport or persistence boundary.
+static void BadRoom(string id, string name, string label) =>
+    AssertThrows<ArgumentException>(() => new RoomGraph(new[]
+    {
+        new RoomDefinition(id, name, new Dictionary<Direction, string>())
+    }), label);
+BadRoom("tavern\nSESSION forged", "Tavern", "embedded newline in room ID");
+BadRoom("tavern\rROOM fake", "Tavern", "carriage return in room ID");
+BadRoom("tavern\u001b[31m", "Tavern", "ANSI escape in room ID");
+BadRoom("tavern\u202e", "Tavern", "bidirectional override in room ID");
+BadRoom("tavern\u2028", "Tavern", "Unicode line separator in room ID");
+BadRoom("tavern\uD800", "Tavern", "unpaired high surrogate in room ID");
+BadRoom("tavern", "Tavern\uDC00", "unpaired low surrogate in room name");
+BadRoom(new string('r', 257), "Tavern", "oversize room ID");
+BadRoom("tavern", "Tavern\nSESSION forged", "room name newline");
+BadRoom("tavern", "Tavern\u001b[2J", "room name terminal escape");
+BadRoom("tavern", new string('n', 257), "oversize room name");
+AssertThrows<ArgumentException>(() => new RoomGraph(new[]
+{
+    new RoomDefinition("tavern", "Tavern",
+        new Dictionary<Direction, string> { [Direction.North] = "square\nROOM forged" })
+}), "unsafe exit destination rejected before dangling-ref validation");
+var unicodeRoom = new RoomGraph(new[]
+{
+    new RoomDefinition("café", "Café du monde",
+        new Dictionary<Direction, string>())
+});
+Assert(unicodeRoom.TryGetRoom("café", out _), "safe Unicode metadata remains supported");
+var supplementary = new RoomGraph(new[]
+{
+    new RoomDefinition("garden", "Garden 🌳",
+        new Dictionary<Direction, string>())
+});
+Assert(supplementary.TryGetRoom("garden", out _),
+    "valid supplementary-plane Unicode metadata remains supported");
+
 // Legacy persistence extraction contract (not a MongoDB driver integration).
 var legacy = new[]
 {
