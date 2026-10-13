@@ -31,3 +31,13 @@ protection without depending on a test runner.
 Per-test identity in runner output; deterministic retry; equivalent negative and
 positive cases; locked restore; no deployment dependencies; no changes to legacy
 `master`. This document alone does not imply those changes were implemented.
+
+## First incremental implementation
+
+`tests/Arthea.Core.ContractTests` is a dependency-free, individually
+reported executable with five named pure-core cases. CI runs it alongside,
+not instead of, the historical core smoke executable. This is an
+intermediate step, **not** a conventional xUnit/NUnit/MSTest migration:
+it avoids new NuGet dependencies while demonstrating isolated case output
+and preserving full existing checks. A framework-backed migration still
+requires explicit version pinning and review.
