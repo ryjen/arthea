@@ -10,6 +10,13 @@ dotnet restore "$project" --ignore-failed-sources -p:UseAppHost=false
 dotnet build "$project" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.Core.SmokeTests/bin/Debug/net10.0/Arthea.Core.SmokeTests.dll"
 
+# Independently reported core cases; keep the original smoke suite until
+# equivalent coverage is deliberately demonstrated.
+contracts="$root/tests/Arthea.Core.ContractTests/Arthea.Core.ContractTests.csproj"
+dotnet restore "$contracts" --ignore-failed-sources -p:UseAppHost=false
+dotnet build "$contracts" --no-restore -warnaserror -p:UseAppHost=false
+dotnet "$root/tests/Arthea.Core.ContractTests/bin/Debug/net10.0/Arthea.Core.ContractTests.dll"
+
 dotnet restore "$legacy" --ignore-failed-sources -p:UseAppHost=false
 dotnet build "$legacy" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.Legacy.Characterization/bin/Debug/net10.0/Arthea.Legacy.Characterization.dll"
