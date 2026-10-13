@@ -1,46 +1,34 @@
 # Arthea
 
+**An old C# MUD and personal programming experiment.** Arthea began as a text-based multiplayer game built around rooms, commands, and a server-side world. Most of the effort ended up in the engine and supporting systems rather than game content. It grew much larger than a small text game needed; that is part of its history.
+
+This repository is primarily a **legacy code archive**, not an actively maintained game, a production service, or a project with a release roadmap.
+
 ## Branches
 
-**`master` is the original 2015 legacy-source snapshot; `main` is the modernized .NET 10 development branch.** All upgrades, security fixes, new gameplay features, PRs, and experimental modernization happen on **`main` only**. Do not merge `main` back into `master` or push upgrade commits to `master`.
+- **[`master`](../../tree/master)** — the original October 2015 code, preserved at commit `62bf4162b686fd1db64a43cc495e7e81868d1679`. No upgrades should be merged here.
+- **[`main`](../../tree/main)** — the original project history plus occasional .NET 10 modernization experiments, tests, and small improvements. All new work belongs here.
 
-The modernized branch was copied from the former upgraded `master` head on October 12, 2026. The original legacy tip `62bf4162b686fd1db64a43cc495e7e81868d1679` is restored as `master`; historical modernization commits remain accessible on `main`. See [branch policy](docs/modernization/branch-policy.md).
+The code on `main` is **still legacy work**. Modernization is a way to revisit old design decisions, practice architecture and testing, and explore safer implementations. It is **not an attempt to turn Arthea into a current game product**. Experiments may remain unfinished or disconnected from the original application. See the [branch policy](docs/modernization/branch-policy.md).
 
+## What is here
 
-Arthea is a C# multi-user dungeon (MUD), originally implemented using .NET Framework, MongoDB, Telnet and a room-based world model.
+The original application uses .NET Framework, MongoDB, Telnet, and a room-based world model. The repository includes old server, engine, editor, web, and third-party dependency projects.
 
-> **Legacy project undergoing modernization. Keep this repository private and do not host the original server for Internet users.** Historical Git commits contain database credentials, and the legacy login transmits and stores raw password bytes. Cleaning HEAD does not clean Git history.
+The newer `src/`, `tests/`, and `samples/` directories contain isolated .NET 10 exercises around room state, text chat, sessions, TLS, GMCP, and an optional SQLite room-message journal. Tests cover selected behaviours; they do not turn the historical application into a complete or supported game.
 
-## Modernization goals
+To exercise the modern test projects on a compatible development system with .NET 10 and Python 3:
 
-- Preserve the original repository, game engine and room graph while incrementally improving architecture and tests.
-- Make Arthea a **mobile-first social MUD** centered on human room chat, presence and reconnectable sessions.
-- Retain client neutrality: Telnet, Mudlet desktop, and possible MudForge iOS via optional GMCP.
-- Introduce safe authentication and TLS before Internet deployment; keep AI NPCs explicitly identified and bounded.
-- Audit credentials throughout Git history and the redistribution rights of third-party assets before making source public.
+```bash
+bash scripts/verify-modern-core.sh
+```
 
-Run the narrow current-file configuration check with python3 tools/check_config_hygiene.py and its tests with python3 -m unittest discover -s tools/tests -v. These do not scan history or validate a public release.
+The original Visual Studio 2010-era solutions and vendored libraries are retained for historical context and are not qualified as a current .NET build. The local demonstration server is synthetic and loopback-only.
 
-See [publication readiness](docs/modernization/publication-readiness.md) and [project issues](https://github.com/ryjen/arthea/issues).
+## Security and provenance
 
-## Legacy configuration
+**Do not deploy the original server or make the repository public as-is.** Legacy code handles passwords insecurely and includes a plaintext Telnet login path. Historical Git commits contain database credentials and potentially sensitive deleted data; removing secrets from current files does not clear history. Third-party dependency licensing also needs review.
 
-Existing solutions target Visual Studio 2010-era .NET Framework and historical vendored DLLs; the original legacy solution is not qualified for modern .NET. New `src/`, `samples/`, and `tests/` projects target .NET 10 and have local smoke-test evidence.
+The modern experiments are not production-hardening guarantees. Before any publication or public network use, the historical secrets, licenses, authentication, transport and operational risks need independent review. Current configuration and audit tools cover only their documented scope.
 
-DbManager now requires a non-empty ARTHEA_MONGODB_URI process environment variable with a database name; no credentials or fallback database are tracked in current application configs.
-
-Example for an isolated local-only development instance: set ARTHEA_MONGODB_URI to mongodb://127.0.0.1:27017/arthea-dev (use a separate disposable database for tests). Never commit real connection values or expose this server publicly.
-
-This configuration hygiene work **does not** fix legacy password handling, encrypted transport, ASP.NET exposure, third-party licensing, or historical secrets.
-
-## Original dependencies
-
-The repository retains legacy Jint, NUnit, MongoDB driver and Thought.Net Telnet/Terminals code and binaries pending a license/provenance inventory. Do not assume they are cleared for redistribution.
-
-## Tracking
-
-- [#5 Security/publication gate](https://github.com/ryjen/arthea/issues/5)
-- [#3 Room chat, presence and replay](https://github.com/ryjen/arthea/issues/3)
-- [#1 Telnet/GMCP interoperability](https://github.com/ryjen/arthea/issues/1)
-- [#2 MudForge iPhone testing](https://github.com/ryjen/arthea/issues/2)
-- [#4 Conversational AI NPC](https://github.com/ryjen/arthea/issues/4)
+See [publication readiness](docs/modernization/publication-readiness.md) and the [issue tracker](https://github.com/ryjen/arthea/issues) for technical notes and unfinished experiments. Issues are **notes and possible exercises, not delivery commitments**.
