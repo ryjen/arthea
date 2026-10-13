@@ -1,5 +1,7 @@
+using System.Buffers;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Text;
 
 namespace Arthea.Core.World;
 
@@ -79,12 +81,28 @@ public sealed class RoomGraph
     // Keep room identifiers opaque rather than restricting them to ASCII.
     // Exclude control codes, newlines and invisible formatting (including
     // bidirectional overrides) from text and terminal metadata boundaries.
-    private static bool SafeMetadata(string? value, int maxLength) =>
-        value is { Length: > 0 } && value.Length <= maxLength &&
-        !string.IsNullOrWhiteSpace(value) &&
-        !value.Any(c => char.IsControl(c) ||
-            char.GetUnicodeCategory(c) is UnicodeCategory.Format or
-                UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator);
+    private static bool SafeMetadata(string? value, int maxLength)
+    {
+        if (value is null || value.Length is 0 || value.Length > maxLength ||
+            string.IsNullOrWhiteSpace(value))
+            return false;
+
+        // Decode scalars rather than chars: reject unpaired surrogates without
+        // rejecting valid supplementary-plane Unicode (such as emoji).
+        var remaining = value.AsSpan();
+        while (!remaining.IsEmpty)
+        {
+            if (Rune.DecodeFromUtf16(remaining, out var rune, out var consumed) !=
+                OperationStatus.Done)
+                return false;
+            var category = Rune.GetUnicodeCategory(rune);
+            if (Rune.IsControl(rune) || category is UnicodeCategory.Format or
+                UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
+                return false;
+            remaining = remaining[consumed..];
+        }
+        return true;
+    }
 
     public int RoomCount => _rooms.Count;
 

@@ -12,13 +12,13 @@ or any movement/chat command is executed.
 
 Rules: room IDs, names and exit destinations must be nonblank and at most
 256 UTF-16 code units, with no control characters or Unicode Format,
-LineSeparator or ParagraphSeparator code points. Identifiers remain opaque
+LineSeparator or ParagraphSeparator code points, and valid UTF-16 scalar encoding. Identifiers remain opaque
 and ordinary non-ASCII labels remain supported. Exit destinations must also
 exist in the graph. The constructor still defensively copies the caller's
 room and exit dictionaries.
 
 Negative tests cover CR, LF, ANSI escapes, bidirectional overrides,
-Unicode line separators, oversized identifiers and bad exit targets.
+Unicode line separators, invalid surrogates, oversized identifiers and bad exit targets.
 The original legacy master code is not modified.
 
 This is not a replacement for authenticated sessions, certificate
