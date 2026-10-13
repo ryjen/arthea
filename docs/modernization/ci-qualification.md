@@ -12,12 +12,12 @@ Local or CI invocation (requires Nix with flakes enabled):
 nix develop .#ci --command bash scripts/verify-modern-core.sh
 ```
 
-CI uses the same command, checks the exact GitHub SHA before validation, executes all seven independent executable suites (including real loopback/TLS/GMCP socket tests), the local demo self-check, all nine Python regression tests, and current tracked-config hygiene. Historical Git secret/PII clearance and old .NET Framework application builds are **not** asserted.
+CI uses the same command, checks the exact GitHub SHA before validation, executes all eight independent executable suites (including real loopback/TLS/GMCP socket tests), the local demo self-check, all nine Python regression tests, and current tracked-config hygiene. Historical Git secret/PII clearance and old .NET Framework application builds are **not** asserted.
 
 ## Trigger, cost and trust
 
 - One stable required-check candidate: **`arthea / verify (linux)`**.
-- The workflow runs on pull requests targeting `master` and by explicit manual dispatch. It does **not** duplicate every successful PR run with automatic post-merge `push` validation. For candidate composition, GitHub PR's synthetic merge SHA is checked exactly; any required future merge-queue integration needs a separately reviewed `merge_group` event.
+- The workflow runs on pull requests targeting `main` and by explicit manual dispatch. It does **not** duplicate every successful PR run with automatic post-merge `push` validation. For candidate composition, GitHub PR's synthetic merge SHA is checked exactly; any required future merge-queue integration needs a separately reviewed `merge_group` event.
 - Uses an isolated GitHub-hosted Ubuntu 24.04 runner, not privileged/persistent Dubnium infrastructure. The fork-source guard runs **before checkout** and fails the job rather than skipping a check. No `pull_request_target`.
 - No package/publish/deploy steps, artifacts, cache uploads, privileged environment, or writes to repository content. Token scope is `contents: read`; checkout does not persist authentication. Third-party actions are pinned to immutable commits. Nixpkgs is pinned.
 - Concurrency cancels superseded PR jobs; manual dispatch jobs are independent. The single job has a 35-minute bound. This deliberately uses GitHub-hosted compute for trust isolation; validate the actual billing and cold Nix closure cost before adding more matrices or triggers.
