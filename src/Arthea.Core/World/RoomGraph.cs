@@ -1,6 +1,5 @@
-using System.Buffers;
+using Arthea.Core;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Text;
 
 namespace Arthea.Core.World;
@@ -87,21 +86,7 @@ public sealed class RoomGraph
             string.IsNullOrWhiteSpace(value))
             return false;
 
-        // Decode scalars rather than chars: reject unpaired surrogates without
-        // rejecting valid supplementary-plane Unicode (such as emoji).
-        var remaining = value.AsSpan();
-        while (!remaining.IsEmpty)
-        {
-            if (Rune.DecodeFromUtf16(remaining, out var rune, out var consumed) !=
-                OperationStatus.Done)
-                return false;
-            var category = Rune.GetUnicodeCategory(rune);
-            if (Rune.IsControl(rune) || category is UnicodeCategory.Format or
-                UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
-                return false;
-            remaining = remaining[consumed..];
-        }
-        return true;
+        return VisibleText.IsSafe(value);
     }
 
     public int RoomCount => _rooms.Count;
