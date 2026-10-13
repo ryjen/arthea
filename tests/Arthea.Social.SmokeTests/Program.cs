@@ -175,6 +175,54 @@ Check(racing.CurrentRoom("traveler") == "tavern",
 Check(racing.Replay("traveler", 0).Messages.All(m => m.Sequence > 0),
     "moving participant replay remains bounded to latest entry cursor");
 
+// A single writer and lifecycle owner race with replay; successful replay
+// is permitted only during an active membership epoch. Every re-entry starts
+// after the previous room history, even with a stale client cursor.
+var lifecycle = new RoomChatRuntime(world, retainedPerRoom: 1000);
+lifecycle.Enter("subject", "tavern");
+lifecycle.Enter("observer", "tavern");
+lifecycle.Say("observer", "before-first-entry");
+var successfulReplays = 0;
+var deniedReplays = 0;
+Parallel.Invoke(
+    () =>
+    {
+        for (var i = 0; i < 80; i++)
+        {
+            lifecycle.Leave("subject");
+            lifecycle.Say("observer", "between-" + i);
+            lifecycle.Enter("subject", "tavern");
+        }
+    },
+    () =>
+    {
+        for (var i = 0; i < 400; i++)
+        {
+            try
+            {
+                var replay = lifecycle.Replay("subject", 0, 100);
+                Check(replay.Messages.All(m => m.RoomId == "tavern"),
+                    "concurrent lifecycle replay stays within authorized room");
+                successfulReplays++;
+            }
+            catch (InvalidOperationException)
+            {
+                deniedReplays++;
+            }
+        }
+    });
+Check(successfulReplays + deniedReplays == 400,
+    "each concurrent replay either succeeds or is denied");
+lifecycle.Leave("subject");
+Reject<InvalidOperationException>(() => lifecycle.Replay("subject", 0),
+    "departed participant cannot replay");
+lifecycle.Enter("subject", "tavern");
+Check(lifecycle.Replay("subject", 0).Messages.Count == 0,
+    "reentry cannot replay pre-entry history");
+lifecycle.Say("observer", "after-reentry");
+Check(lifecycle.Replay("subject", 0).Messages.Single().Text == "after-reentry",
+    "fresh epoch sees only newer messages");
+
 Console.WriteLine("Fresh-world room-local chat, movement, isolation and replay smoke tests passed.");
 
 // This deliberately small test double exposes persistence faults without mocking
