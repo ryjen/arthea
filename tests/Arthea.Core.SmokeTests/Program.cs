@@ -107,10 +107,10 @@ Assert(supplementary.TryGetRoom("garden", out _),
 // exit destinations. No network listener or security qualification is implied.
 var invalidMetadata = new[]
 {
-    "\\u0000", "\\u000A", "\\u000D", "\\u001B", "\\u007F",
-    "\\u202A", "\\u202B", "\\u202C", "\\u202D", "\\u202E",
-    "\\u2066", "\\u2067", "\\u2068", "\\u2069",
-    "\\u2028", "\\u2029", "\\uD800", "\\uDC00"
+    "\u0000", "\u000A", "\u000D", "\u001B", "\u007F",
+    "\u202A", "\u202B", "\u202C", "\u202D", "\u202E",
+    "\u2066", "\u2067", "\u2068", "\u2069",
+    "\u2028", "\u2029", "\uD800", "\uDC00"
 };
 var metadataRandom = new Random(0xC0DE);
 foreach (var invalid in invalidMetadata)
