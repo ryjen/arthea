@@ -184,7 +184,16 @@ public sealed class SqliteRoomChatJournal : IRoomChatJournal
     private SqliteConnection Open()
     {
         var conn = new SqliteConnection(_connectionString);
-        try { conn.Open(); return conn; }
+        try
+        {
+            conn.Open();
+            // PRAGMA synchronous is connection-local. Applying FULL only
+            // during schema creation would not protect later appends.
+            using var durability = conn.CreateCommand();
+            durability.CommandText = "PRAGMA synchronous=FULL;";
+            durability.ExecuteNonQuery();
+            return conn;
+        }
         catch { conn.Dispose(); throw; }
     }
 
