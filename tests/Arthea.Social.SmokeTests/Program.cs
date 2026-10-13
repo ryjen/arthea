@@ -133,6 +133,48 @@ Check(concurrentReplay.Messages.Select(x => x.Sequence).SequenceEqual(
 Check(concurrentReplay.Messages.Select(x => x.SenderId).Distinct().Count() == writers,
     "concurrent writers each contribute exactly one message");
 
+// Movement and writes race under the same authoritative membership lock.
+// Every accepted write must land in exactly one of the two traversable rooms.
+var raceJournal = new InMemoryRoomChatJournal();
+var racing = new RoomChatRuntime(world, retainedPerRoom: 1000, journal: raceJournal);
+racing.Enter("traveler", "tavern");
+racing.Enter("tavern-reader", "tavern");
+racing.Enter("square-reader", "square");
+Parallel.Invoke(
+    () =>
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var here = racing.CurrentRoom("traveler");
+            // CurrentRoom can become stale after observation; with a single
+            // mover it is authoritative for this deterministic direction choice.
+            var direction = here == "tavern" ? Direction.North : Direction.South;
+            Check(racing.TryMove("traveler", direction), "connected movement succeeds");
+        }
+    },
+    () =>
+    {
+        for (var i = 0; i < 100; i++)
+            racing.Say("traveler", "racing-" + i);
+    });
+var tavernWrites = raceJournal.Replay("tavern", 0, 100);
+var squareWrites = raceJournal.Replay("square", 0, 100);
+Check(tavernWrites.Messages.Count + squareWrites.Messages.Count == 100,
+    "move versus say does not lose or duplicate writes");
+Check(tavernWrites.Messages.All(m => m.RoomId == "tavern") &&
+      squareWrites.Messages.All(m => m.RoomId == "square"),
+    "move versus say retains authoritative room identity");
+Check(tavernWrites.Messages.Concat(squareWrites.Messages)
+      .Select(m => m.Text).Distinct().Count() == 100,
+    "each racing message appears in one room only");
+Check(racing.Replay("tavern-reader", 0).Messages.All(m => m.RoomId == "tavern") &&
+      racing.Replay("square-reader", 0).Messages.All(m => m.RoomId == "square"),
+    "concurrent movement never crosses room replay boundaries");
+Check(racing.CurrentRoom("traveler") == "tavern",
+    "even number of moves returns player to initial room");
+Check(racing.Replay("traveler", 0).Messages.All(m => m.Sequence > 0),
+    "moving participant replay remains bounded to latest entry cursor");
+
 Console.WriteLine("Fresh-world room-local chat, movement, isolation and replay smoke tests passed.");
 
 // This deliberately small test double exposes persistence faults without mocking
