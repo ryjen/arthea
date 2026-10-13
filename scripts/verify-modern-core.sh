@@ -18,9 +18,15 @@ dotnet build "$contracts" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.Core.ContractTests/bin/Debug/net10.0/Arthea.Core.ContractTests.dll"
 contract_dll="$root/tests/Arthea.Core.ContractTests/bin/Debug/net10.0/Arthea.Core.ContractTests.dll"
 dotnet "$contract_dll" --list | grep -Fx "caller changes cannot mutate graph"
-dotnet "$contract_dll" --case "caller changes cannot mutate graph"
-if dotnet "$contract_dll" --case "this contract does not exist"; then
-  echo "Unexpected success for an unknown contract case" >&2
+selected_output="$(dotnet "$contract_dll" --case "caller changes cannot mutate graph")"
+grep -Fx "PASS caller changes cannot mutate graph" <<< "$selected_output"
+grep -Fx "Core contract cases: 1 executed, 0 failed." <<< "$selected_output"
+set +e
+dotnet "$contract_dll" --case "this contract does not exist"
+unknown_status=$?
+set -e
+if [[ "$unknown_status" -ne 2 ]]; then
+  echo "Unknown contract case must exit 2, got $unknown_status" >&2
   exit 1
 fi
 
