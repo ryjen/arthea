@@ -115,6 +115,24 @@ Check(atomic.CurrentRoom("alice") == "square" &&
       atomic.Replay("alice", 0).Messages.Single().Text == "committed",
     "replay recovers after transient fault");
 
+// Concurrent writers share one runtime and one room. The implementation's
+// synchronization must maintain a gap-free total order without losing writes.
+var concurrent = new RoomChatRuntime(world, retainedPerRoom: 1000);
+const int writers = 32;
+for (var i = 0; i < writers; i++)
+    concurrent.Enter("writer-" + i, "tavern");
+concurrent.Enter("reader", "tavern");
+Parallel.For(0, writers, i =>
+    concurrent.Say("writer-" + i, "message-" + i));
+var concurrentReplay = concurrent.Replay("reader", 0, 100);
+Check(!concurrentReplay.HasGap && concurrentReplay.Messages.Count == writers,
+    "concurrent writes retain all messages without a gap");
+Check(concurrentReplay.Messages.Select(x => x.Sequence).SequenceEqual(
+    Enumerable.Range(1, writers).Select(x => (long)x)),
+    "concurrent writes assign gap-free increasing sequences");
+Check(concurrentReplay.Messages.Select(x => x.SenderId).Distinct().Count() == writers,
+    "concurrent writers each contribute exactly one message");
+
 Console.WriteLine("Fresh-world room-local chat, movement, isolation and replay smoke tests passed.");
 
 // This deliberately small test double exposes persistence faults without mocking
