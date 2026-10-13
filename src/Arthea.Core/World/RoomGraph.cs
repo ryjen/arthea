@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Globalization;
 
 namespace Arthea.Core.World;
 
@@ -41,15 +42,17 @@ public sealed class RoomGraph
         foreach (var room in rooms)
         {
             ArgumentNullException.ThrowIfNull(room);
-            if (string.IsNullOrWhiteSpace(room.Id) || string.IsNullOrWhiteSpace(room.Name))
-                throw new ArgumentException("Rooms require a nonempty id and name.", nameof(rooms));
+            // Room IDs appear in line-oriented transport responses. Validate
+            // imported/synthetic graph metadata before it reaches any client.
+            if (!SafeMetadata(room.Id, 256) || !SafeMetadata(room.Name, 256))
+                throw new ArgumentException("Room id or name contains unsafe metadata.", nameof(rooms));
             ArgumentNullException.ThrowIfNull(room.Exits);
 
             var exits = new Dictionary<Direction, string>();
             foreach (var (direction, targetId) in room.Exits)
             {
-                if (!Enum.IsDefined(direction) || string.IsNullOrWhiteSpace(targetId))
-                    throw new ArgumentException("Exits require a supported direction and destination.", nameof(rooms));
+                if (!Enum.IsDefined(direction) || !SafeMetadata(targetId, 256))
+                    throw new ArgumentException("Exits require a supported direction and safe destination.", nameof(rooms));
                 exits.Add(direction, targetId);
             }
 
@@ -72,6 +75,16 @@ public sealed class RoomGraph
 
         _rooms = new ReadOnlyDictionary<string, RoomDefinition>(index);
     }
+
+    // Keep room identifiers opaque rather than restricting them to ASCII.
+    // Exclude control codes, newlines and invisible formatting (including
+    // bidirectional overrides) from text and terminal metadata boundaries.
+    private static bool SafeMetadata(string? value, int maxLength) =>
+        value is { Length: > 0 } && value.Length <= maxLength &&
+        !string.IsNullOrWhiteSpace(value) &&
+        !value.Any(c => char.IsControl(c) ||
+            char.GetUnicodeCategory(c) is UnicodeCategory.Format or
+                UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator);
 
     public int RoomCount => _rooms.Count;
 
