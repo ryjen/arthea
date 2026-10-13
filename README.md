@@ -2,6 +2,8 @@
 
 **An old C# MUD and personal programming experiment.** Arthea began as a text-based multiplayer game built around rooms, commands, and a server-side world. Most of the effort ended up in the engine and supporting systems rather than game content. It grew much larger than a small text game needed; that is part of its history.
 
+The name **Arthea** is a Pig Latin take on **Earth**.
+
 This repository is primarily a **legacy code archive**, not an actively maintained game, a production service, or a project with a release roadmap.
 
 ## Branches
