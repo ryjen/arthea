@@ -1,5 +1,12 @@
 # Arthea
 
+## Branches
+
+**`master` is the original 2015 legacy-source snapshot; `main` is the modernized .NET 10 development branch.** All upgrades, security fixes, new gameplay features, PRs, and experimental modernization happen on **`main` only**. Do not merge `main` back into `master` or push upgrade commits to `master`.
+
+The modernized branch was copied from the former upgraded `master` head on October 12, 2026. The original legacy tip `62bf4162b686fd1db64a43cc495e7e81868d1679` is restored as `master`; historical modernization commits remain accessible on `main`. See [branch policy](docs/modernization/branch-policy.md).
+
+
 Arthea is a C# multi-user dungeon (MUD), originally implemented using .NET Framework, MongoDB, Telnet and a room-based world model.
 
 > **Legacy project undergoing modernization. Keep this repository private and do not host the original server for Internet users.** Historical Git commits contain database credentials, and the legacy login transmits and stores raw password bytes. Cleaning HEAD does not clean Git history.
@@ -18,7 +25,7 @@ See [publication readiness](docs/modernization/publication-readiness.md) and [pr
 
 ## Legacy configuration
 
-Existing solutions target Visual Studio 2010-era .NET Framework and historical vendored DLLs; a modern .NET build is not yet verified.
+Existing solutions target Visual Studio 2010-era .NET Framework and historical vendored DLLs; the original legacy solution is not qualified for modern .NET. New `src/`, `samples/`, and `tests/` projects target .NET 10 and have local smoke-test evidence.
 
 DbManager now requires a non-empty ARTHEA_MONGODB_URI process environment variable with a database name; no credentials or fallback database are tracked in current application configs.
 
