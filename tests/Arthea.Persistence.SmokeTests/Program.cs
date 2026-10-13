@@ -28,6 +28,24 @@ try
             new Dictionary<Direction, string> { [Direction.South] = "tavern" })
     });
     var store = new SqliteRoomChatJournal(db);
+    if (!OperatingSystem.IsWindows())
+    {
+        var unsafeDir = Path.Combine(path, "insecure");
+        Directory.CreateDirectory(unsafeDir);
+        File.SetUnixFileMode(unsafeDir, UnixFileMode.UserRead | UnixFileMode.UserWrite |
+            UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute);
+        Reject<UnauthorizedAccessException>(() =>
+            new SqliteRoomChatJournal(Path.Combine(unsafeDir, "chat.sqlite")),
+            "group-readable journal directory rejected");
+        File.SetUnixFileMode(unsafeDir,
+            UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute);
+        var symlink = Path.Combine(path, "redirect.sqlite");
+        File.CreateSymbolicLink(symlink, db);
+        Reject<ArgumentException>(() => new SqliteRoomChatJournal(symlink),
+            "symlinked journal file rejected");
+        File.Delete(symlink);
+    }
+
     Reject<ArgumentException>(() => new SqliteRoomChatJournal("relative.db"),
         "relative database paths denied");
     Check(!OperatingSystem.IsLinux() ||
