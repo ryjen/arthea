@@ -37,5 +37,27 @@ var missingQuote = new Argument("\"unfinished");
 Equal("\"", missingQuote.Next(), "legacy unmatched-quote behavior");
 Equal("unfinished", missingQuote.Next(), "legacy unmatched-quote remainder");
 
+// Keep these as observations of the ORIGINAL source, not desired modern
+// behaviour. The test project compiles ArtheaEngine/Argument.cs directly.
+Tokens("look   north", "look", "north"); // Delimiter leaves trailing Trim().
+Tokens("look\tnorth", "look\tnorth"); // TAB is not a default token delimiter.
+Tokens("\"quoted value\"", "quoted value\""); // Historic off-by-one closing quote.
+Tokens("(nested words)", "nested words)"); // Historic parenthesis suffix.
+
+var legacyEquality = new Argument("LOOK");
+Equal(true, legacyEquality == "look", "operator equals string ignores case");
+Equal(false, legacyEquality.Equals(new Argument("look")),
+    "Argument.Equals(Argument) is case-sensitive unlike string operator");
+
+var nonConsuming = new Argument("one two");
+Equal("one", nonConsuming.Peek(), "peek unchanged first token");
+Equal("one two", nonConsuming.ToString(), "peek does not mutate source");
+Equal(2, nonConsuming.All().Length, "All returns the full token list");
+Equal("one two", nonConsuming.ToString(), "All does not mutate source");
+
+var brokenParen = new Argument("(unfinished");
+Equal("(", brokenParen.Next(), "unclosed grouping returns the opener");
+Equal("unfinished", brokenParen.Next(), "unclosed grouping leaves the text");
+
 Equal(true, Argument.Empty.IsEmpty(), "empty sentinel");
 Console.WriteLine("Legacy ArtheaEngine.Argument tokenization characterization passed.");
