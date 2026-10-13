@@ -27,6 +27,41 @@ try
         new RoomDefinition("square", "Square",
             new Dictionary<Direction, string> { [Direction.South] = "tavern" })
     });
+    // Run identical observable journal contracts against both adapters.
+    static void JournalContract(IRoomChatJournal journal, string kind)
+    {
+        Check(journal.LastSequence("contract-a") == 0, kind + ": initial sequence");
+        Check(journal.Append("contract-a", "alice", "first", 2).Sequence == 1,
+            kind + ": first append");
+        Check(journal.Append("contract-a", "bob", "second", 2).Sequence == 2,
+            kind + ": second append");
+        Check(journal.Append("contract-a", "alice", "third", 2).Sequence == 3,
+            kind + ": third append");
+        Check(journal.LastSequence("contract-a") == 3, kind + ": monotonic high watermark");
+        var replay = journal.Replay("contract-a", 0, 100);
+        Check(replay.HasGap && replay.Messages.Select(m => m.Sequence).SequenceEqual(new long[] { 2, 3 }),
+            kind + ": retention and replay gap");
+        Check(journal.Replay("contract-a", 2, 1).Messages.Single().Sequence == 3,
+            kind + ": exclusive replay cursor");
+        Check(journal.Replay("contract-a", 3, 100).Messages.Count == 0,
+            kind + ": caught-up replay");
+        Check(journal.Replay("contract-a", long.MaxValue, 100).Messages.Count == 0,
+            kind + ": future cursor");
+        Check(journal.LastSequence("contract-b") == 0 &&
+              journal.Replay("contract-b", 0, 100).Messages.Count == 0,
+            kind + ": isolated room");
+        Reject<ArgumentOutOfRangeException>(() => journal.Replay("contract-a", -1, 1),
+            kind + ": rejects negative cursor");
+        Reject<ArgumentOutOfRangeException>(() => journal.Replay("contract-a", 0, 101),
+            kind + ": bounds replay page");
+        Reject<ArgumentOutOfRangeException>(() => journal.Append("contract-a", "alice", "bad", 0),
+            kind + ": bounds retention");
+        Check(journal.LastSequence("contract-a") == 3, kind + ": rejected append preserves high watermark");
+    }
+
+    JournalContract(new InMemoryRoomChatJournal(), "memory");
+    JournalContract(new SqliteRoomChatJournal(Path.Combine(path, "contract.sqlite")), "sqlite");
+
     var store = new SqliteRoomChatJournal(db);
     if (!OperatingSystem.IsWindows())
     {

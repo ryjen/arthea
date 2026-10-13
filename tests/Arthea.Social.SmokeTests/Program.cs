@@ -64,4 +64,78 @@ Reject<ArgumentOutOfRangeException>(() => chat.Replay("alice", 0, 101), "replay 
 Reject<ArgumentException>(() => chat.Enter("new", "invalid"), "unknown room rejected");
 Reject<ArgumentOutOfRangeException>(() => new RoomChatRuntime(world, 0), "invalid memory budget");
 
+// The default journal and explicit constructor-injected journal share semantics.
+var journal = new InMemoryRoomChatJournal();
+Check(journal.LastSequence("square") == 0, "empty journal cursor");
+Check(journal.Append("square", "alice", "one", 2).Sequence == 1, "journal first sequence");
+Check(journal.Append("square", "alice", "two", 2).Sequence == 2, "journal second sequence");
+Check(journal.Append("square", "alice", "three", 2).Sequence == 3, "journal retains monotonic cursor");
+Check(journal.LastSequence("square") == 3, "journal high watermark survives trim");
+var retained = journal.Replay("square", 0, 50);
+Check(retained.HasGap && retained.Messages.Select(x => x.Sequence).SequenceEqual(new long[] { 2, 3 }),
+    "in-memory journal retention gap and order");
+Check(!journal.Replay("cellar", 0, 50).Messages.Any(), "journals isolate room history");
+Reject<ArgumentOutOfRangeException>(() => journal.Replay("square", -1, 1), "negative cursor");
+Reject<ArgumentOutOfRangeException>(() => journal.Append("square", "alice", "text", 0), "invalid retention");
+
+var injected = new RoomChatRuntime(world, retainedPerRoom: 2, journal: new InMemoryRoomChatJournal());
+injected.Enter("alice", "tavern");
+injected.Enter("bob", "tavern");
+Check(injected.Say("alice", "injected").Sequence == 1 &&
+      injected.Replay("bob", 0).Messages.Single().Text == "injected",
+    "constructor injected memory journal");
+
+// Journal lookup must complete before any presence transition is published.
+var faults = new FaultJournal();
+var atomic = new RoomChatRuntime(world, journal: faults);
+faults.FailLookup = true;
+Reject<InvalidOperationException>(() => atomic.Enter("alice", "tavern"),
+    "failed journal lookup prevents enter");
+faults.FailLookup = false;
+atomic.Enter("alice", "tavern");
+Check(atomic.CurrentRoom("alice") == "tavern", "retry enter succeeds after lookup fault");
+faults.FailLookup = true;
+Reject<InvalidOperationException>(() => atomic.TryMove("alice", Direction.North),
+    "failed destination lookup prevents movement");
+Check(atomic.CurrentRoom("alice") == "tavern", "failed movement retains original room");
+faults.FailLookup = false;
+Check(atomic.TryMove("alice", Direction.North), "movement succeeds after transient fault");
+Check(atomic.CurrentRoom("alice") == "square", "successful movement publishes destination");
+faults.FailAppend = true;
+Reject<InvalidOperationException>(() => atomic.Say("alice", "not committed"),
+    "append failure propagates without a message");
+faults.FailAppend = false;
+Check(atomic.Say("alice", "committed").Sequence == 1,
+    "failed append does not consume in-memory cursor");
+faults.FailReplay = true;
+Reject<InvalidOperationException>(() => atomic.Replay("alice", 0),
+    "replay failure propagates without altering membership");
+faults.FailReplay = false;
+Check(atomic.CurrentRoom("alice") == "square" &&
+      atomic.Replay("alice", 0).Messages.Single().Text == "committed",
+    "replay recovers after transient fault");
+
 Console.WriteLine("Fresh-world room-local chat, movement, isolation and replay smoke tests passed.");
+
+// This deliberately small test double exposes persistence faults without mocking
+// session identity or network authentication.
+sealed class FaultJournal : IRoomChatJournal
+{
+    private readonly InMemoryRoomChatJournal _inner = new();
+    public bool FailLookup { get; set; }
+    public bool FailAppend { get; set; }
+    public bool FailReplay { get; set; }
+
+    public long LastSequence(string roomId) =>
+        FailLookup ? throw new InvalidOperationException("Injected lookup failure") :
+        _inner.LastSequence(roomId);
+
+    public RoomChatMessage Append(string roomId, string senderId, string text, int retainedPerRoom) =>
+        FailAppend ? throw new InvalidOperationException("Injected append failure") :
+        _inner.Append(roomId, senderId, text, retainedPerRoom);
+
+    public RoomReplay Replay(string roomId, long afterSequence, int maxCount) =>
+        FailReplay ? throw new InvalidOperationException("Injected replay failure") :
+        _inner.Replay(roomId, afterSequence, maxCount);
+}
+
