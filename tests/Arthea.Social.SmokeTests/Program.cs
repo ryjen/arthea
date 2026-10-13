@@ -59,6 +59,19 @@ chat.Enter("bob", "tavern");
 Check(chat.Replay("bob", 0).Messages.Count == 0, "fresh join cannot read earlier chat");
 Reject<ArgumentException>(() => chat.Say("alice", "\u001b[31mspoof"), "ANSI/control injection rejected");
 Reject<ArgumentException>(() => chat.Say("alice", new string('x', 513)), "oversized messages rejected");
+Reject<ArgumentException>(() => chat.Say("alice", "spoof\\u202Etext"),
+    "bidirectional override in message rejected");
+Reject<ArgumentException>(() => chat.Say("alice", "spoof\\u2028text"),
+    "Unicode line separator rejected");
+Reject<ArgumentException>(() => chat.Say("alice", "spoof\\uD800text"),
+    "unpaired surrogate rejected");
+Reject<ArgumentException>(() => chat.Enter("player\\u2066hidden", "tavern"),
+    "formatting controls in player ID rejected");
+Reject<ArgumentException>(() => chat.Enter("player\\uDC00", "tavern"),
+    "unpaired surrogate in player ID rejected");
+Check(chat.Say("alice", "Hello 🌳").Text == "Hello 🌳",
+    "valid supplementary Unicode remains supported");
+
 Reject<ArgumentException>(() => chat.Enter(" ", "tavern"), "blank player identity rejected");
 Reject<ArgumentOutOfRangeException>(() => chat.Replay("alice", 0, 101), "replay page bounded");
 Reject<ArgumentException>(() => chat.Enter("new", "invalid"), "unknown room rejected");
