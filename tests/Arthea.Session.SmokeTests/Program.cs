@@ -24,6 +24,10 @@ var service = new RoomSessionCoordinator(chat, new StubAuthenticator(), clock,
     TimeSpan.FromMinutes(5), maxSessions: 2);
 
 Reject<InvalidOperationException>(() => service.Connect("invalid", "tavern"), "bad credential fails closed");
+Reject<InvalidOperationException>(() => service.Connect("credential-format", "tavern"),
+    "authenticator-returned bidi control fails as authentication failure");
+Reject<InvalidOperationException>(() => service.Connect("credential-surrogate", "tavern"),
+    "authenticator-returned invalid UTF-16 fails as authentication failure");
 Reject<InvalidOperationException>(() => service.Connect("alice", "missing"), "cannot assert untrusted identity");
 var alice = service.Connect("credential-alice", "tavern");
 var bob = service.Connect("credential-bob", "tavern");
@@ -126,6 +130,8 @@ sealed class StubAuthenticator : IPlayerAuthenticator
         "credential-alice" => "alice",
         "credential-bob" => "bob",
         "credential-eve" => "eve",
+        "credential-format" => "alice\u202E",
+        "credential-surrogate" => "alice\uD800",
         _ => null
     };
 }
