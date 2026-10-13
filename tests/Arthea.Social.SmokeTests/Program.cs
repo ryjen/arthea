@@ -64,4 +64,25 @@ Reject<ArgumentOutOfRangeException>(() => chat.Replay("alice", 0, 101), "replay 
 Reject<ArgumentException>(() => chat.Enter("new", "invalid"), "unknown room rejected");
 Reject<ArgumentOutOfRangeException>(() => new RoomChatRuntime(world, 0), "invalid memory budget");
 
+// The default journal and explicit constructor-injected journal share semantics.
+var journal = new InMemoryRoomChatJournal();
+Check(journal.LastSequence("square") == 0, "empty journal cursor");
+Check(journal.Append("square", "alice", "one", 2).Sequence == 1, "journal first sequence");
+Check(journal.Append("square", "alice", "two", 2).Sequence == 2, "journal second sequence");
+Check(journal.Append("square", "alice", "three", 2).Sequence == 3, "journal retains monotonic cursor");
+Check(journal.LastSequence("square") == 3, "journal high watermark survives trim");
+var retained = journal.Replay("square", 0, 50);
+Check(retained.HasGap && retained.Messages.Select(x => x.Sequence).SequenceEqual(new long[] { 2, 3 }),
+    "in-memory journal retention gap and order");
+Check(!journal.Replay("cellar", 0, 50).Messages.Any(), "journals isolate room history");
+Reject<ArgumentOutOfRangeException>(() => journal.Replay("square", -1, 1), "negative cursor");
+Reject<ArgumentOutOfRangeException>(() => journal.Append("square", "alice", "text", 0), "invalid retention");
+
+var injected = new RoomChatRuntime(world, retainedPerRoom: 2, journal: new InMemoryRoomChatJournal());
+injected.Enter("alice", "tavern");
+injected.Enter("bob", "tavern");
+Check(injected.Say("alice", "injected").Sequence == 1 &&
+      injected.Replay("bob", 0).Messages.Single().Text == "injected",
+    "constructor injected memory journal");
+
 Console.WriteLine("Fresh-world room-local chat, movement, isolation and replay smoke tests passed.");
