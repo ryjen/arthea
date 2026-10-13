@@ -102,6 +102,50 @@ var supplementary = new RoomGraph(new[]
 Assert(supplementary.TryGetRoom("garden", out _),
     "valid supplementary-plane Unicode metadata remains supported");
 
+// Reproducible graph-generation checks: edges always resolve to declared rooms,
+// and mutating any caller-owned exit map after construction cannot affect it.
+var random = new Random(0xA47E);
+for (var iteration = 0; iteration < 64; iteration++)
+{
+    var count = random.Next(1, 24);
+    var input = new List<RoomDefinition>(count);
+    var sourceMaps = new List<Dictionary<Direction, string>>(count);
+    var directionValues = Enum.GetValues<Direction>();
+    for (var i = 0; i < count; i++)
+    {
+        var exits = new Dictionary<Direction, string>();
+        foreach (var direction in directionValues)
+            if (random.Next(3) == 0)
+                exits[direction] = "room-" + random.Next(count);
+        sourceMaps.Add(exits);
+        input.Add(new RoomDefinition("room-" + i, "Room " + i, exits));
+    }
+    var generated = new RoomGraph(input);
+    Assert(generated.RoomCount == count, "generated graph node cardinality");
+    for (var i = 0; i < count; i++)
+    {
+        var id = "room-" + i;
+        foreach (var direction in directionValues)
+        {
+            var expected = sourceMaps[i].TryGetValue(direction, out var target);
+            Assert(generated.TryMove(id, direction, out var actual) == expected &&
+                   (!expected || actual == target),
+                "generated graph directional lookup");
+        }
+        sourceMaps[i].Clear();
+    }
+    for (var i = 0; i < count; i++)
+    {
+        var room = input[i];
+        Assert(generated.TryGetRoom(room.Id, out var detached) && detached is not null &&
+               detached.Exits.Count <= 6, "generated graph detached room metadata");
+        foreach (var (direction, target) in detached!.Exits)
+            Assert(generated.TryMove(room.Id, direction, out var actual) &&
+                   actual == target && generated.TryGetRoom(target, out _),
+                "generated graph valid frozen edges");
+    }
+}
+
 // Legacy persistence extraction contract (not a MongoDB driver integration).
 var legacy = new[]
 {
