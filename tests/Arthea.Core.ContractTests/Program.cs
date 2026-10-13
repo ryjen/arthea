@@ -2,22 +2,10 @@ using Arthea.Core.World;
 
 // Dependency-free per-case harness. Runs in addition to the original smoke
 // executable; no external test packages or runtime deployment dependencies.
+var cases = new List<(string Name, Action Verify)>();
 var failures = 0;
 var executed = 0;
-void Case(string name, Action verify)
-{
-    executed++;
-    try
-    {
-        verify();
-        Console.WriteLine("PASS " + name);
-    }
-    catch (Exception ex)
-    {
-        failures++;
-        Console.Error.WriteLine("FAIL " + name + " (" + ex.GetType().Name + "): " + ex.Message);
-    }
-}
+void Case(string name, Action verify) => cases.Add((name, verify));
 static void Check(bool result)
 {
     if (!result) throw new InvalidOperationException("Contract assertion failed");
@@ -71,5 +59,31 @@ Case("safe supplementary Unicode is accepted", () =>
     });
     Check(graph.TryGetRoom("garden", out var room) && room?.Name == "Garden 🌳");
 });
+if (args.Length == 1 && args[0] == "--list")
+{
+    foreach (var item in cases) Console.WriteLine(item.Name);
+    return 0;
+}
+if (args.Length != 0 && (args.Length != 2 || args[0] != "--case" ||
+    !cases.Any(item => item.Name == args[1])))
+{
+    Console.Error.WriteLine("Usage: Arthea.Core.ContractTests [--list | --case <exact name>]");
+    return 2;
+}
+foreach (var (name, verify) in cases)
+{
+    if (args.Length == 2 && name != args[1]) continue;
+    executed++;
+    try
+    {
+        verify();
+        Console.WriteLine("PASS " + name);
+    }
+    catch (Exception ex)
+    {
+        failures++;
+        Console.Error.WriteLine("FAIL " + name + " (" + ex.GetType().Name + "): " + ex.Message);
+    }
+}
 Console.WriteLine($"Core contract cases: {executed} executed, {failures} failed.");
 return failures == 0 ? 0 : 1;
