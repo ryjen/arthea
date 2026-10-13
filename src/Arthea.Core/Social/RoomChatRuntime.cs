@@ -1,3 +1,6 @@
+using System.Buffers;
+using System.Globalization;
+using System.Text;
 using Arthea.Core.World;
 
 namespace Arthea.Core.Social;
@@ -89,7 +92,7 @@ public sealed class RoomChatRuntime
     {
         ValidateIdentity(playerId);
         if (string.IsNullOrWhiteSpace(text) || text.Length > 512 ||
-            text.Any(char.IsControl))
+            !IsSafeVisibleText(text))
             throw new ArgumentException("Message must be 1-512 characters, with no control characters.", nameof(text));
 
         lock (_gate)
@@ -121,10 +124,28 @@ public sealed class RoomChatRuntime
         _members.TryGetValue(playerId, out var p) ? p :
             throw new InvalidOperationException("Player is not present.");
 
+    // Reject invisible bidirectional formatting and malformed UTF-16 before
+    // untrusted player text reaches line-oriented or terminal clients.
+    private static bool IsSafeVisibleText(string text)
+    {
+        var remaining = text.AsSpan();
+        while (!remaining.IsEmpty)
+        {
+            if (Rune.DecodeFromUtf16(remaining, out var rune, out var consumed) != OperationStatus.Done)
+                return false;
+            var category = Rune.GetUnicodeCategory(rune);
+            if (Rune.IsControl(rune) || category is UnicodeCategory.Format or
+                UnicodeCategory.LineSeparator or UnicodeCategory.ParagraphSeparator)
+                return false;
+            remaining = remaining[consumed..];
+        }
+        return true;
+    }
+
     private static void ValidateIdentity(string playerId)
     {
         if (string.IsNullOrWhiteSpace(playerId) || playerId.Length > 128 ||
-            playerId.Any(char.IsControl))
+            !IsSafeVisibleText(playerId))
             throw new ArgumentException("Invalid player ID.", nameof(playerId));
     }
 }
