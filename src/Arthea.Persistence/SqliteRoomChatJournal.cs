@@ -22,7 +22,18 @@ public sealed class SqliteRoomChatJournal : IRoomChatJournal
         var parent = Path.GetDirectoryName(path);
         if (parent is null || !Directory.Exists(parent))
             throw new ArgumentException("Journal directory must already exist.", nameof(databasePath));
-        if (File.Exists(path) && (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+        if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+        {
+            var mode = File.GetUnixFileMode(parent);
+            var publicBits = UnixFileMode.GroupRead | UnixFileMode.GroupWrite |
+                UnixFileMode.GroupExecute | UnixFileMode.OtherRead |
+                UnixFileMode.OtherWrite | UnixFileMode.OtherExecute;
+            if ((mode & publicBits) != 0)
+                throw new UnauthorizedAccessException("Journal directory must be owner-private.");
+        }
+        // File.Exists returns false for dangling symlinks; checking LinkTarget
+        // directly prevents SQLite from following that redirection.
+        if (new FileInfo(path).LinkTarget is not null)
             throw new ArgumentException("Journal path must not be a symbolic link.", nameof(databasePath));
         _connectionString = new SqliteConnectionStringBuilder
         {
