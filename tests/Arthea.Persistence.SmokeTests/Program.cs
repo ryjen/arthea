@@ -30,6 +30,14 @@ try
     // Run identical observable journal contracts against both adapters.
     static void JournalContract(IRoomChatJournal journal, string kind)
     {
+        Reject<ArgumentException>(() => journal.LastSequence("invalid\\nroom"),
+            kind + ": rejects control characters in room identity");
+        Reject<ArgumentException>(() => journal.Replay(new string('x', 257), 0, 1),
+            kind + ": rejects oversized room identity");
+        Reject<ArgumentException>(() => journal.Append("invalid\\rroom", "alice", "bad", 2),
+            kind + ": rejects invalid room identity before write");
+        Check(journal.LastSequence("contract-a") == 0,
+            kind + ": malformed room identity cannot mutate other streams");
         Check(journal.LastSequence("contract-a") == 0, kind + ": initial sequence");
         Check(journal.Append("contract-a", "alice", "first", 2).Sequence == 1,
             kind + ": first append");
