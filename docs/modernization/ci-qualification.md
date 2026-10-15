@@ -1,6 +1,6 @@
 # Arthea CI qualification
 
-This document covers **private repository development validation only**, not release, Internet hosting, licensing clearance, or approval of historical secrets (#5).
+This document covers **modern .NET 10 pull-request development validation only**, not release, Internet hosting, licensing clearance, or approval of historical secrets (#5). Repository visibility was public as observed October 14, 2026.
 
 ## Entrypoint and reproducibility
 
@@ -12,7 +12,7 @@ Local or CI invocation (requires Nix with flakes enabled):
 nix develop .#ci --command bash scripts/verify-modern-core.sh
 ```
 
-CI uses the same command, checks the exact GitHub SHA before validation, executes all eight independent executable suites (including real loopback/TLS/GMCP socket tests), the local demo self-check, all nine Python regression tests, and current tracked-config hygiene. Historical Git secret/PII clearance and old .NET Framework application builds are **not** asserted.
+CI uses the same command, checks the exact GitHub SHA before validation, executes the repository's modern executable smoke/contract suites (including loopback/TLS/GMCP socket tests), the local demo self-check, Python regressions and current tracked-config hygiene. Historical Git secret/PII clearance and old .NET Framework application builds are **not** asserted.
 
 ## Trigger, cost and trust
 
@@ -30,4 +30,4 @@ CI does not provide an independent source/security review. Issue #12 remains ope
 
 ## Initial GitHub runner admission failure
 
-Initial PR #14 run [38321982689](https://github.com/ryjen/arthea/actions/runs/38321982689) failed in approximately 3 seconds with **zero job steps, no assigned runner (runner_id=0) and no obtainable job log**. This occurred before the Nix toolchain or tests ran. GitHub billing/spending limits, runner availability or account configuration should be reviewed in the Actions UI; **the cause is unverified**. Repeating the same run or changing security boundaries is not a diagnosis. The first pinned Nix lock also contained SDK **10.0.400**, which was a separate latent correctness defect and has now been changed to a hash-verified pinned revision shipping **10.0.401**. GitHub CI remains unqualified until a real job reaches the test step and passes.
+Initial PR #14 run [38321982689](https://github.com/ryjen/arthea/actions/runs/38321982689) failed in approximately 3 seconds with **zero job steps, no assigned runner (runner_id=0) and no obtainable job log**. This occurred before the Nix toolchain or tests ran. GitHub billing/spending limits, runner availability or account configuration should be reviewed in the Actions UI; **the cause is unverified**. Repeating the same run or changing security boundaries is not a diagnosis. The first pinned Nix lock also contained SDK **10.0.400**, which was a separate latent correctness defect and has now been changed to a hash-verified pinned revision shipping **10.0.401**. **Historical status superseded:** subsequent GitHub-hosted checks reached the test step and passed, including [PR #37 exact-head CI](https://github.com/ryjen/arthea/actions/runs/38370538842). This qualifies those modern experimental changes only, not release readiness or independent security review.
