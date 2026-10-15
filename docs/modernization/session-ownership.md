@@ -40,6 +40,22 @@ The only TLS certificate and account credentials in the test are synthetic and g
 
 **Do not expose this listener publicly** or use test certificate-pinning behavior as a production trust policy. The library lacks production TLS lifecycle, durable sessions, rate limiting, password provisioning, identity recovery, GMCP, browser/WebSocket transport, auditing, and the operational controls described in #5.
 
+## Bounded outbound writes
+
+In addition to handshake and input deadlines, every application-level TLS write
+(including the initial greeting, session response, room metadata, chat replay
+and Telnet/GMCP negotiation replies) has an independent 5-second default
+deadline. The loopback-only server exposes a validated `writeTimeout` injection
+(100 ms–24 hours) for controlled tests. A stalled receiver cannot pin a
+connection's write indefinitely; cancellation closes that connection and
+suspends its session for bounded reconnect.
+
+Each **individual write** has a deadline; this does not impose one cumulative
+deadline across a multiple-message response or add outbound bandwidth quotas.
+The socket tests validate configuration bounds and exercise regular text and
+GMCP paths, but do not constitute reproducible real-network slow-reader load
+qualification. No public listener or release authorization is implied.
+
 ## Authenticated idle and partial-command deadlines (#11)
 
 The loopback-only test transport now distinguishes TLS handshake (still 5 seconds), unauthenticated first-byte/read admission (default 15 seconds), authenticated idle time between complete commands (default 15 minutes), and an incomplete-command or unfinished GMCP/Telnet frame (default 15 seconds **from first input byte**, never extended by extra fragments). Completed Telnet negotiation frames return to the idle state, while incomplete control frames stay bound by the partial deadline. All read deadline knobs are constructor-injected for deterministic short socket tests, validated to 100 ms–24 hours; the default still fails closed and no public endpoint is enabled.

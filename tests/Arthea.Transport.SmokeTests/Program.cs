@@ -13,6 +13,12 @@ static void Check(bool value, string label)
 {
     if (!value) throw new Exception("TLS transport contract failed: " + label);
 }
+static void Reject<T>(Action action, string label) where T : Exception
+{
+    try { action(); }
+    catch (T) { return; }
+    throw new Exception("Expected " + typeof(T).Name + ": " + label);
+}
 static async Task Send(SslStream ssl, string line)
 {
     await ssl.WriteAsync(Encoding.UTF8.GetBytes(line + "\n"));
@@ -77,6 +83,13 @@ var auth = new PasswordAccountAuthenticator(new[]
     PasswordAccountAuthenticator.Provision("bob", "sample-bob-only-123!")
 });
 var sessions = new RoomSessionCoordinator(new RoomChatRuntime(rooms), auth);
+// All read/write deadline inputs must reject an unbounded or unreasonable value.
+Reject<ArgumentOutOfRangeException>(
+    () => new LoopbackTlsGameServer(sessions, certificate, writeTimeout: TimeSpan.Zero),
+    "zero outbound deadline rejected");
+Reject<ArgumentOutOfRangeException>(
+    () => new LoopbackTlsGameServer(sessions, certificate, writeTimeout: TimeSpan.FromHours(25)),
+    "unbounded outbound deadline rejected");
 await using var server = new LoopbackTlsGameServer(sessions, certificate);
 var endpoint = server.Start();
 Check(IPAddress.IsLoopback(endpoint.Address), "server only binds to loopback");

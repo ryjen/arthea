@@ -29,11 +29,12 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
     private readonly TimeSpan _preAuthReadTimeout;
     private readonly TimeSpan _authenticatedIdleTimeout;
     private readonly TimeSpan _incompleteCommandTimeout;
+    private readonly TimeSpan _writeTimeout;
 
     public LoopbackTlsGameServer(RoomSessionCoordinator sessions, X509Certificate2 certificate,
         int maxConnections = 4, bool enableTelnetGmcp = false,
         TimeSpan? preAuthReadTimeout = null, TimeSpan? authenticatedIdleTimeout = null,
-        TimeSpan? incompleteCommandTimeout = null)
+        TimeSpan? incompleteCommandTimeout = null, TimeSpan? writeTimeout = null)
     {
         _sessions = sessions ?? throw new ArgumentNullException(nameof(sessions));
         _certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
@@ -41,11 +42,12 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
             throw new ArgumentException("TLS certificate must carry a private key.", nameof(certificate));
         if (maxConnections is < 1 or > 64)
             throw new ArgumentOutOfRangeException(nameof(maxConnections));
-        _slots = new SemaphoreSlim(maxConnections, maxConnections);
         _enableTelnetGmcp = enableTelnetGmcp;
         _preAuthReadTimeout = ValidateDeadline(preAuthReadTimeout ?? TimeSpan.FromSeconds(15), nameof(preAuthReadTimeout));
         _authenticatedIdleTimeout = ValidateDeadline(authenticatedIdleTimeout ?? TimeSpan.FromMinutes(15), nameof(authenticatedIdleTimeout));
         _incompleteCommandTimeout = ValidateDeadline(incompleteCommandTimeout ?? TimeSpan.FromSeconds(15), nameof(incompleteCommandTimeout));
+        _writeTimeout = ValidateDeadline(writeTimeout ?? TimeSpan.FromSeconds(5), nameof(writeTimeout));
+        _slots = new SemaphoreSlim(maxConnections, maxConnections);
     }
 
     private static TimeSpan ValidateDeadline(TimeSpan deadline, string name)
@@ -108,7 +110,7 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
 
                 var gmcp = _enableTelnetGmcp ? new TelnetGmcpCodec() : null;
                 if (gmcp is not null)
-                    await tls.WriteAsync(TelnetGmcpCodec.OfferGmcp(), cancellation);
+                    await WriteBoundedAsync(tls, TelnetGmcpCodec.OfferGmcp(), cancellation);
                 await Send(tls, "HELLO ARTHEA-TLS/0", cancellation);
                 var initial = await Receive(tls, gmcp, null, cancellation);
                 if (initial is null) return;
@@ -204,7 +206,7 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
         var room = _sessions.RoomInfo(token); // Identity derived from authenticated bearer.
         await Send(stream, "ROOM " + room.Id, cancellation);
         if (gmcp?.EncodeRoomInfo(room) is { } bytes)
-            await stream.WriteAsync(bytes, cancellation);
+            await WriteBoundedAsync(stream, bytes, cancellation);
     }
 
     private async Task<string?> Receive(SslStream stream, TelnetGmcpCodec? gmcp,
@@ -230,12 +232,12 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
             else if (wasPartial && !isPartial) timeout.CancelAfter(idleDeadline);
             wasPartial = isPartial;
             foreach (var response in batch.Replies)
-                await stream.WriteAsync(response, timeout.Token);
+                await WriteBoundedAsync(stream, response, timeout.Token);
             if (!advertised && gmcp.SupportsRoomInfo && token is not null)
             {
                 var room = _sessions.RoomInfo(token);
                 if (gmcp.EncodeRoomInfo(room) is { } frame)
-                    await stream.WriteAsync(frame, timeout.Token);
+                    await WriteBoundedAsync(stream, frame, timeout.Token);
             }
             if (batch.Lines.Count > 0) return batch.Lines[0];
         }
@@ -267,8 +269,19 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
         return text;
     }
 
-    private static Task Send(SslStream stream, string text, CancellationToken cancellation) =>
-        stream.WriteAsync(StrictUtf8.GetBytes(text + "\n"), cancellation).AsTask();
+    private Task Send(SslStream stream, string text, CancellationToken cancellation) =>
+        WriteBoundedAsync(stream, StrictUtf8.GetBytes(text + "\n"), cancellation);
+
+    // Bound each application write independently of input/read deadlines. A peer
+    // that stops reading must not hold one of the small number of connection
+    // slots indefinitely. TLS handshake has its own earlier 5-second deadline.
+    private async Task WriteBoundedAsync(SslStream stream, ReadOnlyMemory<byte> bytes,
+        CancellationToken cancellation)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        timeout.CancelAfter(_writeTimeout);
+        await stream.WriteAsync(bytes, timeout.Token);
+    }
 
     public async ValueTask DisposeAsync()
     {
