@@ -1,3 +1,4 @@
+using Microsoft.Data.Sqlite;
 using Arthea.Core.Social;
 using Arthea.Core.World;
 using Arthea.Persistence;
@@ -69,6 +70,46 @@ try
 
     JournalContract(new InMemoryRoomChatJournal(), "memory");
     JournalContract(new SqliteRoomChatJournal(Path.Combine(path, "contract.sqlite")), "sqlite");
+
+    // An unsupported future schema must be rejected before this older adapter
+    // creates tables or changes the database journal mode.
+    var futurePath = Path.Combine(path, "future-schema.sqlite");
+    using (var future = new SqliteConnection(
+        new SqliteConnectionStringBuilder { DataSource = futurePath }.ToString()))
+    {
+        future.Open();
+        using var command = future.CreateCommand();
+        command.CommandText = """
+            PRAGMA user_version=2;
+            CREATE TABLE future_marker (value TEXT NOT NULL);
+            INSERT INTO future_marker (value) VALUES ('keep');
+            """;
+        command.ExecuteNonQuery();
+    }
+    Reject<InvalidDataException>(() => new SqliteRoomChatJournal(futurePath),
+        "unsupported schema version rejected before setup");
+    using (var future = new SqliteConnection(
+        new SqliteConnectionStringBuilder { DataSource = futurePath }.ToString()))
+    {
+        future.Open();
+        using var verify = future.CreateCommand();
+        verify.CommandText = """
+            SELECT COUNT(*) FROM sqlite_master
+            WHERE type='table' AND name IN ('room_streams', 'room_messages');
+            """;
+        Check(Convert.ToInt64(verify.ExecuteScalar()) == 0,
+            "unsupported schema rejected without creating adapter tables");
+        verify.CommandText = "PRAGMA user_version;";
+        Check(Convert.ToInt64(verify.ExecuteScalar()) == 2,
+            "unsupported schema version not changed");
+        verify.CommandText = "SELECT value FROM future_marker;";
+        Check((string?)verify.ExecuteScalar() == "keep",
+            "unsupported schema user data preserved");
+        verify.CommandText = "PRAGMA journal_mode;";
+        Check(string.Equals((string?)verify.ExecuteScalar(), "delete",
+            StringComparison.OrdinalIgnoreCase),
+            "unsupported schema journal mode remains unchanged");
+    }
 
     var store = new SqliteRoomChatJournal(db);
     if (!OperatingSystem.IsWindows())
