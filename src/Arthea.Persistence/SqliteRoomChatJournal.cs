@@ -47,6 +47,13 @@ public sealed class SqliteRoomChatJournal : IRoomChatJournal
         lock (_gate)
         {
             using var conn = Open();
+            // Verify compatibility before creating tables or switching journal mode.
+            // A newer adapter's database must not be altered by this older version.
+            using var check = conn.CreateCommand();
+            check.CommandText = "PRAGMA user_version;";
+            var schema = Convert.ToInt32(check.ExecuteScalar());
+            if (schema is not (0 or 1))
+                throw new InvalidDataException("Unsupported journal schema version.");
             using var setup = conn.CreateCommand();
             setup.CommandText = """
                 PRAGMA journal_mode=WAL;
@@ -65,11 +72,6 @@ public sealed class SqliteRoomChatJournal : IRoomChatJournal
                 """;
             setup.ExecuteNonQuery();
 
-            using var check = conn.CreateCommand();
-            check.CommandText = "PRAGMA user_version;";
-            var schema = Convert.ToInt32(check.ExecuteScalar());
-            if (schema is not (0 or 1))
-                throw new InvalidDataException("Unsupported journal schema version.");
             if (schema == 0)
             {
                 using var setVersion = conn.CreateCommand();
