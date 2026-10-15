@@ -42,12 +42,12 @@ public sealed class LoopbackTlsGameServer : IAsyncDisposable
             throw new ArgumentException("TLS certificate must carry a private key.", nameof(certificate));
         if (maxConnections is < 1 or > 64)
             throw new ArgumentOutOfRangeException(nameof(maxConnections));
-        _slots = new SemaphoreSlim(maxConnections, maxConnections);
         _enableTelnetGmcp = enableTelnetGmcp;
         _preAuthReadTimeout = ValidateDeadline(preAuthReadTimeout ?? TimeSpan.FromSeconds(15), nameof(preAuthReadTimeout));
         _authenticatedIdleTimeout = ValidateDeadline(authenticatedIdleTimeout ?? TimeSpan.FromMinutes(15), nameof(authenticatedIdleTimeout));
         _incompleteCommandTimeout = ValidateDeadline(incompleteCommandTimeout ?? TimeSpan.FromSeconds(15), nameof(incompleteCommandTimeout));
         _writeTimeout = ValidateDeadline(writeTimeout ?? TimeSpan.FromSeconds(5), nameof(writeTimeout));
+        _slots = new SemaphoreSlim(maxConnections, maxConnections);
     }
 
     private static TimeSpan ValidateDeadline(TimeSpan deadline, string name)
