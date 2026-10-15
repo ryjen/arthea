@@ -2,7 +2,7 @@
 
 **Status: INCOMPLETE. No redistribution clearance or license grant is claimed.**
 
-Tracked-file counts below reflect the current candidate tree after excluding five Aurora City game screens; the prior 203-file inventory remains documented under the October 14 checkpoint. Counts alone are not redistribution approval. The repository is already public as of the October 14 review, but independent artifact-level redistribution permission is **not** established. Do not treat visibility as clearance or silently remove/rewrite historical assets.
+Tracked-file counts below reflect the tree after excluding five Aurora City game screens; the prior 203-file inventory remains documented under the October 14 checkpoint. Counts alone are not redistribution approval. The repository is already public as of the October 14 review, but independent artifact-level redistribution permission is **not** established. Do not treat visibility as clearance or silently remove/rewrite historical assets.
 
 | Location | Tracked files | Evidence and question | Next action |
 | --- | ---: | --- | --- |
@@ -31,12 +31,12 @@ in its own accompanying documentation.
   *committed files themselves*, not a conjecture based on an upstream name.
 - The former public `main` tree contained **five** `.ANS` screen files:
   `TITLE.ANS` and `STORY1.ANS` through `STORY4.ANS`, under
-  `Game Files/Text Files/`. **This candidate revision excludes all five**
+  `Game Files/Text Files/`. **The updated tracked tree excludes all five**
   from its tracked tree, and replaces the example's attempts to read them
   with a rights notice. That reduces fresh checkout exposure, but does not
   remove any historical distribution or establish license clearance.
 
-**Disposition: current-tree exclusion proposed; historical exposure not cleared.**
+**Disposition: current-tree exclusion applied; historical exposure not cleared.**
 Treat these five content files as **restricted / permission not evidenced**
 until the rights holder's authorization or other legally sufficient basis
 is established. Do not
@@ -45,7 +45,7 @@ covers unrelated game materials. The current repository is already public;
 removing these files from the working tree alone would **not** erase copies in
 Git history, GitHub-managed PR refs, caches or external clones. Publication
 remediation needs an explicit owner decision addressing both current content
-and retained history. In this proposed candidate, the five files are deleted only from the **new
+and retained history. In the updated tree, the five files are deleted only from the **new
 Git commit tree**; no prior commit objects, server-managed PR refs or historical
 snapshots have been rewritten.
 
@@ -79,8 +79,8 @@ No library was relicensed, removed, or declared cleared in this checkpoint.
 
 ## Automated current-tree checkpoint — October 14, 2026 (Pacific)
 
-Before the five-file exclusion proposed above, the historical inventory counted
-203 tracked vendor files, including 123 in Thought-Terminals. This candidate
+Before the five-file exclusion above, the historical inventory counted
+203 tracked vendor files, including 123 in Thought-Terminals. The updated tree
 contains **198** tracked vendor files, including **118** in Thought-Terminals;
 one license-named file remains. The figures below are retained as the
 **October 14 pre-exclusion record**, not described as the current result.
