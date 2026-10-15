@@ -29,7 +29,7 @@ The original Visual Studio 2010-era solutions and vendored libraries are retaine
 
 ## Security and provenance
 
-**The repository is already public; do not deploy the original server or treat publication as security clearance.** Legacy code handles passwords insecurely and includes a plaintext Telnet login path. Before the October 2026 history rewrite, commits contained embedded database credentials and a deleted SQL dump. The two Git branch histories were scrubbed, but old clones, pull-request refs, GitHub caches, and provider credentials require separate follow-up. Third-party dependency licensing also needs review.
+**The repository is already public; do not deploy the original server or treat publication as security clearance.** Legacy code handles passwords insecurely and includes a plaintext Telnet login path. Before the October 2026 history rewrite, commits contained embedded database credentials and a deleted SQL dump. The two Git branch histories were scrubbed, but old clones, pull-request refs, GitHub caches, and provider credentials require separate follow-up. Third-party dependency licensing also needs review. In particular, a bundled Aurora City sample expressly reserves redistribution rights for its five game screens; see the [third-party inventory](docs/modernization/third-party-inventory.md). No redistribution permission for those screens has been verified.
 
 The modern experiments are not production-hardening guarantees. Before any publication or public network use, the historical secrets, licenses, authentication, transport and operational risks need independent review. Current configuration and audit tools cover only their documented scope.
 
