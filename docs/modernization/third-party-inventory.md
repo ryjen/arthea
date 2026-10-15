@@ -6,14 +6,42 @@ Historical baseline from the tracked file tree of draft PR #6 and a bounded revi
 
 | Location | Tracked files | Evidence and question | Next action |
 | --- | ---: | --- | --- |
-| `ThirdParty/Thought-Terminals/` | 123 | Historical source, tests, examples, documentation; copyright attribution in ReadMe. No local license-named file found. | Identify version and authoritative redistribution terms; review bundled sample art/content. |
-| `ThirdParty/Thought-Net-Telnet/` | 65 | Source, binaries, samples; contains an LGPL license text. That alone does **not** prove every file is covered or obligations are met. | Confirm upstream license association, copyright notices, modifications and LGPL notices/requirements. |
+| `ThirdParty/Thought-Terminals/` | 123 | Source README and assembly metadata identify **version 0.1.1**, David Pinch (2007–2009). `FILE_ID.DIZ` describes open source but cautions against general distribution; no license-named file identified. **No precise redistribution grant established.** | Locate an authoritative license/grant for version 0.1.1; verify separately vendored DLL and sample art/content. |
+| `ThirdParty/Thought-Net-Telnet/` | 65 | Included source explicitly identifies version **0.2**, David Pinch (2007), and **LGPL-2.1-or-later**; the matching LGPL 2.1 license text is committed under the source project. Binary-to-source equivalence and notice obligations are not yet verified. | Verify the separately vendored DLL against this source/version; confirm modifications, copyright notices, distribution conditions and source obligations. |
 | `ThirdParty/Jint/` | 5 | Historic Jint and Antlr binaries/debug symbols; no local license found. | Identify provenance, versions and exact license obligations; replace or remove obsolete binaries where possible. |
 | `ThirdParty/MongoDB/` | 2 | Historic MongoDB .NET driver binaries without adjacent license. | Confirm binary versions and redistributable rights; prefer supported package reference in new adapter. |
 | `ThirdParty/NLog.dll` | 1 | Historic logger binary without adjacent license. | Confirm upstream provenance/version/license; replace with supported package or platform logging. |
 | `ArtheaEngine.Tests/ThirdParty/NUnit/` | 2 | NUnit test assemblies without adjacent license. | Replace vendored binary test harness; separately assess source/history redistribution. |
 | `ArtheaServer/Libraries/` | 1 | Microsoft task scheduler binary. | Determine original distribution terms; isolate or remove obsolete scheduling integration. |
 | `ArtheaServer/ThirdParty/` | 4 | Additional vendored Thought.Net/Thought.Terminals binaries and notes. | Verify duplicates, source/binary consistency, redistribution requirements. |
+
+## Source-level license evidence — October 15, 2026
+
+The tracked source is stronger evidence than an assumed license based on the
+library's name, but it does **not** establish the provenance of separately
+bundled DLLs:
+
+- **Thought.Net.Telnet**: `ThirdParty/Thought-Net-Telnet/Solution/Thought.Net.Telnet/ReadMe.txt`
+  names David Pinch and version 0.2 and explicitly grants GNU Lesser General
+  Public License **2.1 or later**. The matching
+  `Solution/Thought.Net.Telnet/License.txt` contains LGPL version 2.1;
+  `Properties/AssemblyInfo.cs` reports assembly version `0.2.0.0`.
+  `ArtheaServer/ThirdParty/Thought.Net.Telnet/Release/Thought.Net.Telnet.dll`
+  is a **separate binary** requiring independent hash/version/build matching.
+  Source-level identification is **not completed binary provenance**.
+- **Thought.Terminals**: `ThirdParty/Thought-Terminals/ReadMe.txt` names David
+  Pinch, and `Solution/Thought.Terminals/AssemblyInfo.cs` declares version
+  `0.1.1.0`. `FILE_ID.DIZ` claims "free and open source" while also stating
+  "not intended for general distribution." These descriptive statements are
+  **not a specific verifiable redistribution license**. Until a grant is
+  located, keep source, samples, and the separately bundled
+  `ArtheaServer/ThirdParty/Thought.Terminals/Release/Thought.Terminals.dll`
+  in the *unresolved* category.
+
+Use the optional committed `--sha256-jsonl` inventory to verify artifacts
+against authoritative releases if available. Do not substitute a reconstructed
+version number, source tree, or unrelated fork's license for that verification.
+No library was relicensed, removed, or declared cleared in this checkpoint.
 
 ## Automated current-tree checkpoint — October 14, 2026 (Pacific)
 
