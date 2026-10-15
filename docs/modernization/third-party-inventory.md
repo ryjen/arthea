@@ -15,6 +15,37 @@ Historical baseline from the tracked file tree of draft PR #6 and a bounded revi
 | `ArtheaServer/Libraries/` | 1 | Microsoft task scheduler binary. | Determine original distribution terms; isolate or remove obsolete scheduling integration. |
 | `ArtheaServer/ThirdParty/` | 4 | Additional vendored Thought.Net/Thought.Terminals binaries and notes. | Verify duplicates, source/binary consistency, redistribution requirements. |
 
+## Explicitly restricted sample game screens — October 15, 2026
+
+**Separate, stronger finding than the library's unresolved license:** The
+committed `ThirdParty/Thought-Terminals/Samples/Aurora City/` package contains
+sample **game artwork/text screens** subject to explicit redistribution limits
+in its own accompanying documentation.
+
+- `Aurora/ReadMe.txt` identifies David Pinch's 1996–2009 copyright and
+  distinguishes the example's game screens from any LGPL treatment of code:
+  the screens are **outside the LGPL**.
+- `Game Files/ReadMe.txt` separately states David Pinch's 1996–2007
+  all-rights-reserved claim and requires **explicit permission** to
+  distribute the game materials. These are rights assertions in the
+  *committed files themselves*, not a conjecture based on an upstream name.
+- The current public `main` tree contains **five** `.ANS` screen files:
+  `TITLE.ANS` and `STORY1.ANS` through `STORY4.ANS`, under
+  `Game Files/Text Files/`. The original `Aurora/Program.cs` reads those
+  screens as demonstration content. Their presence in a downloadable sample
+  archive is **not itself proof that Arthea has redistribution permission**.
+
+**Disposition: action required, not cleared.** Treat these five content
+files as **restricted / permission not evidenced** until the rights holder's
+authorization or other legally sufficient basis is established. Do not
+assume a source-code license, library DLL license, or “open source” label
+covers unrelated game materials. The current repository is already public;
+removing these files from the working tree alone would **not** erase copies in
+Git history, GitHub-managed PR refs, caches or external clones. Publication
+remediation needs an explicit owner decision addressing both current content
+and retained history. No file was deleted, relicensed, hidden, or rewritten
+during this evidence-only change.
+
 ## Source-level license evidence — October 15, 2026
 
 The tracked source is stronger evidence than an assumed license based on the
