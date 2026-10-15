@@ -15,6 +15,25 @@ Historical baseline from the tracked file tree of draft PR #6 and a bounded revi
 | `ArtheaServer/Libraries/` | 1 | Microsoft task scheduler binary. | Determine original distribution terms; isolate or remove obsolete scheduling integration. |
 | `ArtheaServer/ThirdParty/` | 4 | Additional vendored Thought.Net/Thought.Terminals binaries and notes. | Verify duplicates, source/binary consistency, redistribution requirements. |
 
+## Automated current-tree checkpoint — October 14, 2026 (Pacific)
+
+The read-only `tools/inventory_third_party.py` runs as part of
+`scripts/verify-modern-core.sh`, and its unit tests passed in
+[exact-head CI for PR #39](https://github.com/ryjen/arthea/actions/runs/38695986010).
+Its output covered **203 currently tracked files across the eight vendor groups**
+and only **one license-named file** (under `ThirdParty/Thought-Net-Telnet/`).
+These counts agree with the preliminary group sizes above, but the current-tree
+snapshot is **not** an origin, license-content, copyright or historic-ref audit.
+
+```sh
+python3 tools/inventory_third_party.py
+```
+
+The command prints group-level counts only. A license-named file need not cover
+every artifact in its group, and absence of one does not prove that an upstream
+license is missing. The public repository still requires independent provenance
+and redistribution review; no automatic publishing or deletion is authorized.
+
 ## Source/history implications
 
 - Public repository visibility may expose **reachable historic commits and cached pull-request/clone objects**, not only files remaining at HEAD. The scrubbed branch history alone cannot retract previously cached objects.
