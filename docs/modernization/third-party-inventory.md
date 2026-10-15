@@ -2,7 +2,7 @@
 
 **Status: INCOMPLETE. No redistribution clearance or license grant is claimed.**
 
-Inventory based on the tracked file tree of draft PR #6 and a bounded review of license-named files. Retain the repository private until an independent provenance review is complete.
+Historical baseline from the tracked file tree of draft PR #6 and a bounded review of license-named files; counts are not a refreshed October 2026 inventory. The repository is already public as of the October 14 review, but independent artifact-level redistribution permission is **not** established. Do not treat visibility as clearance or silently remove/rewrite historical assets.
 
 | Location | Tracked files | Evidence and question | Next action |
 | --- | ---: | --- | --- |
@@ -17,7 +17,7 @@ Inventory based on the tracked file tree of draft PR #6 and a bounded review of 
 
 ## Source/history implications
 
-- Public repository visibility reveals **all reachable historic commits**, not only files remaining at HEAD.
+- Public repository visibility may expose **reachable historic commits and cached pull-request/clone objects**, not only files remaining at HEAD. The scrubbed branch history alone cannot retract previously cached objects.
 - Removing DLLs/source from a current branch will not remove them from Git history. If a file cannot be redistributed, preserving original history in the *public* Git graph may be impossible. Preserve a private archival backup before any scoped rewrite decision.
 - Review author ownership of Arthea-specific code and assets before choosing a top-level license.
 - Do not conflate a vendored dependency's license with an automatic license for the whole repository.

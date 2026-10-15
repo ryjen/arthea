@@ -1,6 +1,6 @@
 # Arthea publication readiness
 
-**Current status: BLOCKED. Keep the source private and do not expose the legacy game or web app publicly.**
+**Publication/deployment qualification: BLOCKED.** As observed October 14, 2026, the repository is already **public**. Public visibility is not evidence of permission, historic secret revocation or safe deployment. Do not deploy the legacy game or web app; any visibility change requires separate owner authorization.
 
 This is a scoped risk inventory, not a security certification. Modernization stays in the existing repository, preserving Git history where safe.
 
@@ -10,12 +10,12 @@ This is a scoped risk inventory, not a security certification. Modernization sta
 - Telnet authentication stores and compares raw password bytes without TLS.
 - The old ASP.NET web configuration enables debugging and detailed error output.
 - Vendored ThirdParty binaries, source, samples and licenses have not been fully audited.
-- No supported modern .NET build/test/release pipeline is verified.
+- Modern .NET 10 experimental CI has passed exact-head pull-request checks (e.g. [PR #37](https://github.com/ryjen/arthea/actions/runs/38370538842)); the original .NET Framework server and any public release/deployment pipeline remain unqualified.
 
 ## Initial configuration hygiene slice
 
-- Remove connection strings from the three currently tracked application configs.
-- Require ARTHEA_MONGODB_URI from the environment and fail closed if empty or lacking a database name.
+- The three tracked legacy application configs were sanitized at current tree (verified by the bounded config hygiene test); this does not resolve earlier Git exposure.
+- Modernized configuration requires ARTHEA_MONGODB_URI from the environment rather than source-controlled credentials.
 - Ignore local environment/override files and document isolation requirements.
 
 **This does not remove historic credentials, revoke them, fix the login protocol, or clear the repository for public visibility.**
