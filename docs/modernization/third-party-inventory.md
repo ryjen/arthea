@@ -2,11 +2,11 @@
 
 **Status: INCOMPLETE. No redistribution clearance or license grant is claimed.**
 
-Historical baseline from the tracked file tree of draft PR #6 and a bounded review of license-named files; counts are not a refreshed October 2026 inventory. The repository is already public as of the October 14 review, but independent artifact-level redistribution permission is **not** established. Do not treat visibility as clearance or silently remove/rewrite historical assets.
+Tracked-file counts below reflect the tree after excluding five Aurora City game screens; the prior 203-file inventory remains documented under the October 14 checkpoint. Counts alone are not redistribution approval. The repository is already public as of the October 14 review, but independent artifact-level redistribution permission is **not** established. Do not treat visibility as clearance or silently remove/rewrite historical assets.
 
 | Location | Tracked files | Evidence and question | Next action |
 | --- | ---: | --- | --- |
-| `ThirdParty/Thought-Terminals/` | 123 | Source README and assembly metadata identify **version 0.1.1**, David Pinch (2007–2009). `FILE_ID.DIZ` describes open source but cautions against general distribution; no license-named file identified. **No precise redistribution grant established.** | Locate an authoritative license/grant for version 0.1.1; verify separately vendored DLL and sample art/content. |
+| `ThirdParty/Thought-Terminals/` | 118 | Source README and assembly metadata identify **version 0.1.1**, David Pinch (2007–2009). `FILE_ID.DIZ` describes open source but cautions against general distribution; no license-named file identified. **No precise redistribution grant established.** | Locate an authoritative license/grant for version 0.1.1; verify separately vendored DLL and sample art/content. |
 | `ThirdParty/Thought-Net-Telnet/` | 65 | Included source explicitly identifies version **0.2**, David Pinch (2007), and **LGPL-2.1-or-later**; the matching LGPL 2.1 license text is committed under the source project. Binary-to-source equivalence and notice obligations are not yet verified. | Verify the separately vendored DLL against this source/version; confirm modifications, copyright notices, distribution conditions and source obligations. |
 | `ThirdParty/Jint/` | 5 | Historic Jint and Antlr binaries/debug symbols; no local license found. | Identify provenance, versions and exact license obligations; replace or remove obsolete binaries where possible. |
 | `ThirdParty/MongoDB/` | 2 | Historic MongoDB .NET driver binaries without adjacent license. | Confirm binary versions and redistributable rights; prefer supported package reference in new adapter. |
@@ -29,22 +29,25 @@ in its own accompanying documentation.
   all-rights-reserved claim and requires **explicit permission** to
   distribute the game materials. These are rights assertions in the
   *committed files themselves*, not a conjecture based on an upstream name.
-- The current public `main` tree contains **five** `.ANS` screen files:
+- The former public `main` tree contained **five** `.ANS` screen files:
   `TITLE.ANS` and `STORY1.ANS` through `STORY4.ANS`, under
-  `Game Files/Text Files/`. The original `Aurora/Program.cs` reads those
-  screens as demonstration content. Their presence in a downloadable sample
-  archive is **not itself proof that Arthea has redistribution permission**.
+  `Game Files/Text Files/`. **The updated tracked tree excludes all five**
+  from its tracked tree, and replaces the example's attempts to read them
+  with a rights notice. That reduces fresh checkout exposure, but does not
+  remove any historical distribution or establish license clearance.
 
-**Disposition: action required, not cleared.** Treat these five content
-files as **restricted / permission not evidenced** until the rights holder's
-authorization or other legally sufficient basis is established. Do not
+**Disposition: current-tree exclusion applied; historical exposure not cleared.**
+Treat these five content files as **restricted / permission not evidenced**
+until the rights holder's authorization or other legally sufficient basis
+is established. Do not
 assume a source-code license, library DLL license, or “open source” label
 covers unrelated game materials. The current repository is already public;
 removing these files from the working tree alone would **not** erase copies in
 Git history, GitHub-managed PR refs, caches or external clones. Publication
 remediation needs an explicit owner decision addressing both current content
-and retained history. No file was deleted, relicensed, hidden, or rewritten
-during this evidence-only change.
+and retained history. In the updated tree, the five files are deleted only from the **new
+Git commit tree**; no prior commit objects, server-managed PR refs or historical
+snapshots have been rewritten.
 
 ## Source-level license evidence — October 15, 2026
 
@@ -75,6 +78,12 @@ version number, source tree, or unrelated fork's license for that verification.
 No library was relicensed, removed, or declared cleared in this checkpoint.
 
 ## Automated current-tree checkpoint — October 14, 2026 (Pacific)
+
+Before the five-file exclusion above, the historical inventory counted
+203 tracked vendor files, including 123 in Thought-Terminals. The updated tree
+contains **198** tracked vendor files, including **118** in Thought-Terminals;
+one license-named file remains. The figures below are retained as the
+**October 14 pre-exclusion record**, not described as the current result.
 
 The read-only `tools/inventory_third_party.py` runs as part of
 `scripts/verify-modern-core.sh`, and its unit tests passed in
