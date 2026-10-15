@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Inventory tracked vendored file paths without reading their contents.
+"""Inventory vendored file paths; optionally fingerprint committed blob bytes.
 
-Filename evidence is not a license grant, vulnerability assessment, or review
-of historic commits, external clones and GitHub-managed references.
+Hashes and filename evidence are not license grants, vulnerability assessments,
+or reviews of historic commits, external clones or GitHub-managed references.
 """
 from collections import Counter
+import hashlib
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -61,7 +63,59 @@ def tracked_paths(repo=ROOT):
     )
     return [os.fsdecode(entry) for entry in raw.split(b"\0") if entry]
 
+def committed_fingerprints(repo=ROOT):
+    """SHA-256 of HEAD's regular tracked vendor blobs, not working-tree files.
+
+    Symlinks and submodules are excluded rather than followed. Any oversized
+    artifact aborts the manifest instead of silently claiming completeness.
+    """
+    raw = subprocess.check_output(
+        ["git", "-C", str(repo), "ls-tree", "-r", "-z", "HEAD", "--", *SCOPED_ROOTS],
+        stderr=subprocess.DEVNULL,
+    )
+    entries = []
+    for entry in raw.split(b"\0"):
+        if not entry:
+            continue
+        metadata, encoded_path = entry.split(b"\t", 1)
+        mode, kind, oid = metadata.decode("ascii").split(" ")
+        path = os.fsdecode(encoded_path)
+        group = group_for(path)
+        if group is None or kind != "blob" or mode == "120000":
+            continue
+        size = int(subprocess.check_output(
+            ["git", "-C", str(repo), "cat-file", "-s", oid],
+            stderr=subprocess.DEVNULL,
+        ))
+        if size > 16_000_000:
+            raise ValueError("Oversized tracked vendor blob prevents a complete manifest.")
+        contents = subprocess.check_output(
+            ["git", "-C", str(repo), "cat-file", "blob", oid],
+            stderr=subprocess.DEVNULL,
+        )
+        if len(contents) != size:
+            raise ValueError("Vendor blob size mismatch.")
+        entries.append({
+            "group": group,
+            "path": path,
+            "bytes": size,
+            "sha256": hashlib.sha256(contents).hexdigest(),
+        })
+    return entries
+
 def main():
+    if len(sys.argv) == 2 and sys.argv[1] == "--sha256-jsonl":
+        try:
+            rows = committed_fingerprints()
+        except (OSError, subprocess.CalledProcessError, ValueError):
+            print("Could not fingerprint all supported tracked vendor blobs.", file=sys.stderr)
+            return 2
+        for row in rows:
+            print(json.dumps(row, sort_keys=True))
+        return 0
+    if len(sys.argv) != 1:
+        print("Usage: inventory_third_party.py [--sha256-jsonl]", file=sys.stderr)
+        return 2
     try:
         counts, notices = summarize(tracked_paths())
     except (OSError, subprocess.CalledProcessError):

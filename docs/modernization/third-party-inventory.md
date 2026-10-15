@@ -34,6 +34,27 @@ every artifact in its group, and absence of one does not prove that an upstream
 license is missing. The public repository still requires independent provenance
 and redistribution review; no automatic publishing or deletion is authorized.
 
+## Exact artifact fingerprinting (optional)
+
+`python3 tools/inventory_third_party.py --sha256-jsonl` emits one JSON object per
+regular tracked vendor blob in **HEAD**, with its vendor group, repository path,
+size and SHA-256 digest. It uses Git's committed blob rather than potentially
+modified working-tree bytes, excludes symlinks and submodules, and errors rather
+than silently skipping an oversized regular blob (16 MB ceiling per artifact).
+The ordinary, inexpensive CI inventory still prints only category counts.
+
+Use a locally retained fingerprint report to compare a *specific* vendored
+binary/source snapshot with an independently retrieved upstream release, rather
+than assigning licenses from filenames or product names. Hashes identify bytes;
+they do not prove who authored them or that public redistribution is permitted.
+No artifact uploads or third-party network queries occur in this command.
+
+An [older public Jint source fork](https://github.com/ImagineLearning/Jint)
+contains a BSD-2-Clause license, but it is only an **unmatched candidate** for
+provenance research. Without a corresponding version and verified artifact
+fingerprint, **do not attribute that license** to `ThirdParty/Jint/` binaries
+or their bundled Antlr components.
+
 ## Source/history implications
 
 - Public repository visibility may expose **reachable historic commits and cached pull-request/clone objects**, not only files remaining at HEAD. The scrubbed branch history alone cannot retract previously cached objects.
