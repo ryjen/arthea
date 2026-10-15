@@ -107,7 +107,7 @@ Git revision. Git object equality is **not** an external version match or a
 license conclusion. Use `--sha256-jsonl` for an artifact digest when comparing
 against a separately authenticated release.
 
-**Triage order:** Prioritize the unlicensed/unmatched
+**Triage order:** Prioritize the license-unverified
 `Thought.Terminals` source, samples and binary, followed by the remaining
 binary exact-match work. Do not accept the historical “free and open source”
 description as a grant when `FILE_ID.DIZ` also cautions against general
