@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Inventory tracked vendored file paths without reading their contents.
+"""Inventory vendored file paths; optionally fingerprint committed blob bytes.
 
-Filename evidence is not a license grant, vulnerability assessment, or review
-of historic commits, external clones and GitHub-managed references.
+Hashes and filename evidence are not license grants, vulnerability assessments,
+or reviews of historic commits, external clones or GitHub-managed references.
 """
 from collections import Counter
 import hashlib
