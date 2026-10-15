@@ -83,6 +83,38 @@ provenance research. Without a corresponding version and verified artifact
 fingerprint, **do not attribute that license** to `ThirdParty/Jint/` binaries
 or their bundled Antlr components.
 
+## Unmatched upstream license leads — October 15, 2026
+
+The sources below are **original-project references for further research**,
+not evidence that the *committed Arthea DLL* was distributed under that license.
+No source-to-binary match, exact package version, provenance chain, or historical
+license continuity has been established for these artifacts. Do **not** move
+any group into a redistributable/cleared category based on this table.
+
+| Arthea artifact(s) | Upstream evidence located | Still required before an artifact-level decision |
+| --- | --- | --- |
+| `ThirdParty/Jint/{Debug,Release}/Antlr3.Runtime.dll` | [ANTLR 3 official license](https://www.antlr3.org/license.html) documents BSD-style redistribution conditions; the [ANTLR C# target repository](https://github.com/antlr/antlrcs) identifies `Antlr3.Runtime` as a C# deliverable. | Determine the exact historic C# runtime version/build; match committed SHA-256 to a trustworthy release artifact and preserve applicable notices. This license **does not** cover the separately bundled `Jint.dll` by association. |
+| `ArtheaEngine.Tests/ThirdParty/NUnit/{nunit.framework,nunit-console-runner}.dll` | [NUnit 2.5's original license](https://docs.nunit.org/2.5/license.html) describes redistribution and acknowledgment requirements for that documented release. | Identify each vendored DLL's actual NUnit major/minor version, match upstream artifacts, and establish the **version-specific** license and notice obligations. Do not claim these files are NUnit 2.5 merely because that license is available. |
+| `ThirdParty/NLog.dll` | The [NLog project license](https://github.com/NLog/NLog/blob/master/LICENSE.txt) has BSD-style attribution/redistribution conditions. | Match the legacy DLL's version/hash to a contemporaneous release and applicable historical license text, then retain required notices. |
+| `ArtheaServer/Libraries/Microsoft.Win32.TaskScheduler.dll` | The [TaskScheduler Managed Wrapper project](https://github.com/dahall/TaskScheduler) identifies the assembly name; its [upstream license](https://github.com/dahall/TaskScheduler/blob/master/license.md) is MIT. | Identify the vendored wrapper's exact origin, version and binary hash. A current project license is **not** automatic proof of the historical file's grant. |
+| `ThirdParty/MongoDB/{MongoDB.Bson,MongoDB.Driver}.dll` | The [MongoDB C# driver source project](https://github.com/mongodb/mongo-csharp-driver) is a candidate; its current driver source headers reference Apache-2.0. | Establish which historical package/version these DLLs came from, whether the candidate source corresponds to those bytes and what redistribution notices were applicable at the time. |
+
+**Scoped duplicate finding:** GitHub's committed tree records the exact **same
+Git blob object ID** (`f96710c1fb3cdd251ec1880e3e02f056c336f57b`)
+for the `Debug/Antlr3.Runtime.dll` and `Release/Antlr3.Runtime.dll` entries
+within `ThirdParty/Jint/`. They are byte-identical *to each other* in this
+Git revision. Git object equality is **not** an external version match or a
+license conclusion. Use `--sha256-jsonl` for an artifact digest when comparing
+against a separately authenticated release.
+
+**Triage order:** Prioritize the unlicensed/unmatched
+`Thought.Terminals` source, samples and binary, followed by the remaining
+binary exact-match work. Do not accept the historical “free and open source”
+description as a grant when `FILE_ID.DIZ` also cautions against general
+distribution. Retain the current archive and history pending an explicitly
+authorized publication/rights disposition; **do not silently delete vendor
+files or rewrite already-public history**.
+
 ## Source/history implications
 
 - Public repository visibility may expose **reachable historic commits and cached pull-request/clone objects**, not only files remaining at HEAD. The scrubbed branch history alone cannot retract previously cached objects.
