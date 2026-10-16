@@ -134,6 +134,22 @@ Check(oversizedClosed, "oversized TLS command is rejected");
 oversized.Ssl.Dispose();
 oversized.Socket.Dispose();
 
+// No newline is needed for the command-length ceiling to fail closed.
+// A slow/hostile TLS client cannot make the bounded MemoryStream grow
+// indefinitely merely by withholding a terminator.
+const int MaxPlainCommandBytes = 1024;
+var unterminated = await Connect(endpoint, certificate);
+await unterminated.Ssl.WriteAsync(
+    Encoding.ASCII.GetBytes(new string('x', MaxPlainCommandBytes + 1)));
+var unterminatedClosed = false;
+try { _ = await Read(unterminated.Ssl); }
+catch (Exception e) when (e is IOException ||
+    e.Message == "Unexpected connection closure.") { unterminatedClosed = true; }
+Check(unterminatedClosed,
+    "overlong plain TLS input closes without requiring newline");
+unterminated.Ssl.Dispose();
+unterminated.Socket.Dispose();
+
 // Invalid UTF-8 in a pre-auth plaintext command must never reach the
 // password challenge or create a player session. No live game credentials.
 var invalidUtf8Plain = await Connect(endpoint, certificate);
@@ -240,7 +256,8 @@ await using var timedGmcpServer = new LoopbackTlsGameServer(timedGmcpSessions, c
     enableTelnetGmcp: true, preAuthReadTimeout: TimeSpan.FromSeconds(3),
     authenticatedIdleTimeout: TimeSpan.FromSeconds(3),
     incompleteCommandTimeout: TimeSpan.FromMilliseconds(150));
-var timedGmcp = await ConnectTelnet(timedGmcpServer.Start(), certificate);
+var timedGmcpEndpoint = timedGmcpServer.Start();
+var timedGmcp = await ConnectTelnet(timedGmcpEndpoint, certificate);
 await timedGmcp.Stream.WriteAsync(new byte[] { 255, 253, 201 });
 await Login(timedGmcp.Stream, "alice", "sample-alice-only-123!");
 await Task.Delay(450);
@@ -251,6 +268,25 @@ await Send(timedGmcp.Stream, "QUIT");
 Check(await Read(timedGmcp.Stream) == "BYE", "Telnet idle test logs out");
 timedGmcp.Stream.Dispose();
 timedGmcp.Socket.Dispose();
+
+// A valid TLS/Telnet connection must not keep a slot forever by starting
+// an unfinished GMCP frame and withholding its IAC SE terminator.
+// The fixed incomplete-frame budget applies independently of the much
+// longer authenticated-idle deadline.
+var unfinishedFrame = await ConnectTelnet(timedGmcpEndpoint, certificate);
+await unfinishedFrame.Stream.WriteAsync(
+    new byte[] { TelnetGmcpCodec.Iac, TelnetGmcpCodec.Do, TelnetGmcpCodec.Gmcp });
+await Login(unfinishedFrame.Stream, "alice", "sample-alice-only-123!");
+await unfinishedFrame.Stream.WriteAsync(
+    new byte[] { TelnetGmcpCodec.Iac, TelnetGmcpCodec.Sb, TelnetGmcpCodec.Gmcp });
+await Task.Delay(450);
+var unfinishedClosed = false;
+try { _ = await Read(unfinishedFrame.Stream); }
+catch (Exception e) when (e is IOException ||
+    e.Message == "Unexpected connection closure.") { unfinishedClosed = true; }
+Check(unfinishedClosed, "unfinished Telnet/GMCP frame is bounded by partial deadline");
+unfinishedFrame.Stream.Dispose();
+unfinishedFrame.Socket.Dispose();
 
 var structured = await ConnectTelnet(telnetEndpoint, certificate);
 await structured.Stream.WriteAsync(new byte[] { 255, 253, 201 });
