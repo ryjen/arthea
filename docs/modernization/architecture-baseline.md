@@ -95,6 +95,18 @@ protected `master` remain unchanged. Existing new-runtime movement/replay
 tests do **not** prove old-runtime parity. No public deployment or data
 import is authorized.
 
+## Modern topology-editing decision
+
+[Immutable topology ADR](immutable-topology-decision.md) records the bounded
+review after the original two-way exit-editor characterization. The modern
+`RoomGraph` is a validated, defensively copied, read-only graph; no modern
+editor or live graph-replacement consumer exists. **No mutable two-way exit API
+is authorized or needed at present.** Reciprocal exits are two explicit
+directed edges, one-way exits remain valid, and invalid candidate graphs fail
+construction without altering an existing snapshot. A future offline editor
+would require a separate versioned publication and persistence decision before
+any active runtime could observe a replacement.
+
 ## Legacy room projection boundary
 
 The original `Room.Exits` is keyed by `Direction`, while each `Exit` also has a `Direction` field and destination object/`ToRoomRef`. In `ArtheaServer/Creation/ExitsEditor.cs` the **`link`** path adds an exit to the dictionary without assigning `Exit.Direction`; the **`build`** and **`add`** paths set it. Therefore migration reads the dictionary key as the authoritative travel direction and does not infer reverse edges unless they actually exist.
