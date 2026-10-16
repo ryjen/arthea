@@ -47,7 +47,13 @@ Git history, GitHub-managed PR refs, caches or external clones. Publication
 remediation needs an explicit owner decision addressing both current content
 and retained history. In the updated tree, the five files are deleted only from the **new
 Git commit tree**; no prior commit objects, server-managed PR refs or historical
-snapshots have been rewritten.
+snapshots have been rewritten. Specifically, GitHub's verified current
+**public `master` tree still contains all five screens**. The scrubbed
+legacy master snapshot is not a license-cleared distribution. A normal
+`main` checkout is clear of these files, but an ordinary clone or checkout
+of `master` can still retrieve them. The dedicated current-tree publication
+hygiene check applies to the checked-out `HEAD` in modern CI only; it does
+not scan `master`, other refs, past commits or externally retained copies.
 
 ## Source-level license evidence — October 15, 2026
 
