@@ -56,6 +56,24 @@ The socket tests validate configuration bounds and exercise regular text and
 GMCP paths, but do not constitute reproducible real-network slow-reader load
 qualification. No public listener or release authorization is implied.
 
+## Malformed UTF-8 at the TLS command boundary
+
+The loopback socket contract suite now sends an **invalid UTF-8 byte sequence**
+through both modes: a plain-line `LOGIN` command before authentication,
+and a Telnet-enabled `SAY` command after successful authentication.
+These cases exercise the actual `SslStream` receive path, not just the
+detached framing codec. The offending connection must close without a
+password prompt or accepted command. A subsequent valid login proves that
+pre-auth rejection does not reserve an identity, while a disconnected
+authenticated client can resume only with its existing bearer and receive
+a rotated token without losing its room assignment. No credential or bearer
+value is included in the test logs.
+
+This checks a **specific fail-closed decode boundary**, not rate limiting,
+certificate lifecycle, brute-force resistance, network fuzzing, full
+stream-cancellation safety, old Telnet server behavior, or a deployment gate.
+The original Framework source and its insecure listener remain unqualified.
+
 ## Authenticated idle and partial-command deadlines (#11)
 
 The loopback-only test transport now distinguishes TLS handshake (still 5 seconds), unauthenticated first-byte/read admission (default 15 seconds), authenticated idle time between complete commands (default 15 minutes), and an incomplete-command or unfinished GMCP/Telnet frame (default 15 seconds **from first input byte**, never extended by extra fragments). Completed Telnet negotiation frames return to the idle state, while incomplete control frames stay bound by the partial deadline. All read deadline knobs are constructor-injected for deterministic short socket tests, validated to 100 ms–24 hours; the default still fails closed and no public endpoint is enabled.
