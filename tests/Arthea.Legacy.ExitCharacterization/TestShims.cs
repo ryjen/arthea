@@ -16,6 +16,10 @@ namespace ArtheaEngine.Model
     {
         private static readonly Dictionary<string, Room> Registered =
             new(StringComparer.Ordinal);
+        private static readonly List<Room> Constructed = new();
+
+        public Room() => Constructed.Add(this);
+        public static IReadOnlyList<Room> CreatedRooms => Constructed;
 
         public string Id { get; set; } = "new-room";
         public string Name { get; set; } = "New room";
@@ -24,7 +28,11 @@ namespace ArtheaEngine.Model
         public static void Register(Room room) => Registered.Add(room.Id, room);
         public static Room Lookup(string id) =>
             Registered.TryGetValue(id, out var room) ? room : null;
-        public static void Clear() => Registered.Clear();
+        public static void Clear()
+        {
+            Registered.Clear();
+            Constructed.Clear();
+        }
     }
 }
 
@@ -41,10 +49,19 @@ namespace ArtheaEngine
         public static bool Is(this string value, string expected) =>
             value.Equals(expected, StringComparison.OrdinalIgnoreCase);
 
-        // Not exercised. The original two-way add/build paths require a
-        // separate characterization of Reverse and database effects.
-        public static Direction Reverse(this Direction _) =>
-            throw new NotSupportedException("Two-way editing is not characterized here.");
+        // Mirrors ONLY the six cases from original ArtheaEngine/Extensions.cs.
+        // This is test support, not a compiled copy of the full Extensions.cs.
+        // The test suite also checks this mapping against the original source.
+        public static Direction Reverse(this Direction direction) => direction switch
+        {
+            Direction.Down => Direction.Up,
+            Direction.East => Direction.West,
+            Direction.North => Direction.South,
+            Direction.South => Direction.North,
+            Direction.Up => Direction.Down,
+            Direction.West => Direction.East,
+            _ => throw new Exception("Unknown direction for reverse")
+        };
     }
 }
 
