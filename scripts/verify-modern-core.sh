@@ -41,7 +41,7 @@ dotnet restore "$legacy_command" --ignore-failed-sources -p:UseAppHost=false
 dotnet build "$legacy_command" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.Legacy.CommandCharacterization/bin/Debug/net10.0/Arthea.Legacy.CommandCharacterization.dll"
 
-# Original exit-editor one-way link behavior with synthetic model/data shims.
+# Original exit-editor one-way and two-way link behavior with synthetic model/data shims.
 # No legacy database, network listener or original Framework server.
 legacy_exits="$root/tests/Arthea.Legacy.ExitCharacterization/Arthea.Legacy.ExitCharacterization.csproj"
 dotnet restore "$legacy_exits" --ignore-failed-sources -p:UseAppHost=false
