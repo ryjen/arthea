@@ -14,6 +14,12 @@
              Link="TestSupport/LegacyNumberExtensionShim.cs" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Assert the small test-only Reverse mirror stays aligned to original source. -->
+    <None Include="../../ArtheaEngine/Extensions.cs"
+          Link="OriginalExtensions.cs.txt"
+          CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../../src/Arthea.LegacyBridge/Arthea.LegacyBridge.csproj" />
   </ItemGroup>
 </Project>
