@@ -76,5 +76,7 @@ dotnet build "$probe" --configuration Release --no-restore -warnaserror -p:UseAp
 
 python3 -B -m unittest discover -s "$root/tools/tests" -v
 python3 -B "$root/tools/check_config_hygiene.py"
+# Scope: blocked sample screen paths in the committed candidate only, not Git history.
+python3 -B "$root/tools/check_publication_hygiene.py"
 # Informational inventory only; does not grant licenses or fail on missing notices.
 python3 -B "$root/tools/inventory_third_party.py"
