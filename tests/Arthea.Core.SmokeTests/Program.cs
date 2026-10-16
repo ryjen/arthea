@@ -79,15 +79,34 @@ BadRoom("tavern\u202e", "Tavern", "bidirectional override in room ID");
 BadRoom("tavern\u2028", "Tavern", "Unicode line separator in room ID");
 BadRoom("tavern\uD800", "Tavern", "unpaired high surrogate in room ID");
 BadRoom("tavern", "Tavern\uDC00", "unpaired low surrogate in room name");
-BadRoom(new string('r', 257), "Tavern", "oversize room ID");
+BadRoom(new string('r', RoomGraph.MaxMetadataLength + 1), "Tavern", "oversize room ID");
 BadRoom("tavern", "Tavern\nSESSION forged", "room name newline");
 BadRoom("tavern", "Tavern\u001b[2J", "room name terminal escape");
-BadRoom("tavern", new string('n', 257), "oversize room name");
+BadRoom("tavern", new string('n', RoomGraph.MaxMetadataLength + 1), "oversize room name");
 AssertThrows<ArgumentException>(() => new RoomGraph(new[]
 {
     new RoomDefinition("tavern", "Tavern",
         new Dictionary<Direction, string> { [Direction.North] = "square\nROOM forged" })
 }), "unsafe exit destination rejected before dangling-ref validation");
+// The metadata limit is inclusive for all three graph string boundaries.
+// String.Length measures UTF-16 code units, not Unicode scalar counts.
+var maxMetadata = new string('m', RoomGraph.MaxMetadataLength);
+var boundaryGraph = new RoomGraph(new[]
+{
+    new RoomDefinition(maxMetadata, maxMetadata,
+        new Dictionary<Direction, string> { [Direction.North] = maxMetadata }),
+});
+Assert(boundaryGraph.TryMove(maxMetadata, Direction.North, out var boundaryTarget) &&
+       boundaryTarget == maxMetadata,
+    "max room ID, name, and destination length accepted");
+AssertThrows<ArgumentException>(() => new RoomGraph(new[]
+{
+    new RoomDefinition("room", "Room",
+        new Dictionary<Direction, string>
+        {
+            [Direction.North] = new string('m', RoomGraph.MaxMetadataLength + 1),
+        }),
+}), "oversize exit destination rejected");
 var unicodeRoom = new RoomGraph(new[]
 {
     new RoomDefinition("café", "Café du monde",
