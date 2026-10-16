@@ -3,7 +3,7 @@
 ## Scope and evidence
 
 The locally hosted independent **Supervisor Gateway** was contacted over its
-authenticated/private-network HTTPS endpoint through Desktop Commander and
+Tailscale HTTPS endpoint through Desktop Commander and
 given **read-only** modern source at the exact `main` revision
 `7c7c3c6c7cc920034b9d4b9aa72efbf554b60d18`:
 
@@ -16,8 +16,8 @@ The initial large review requests failed (one empty response; one timeout).
 A minimal `/no_think` calibration succeeded; bounded per-file requests then
 returned findings. These are **automated suggestions requiring source-based
 adjudication**, not a human/independent security sign-off or a claim of
-complete analysis. No source, credentials or host execution instructions were
-sent to the reviewer.
+complete analysis. Only scoped repository source was sent; no credentials or host-execution
+instructions were included.
 
 ## Adjudication
 
