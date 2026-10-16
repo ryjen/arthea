@@ -134,6 +134,19 @@ Check(oversizedClosed, "oversized TLS command is rejected");
 oversized.Ssl.Dispose();
 oversized.Socket.Dispose();
 
+// Invalid UTF-8 in a pre-auth plaintext command must never reach the
+// password challenge or create a player session. No live game credentials.
+var invalidUtf8Plain = await Connect(endpoint, certificate);
+byte[] malformedLogin = [..Encoding.ASCII.GetBytes("LOGIN "), 0xC3, 0x28, (byte)'\n'];
+await invalidUtf8Plain.Ssl.WriteAsync(malformedLogin);
+var badPlainClosed = false;
+try { _ = await Read(invalidUtf8Plain.Ssl); }
+catch (Exception e) when (e is IOException ||
+    e.Message == "Unexpected connection closure.") { badPlainClosed = true; }
+Check(badPlainClosed, "malformed UTF-8 before login closes plain-line TLS connection");
+invalidUtf8Plain.Ssl.Dispose();
+invalidUtf8Plain.Socket.Dispose();
+
 var a = await Connect(endpoint, certificate);
 var b = await Connect(endpoint, certificate);
 var aliceToken = await Login(a.Ssl, "alice", "sample-alice-only-123!");
@@ -286,6 +299,36 @@ await Send(textOnly.Stream, "quit");
 Check(await Read(textOnly.Stream) == "BYE", "text-only logout");
 textOnly.Stream.Dispose();
 textOnly.Socket.Dispose();
+
+// Malformed UTF-8 after authentication must terminate the TLS/Telnet
+// connection and suspend, not log out, the current bearer. Reconnect proves
+// a valid owner can resume with rotation and that the listener remains live.
+var invalidUtf8Telnet = await ConnectTelnet(telnetEndpoint, certificate);
+var invalidUtf8Bearer = await Login(invalidUtf8Telnet.Stream,
+    "alice", "sample-alice-only-123!");
+byte[] malformedSay = [..Encoding.ASCII.GetBytes("SAY "), 0xC3, 0x28, (byte)'\n'];
+await invalidUtf8Telnet.Stream.WriteAsync(malformedSay);
+var badTelnetClosed = false;
+try { _ = await Read(invalidUtf8Telnet.Stream); }
+catch (Exception e) when (e is IOException ||
+    e.Message == "Unexpected connection closure.") { badTelnetClosed = true; }
+Check(badTelnetClosed,
+    "malformed UTF-8 after login closes only the offending TLS/Telnet connection");
+invalidUtf8Telnet.Stream.Dispose();
+invalidUtf8Telnet.Socket.Dispose();
+var afterInvalidUtf8 = await ConnectTelnet(telnetEndpoint, certificate);
+await Send(afterInvalidUtf8.Stream, "RESUME " + invalidUtf8Bearer);
+var recoveredUtf8Session = await Read(afterInvalidUtf8.Stream);
+Check(recoveredUtf8Session.StartsWith("SESSION ", StringComparison.Ordinal) &&
+      recoveredUtf8Session[8..] != invalidUtf8Bearer,
+    "UTF-8 parser failure suspends session for rotated bearer recovery");
+Check(await Read(afterInvalidUtf8.Stream) == "ROOM tavern",
+    "UTF-8 parser failure preserves authorized room identity");
+await Send(afterInvalidUtf8.Stream, "QUIT");
+Check(await Read(afterInvalidUtf8.Stream) == "BYE",
+    "recovered UTF-8 failure session can cleanly log out");
+afterInvalidUtf8.Stream.Dispose();
+afterInvalidUtf8.Socket.Dispose();
 
 // Parser failures are connection-local: reject malformed negotiated GMCP
 // without faulting the listener, then accept another valid client.
