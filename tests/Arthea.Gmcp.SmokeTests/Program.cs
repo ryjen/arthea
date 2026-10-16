@@ -16,6 +16,18 @@ static void Reject<T>(Action action, string label) where T : Exception
 static byte[] Sub(string text) =>
     [TelnetGmcpCodec.Iac, TelnetGmcpCodec.Sb, TelnetGmcpCodec.Gmcp,
      ..Encoding.UTF8.GetBytes(text), TelnetGmcpCodec.Iac, TelnetGmcpCodec.Se];
+static byte[] SubBytes(params byte[] bytes) =>
+    [TelnetGmcpCodec.Iac, TelnetGmcpCodec.Sb, TelnetGmcpCodec.Gmcp,
+     ..bytes, TelnetGmcpCodec.Iac, TelnetGmcpCodec.Se];
+static TelnetGmcpCodec NegotiatedGmcp()
+{
+    var codec = new TelnetGmcpCodec();
+    codec.Feed([TelnetGmcpCodec.Iac, TelnetGmcpCodec.Do, TelnetGmcpCodec.Gmcp]);
+    return codec;
+}
+const byte MalformedUtf8LeadByte = 0xC3;
+const byte MalformedUtf8Continuation = (byte)'(';
+const int MaxGmcpNameLength = 64;
 var rooms = new RoomGraph(new[]
 {
     new RoomDefinition("tavern", "A \"Quoted\" Inn",
@@ -78,16 +90,45 @@ Check(!client.SupportsRoomInfo, "re-enable requires fresh capability advertiseme
 client.Feed(Sub("Core.Supports.Set [\"Room 1\"]"));
 Check(client.SupportsRoomInfo, "fresh advert re-enables metadata");
 
-Reject<InvalidDataException>(() => client.Feed(Sub("Core.Supports.Set [\"Room 1\",\"Char 0\"]")),
+// Each malformed subnegotiation is expected to kill its own connection.
+ // Reusing one codec after a thrown parse error would test a stale parser
+ // state, not the expected rejection reason. Preserve one negotiated client
+ // only for the atomic capability-declaration invariant below.
+var invalidSet = NegotiatedGmcp();
+invalidSet.Feed(Sub("Core.Supports.Set [\"Room 1\"]"));
+Reject<InvalidDataException>(() => invalidSet.Feed(
+    Sub("Core.Supports.Set [\"Room 1\",\"Char 0\"]")),
     "invalid capability batch rejected as a unit");
-Check(client.SupportsRoomInfo, "invalid Set cannot replace prior negotiated capabilities");
-Reject<InvalidDataException>(() => client.Feed(Sub("Core.Supports.Set [\"Room 0\"]")),
-    "invalid version rejected");
-Reject<InvalidDataException>(() => client.Feed(Sub("Core.Supports.Set nope")),
-    "invalid JSON rejected");
-Reject<InvalidDataException>(() => client.Feed(
-    [255, 250, 201, ..Enumerable.Repeat((byte)'x', 4097)]),
+Check(invalidSet.SupportsRoomInfo,
+    "failed capability Set does not replace prior negotiation");
+Reject<InvalidDataException>(() => NegotiatedGmcp().Feed(
+    Sub("Core.Supports.Set [\"Room 0\"]")), "invalid version rejected");
+Reject<InvalidDataException>(() => NegotiatedGmcp().Feed(
+    Sub("Core.Supports.Set nope")), "invalid JSON rejected");
+Reject<InvalidDataException>(() => NegotiatedGmcp().Feed(
+    [TelnetGmcpCodec.Iac, TelnetGmcpCodec.Sb, TelnetGmcpCodec.Gmcp,
+     ..Enumerable.Repeat((byte)'x', 4097)]),
     "oversized GMCP rejected");
+
+// Explicit UTF-8 and identifier-boundary cases. These assert the same
+// InvalidDataException the encrypted socket handler is designed to catch.
+Reject<InvalidDataException>(() => new TelnetGmcpCodec().Feed(
+    [MalformedUtf8LeadByte, MalformedUtf8Continuation, (byte)'\n']),
+    "invalid UTF-8 plain Telnet line rejected");
+Reject<InvalidDataException>(() => NegotiatedGmcp().Feed(
+    SubBytes(MalformedUtf8LeadByte, MalformedUtf8Continuation)),
+    "invalid UTF-8 GMCP payload rejected");
+Reject<InvalidDataException>(() => NegotiatedGmcp().Feed(Sub("")),
+    "empty GMCP command rejected");
+Reject<InvalidDataException>(() => NegotiatedGmcp().Feed(
+    Sub(new string('A', MaxGmcpNameLength + 1))),
+    "oversized GMCP command rejected");
+Reject<InvalidDataException>(() => NegotiatedGmcp().Feed(
+    Sub("Core.Supports.Set [\" \"]")),
+    "whitespace-only module rejected");
+Reject<InvalidDataException>(() => NegotiatedGmcp().Feed(
+    Sub("Core.Supports.Set [\"" + new string('R', MaxGmcpNameLength + 1) + " 1\"]")),
+    "oversized module name rejected");
 Reject<InvalidDataException>(() => new TelnetGmcpCodec().Feed(
     Encoding.UTF8.GetBytes(new string('z', 1025))), "command limit");
 Reject<InvalidDataException>(() => new TelnetGmcpCodec().Feed(new byte[] { 0, 10 }),
