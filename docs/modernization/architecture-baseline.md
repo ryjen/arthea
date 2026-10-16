@@ -60,14 +60,40 @@ duplicate keys, missing destinations, deleting an outgoing link, and ignoring
 an already-absent direction. These are *historical characterizations*, not
 desirable input-handling requirements.
 
-**Not yet characterized:** `add`/`build` two-way editing, historic
-`Direction.Reverse`, the real database lookup/serialization code, loaded
-legacy worlds, travel commands, player `Room.Characters` lifecycle and
-multi-user movement side effects. The test-only reverse extension is
-intentionally fail-closed to prevent those untested paths from looking
-qualified. Original legacy source and protected `master` are untouched.
-Existing new-runtime movement/replay tests do **not** establish parity with
-the old server. No public deployment or data import is authorized.
+The isolated executable now also exercises the original `add` and `build`
+two-way editing operations and selected failures. To avoid bringing in the
+database-dependent full `Extensions.cs`, a six-case test-only
+`Direction.Reverse` mirror is checked against **all six switch cases in the
+unchanged original source**. This validates the simple reverse mapping, not
+any other original extension behavior.
+
+- `add` establishes both directed exits with matching stored direction
+  fields, but the original handler **falls through and returns `false` even
+  after successfully mutating both rooms**. The immediate caller could
+  interpret that as an unhandled command.
+- `add` rejects a duplicate source exit, a missing destination, malformed
+  direction spelling, or an occupied reverse edge before changing the
+  existing room maps.
+- `build` allocates a new room, creates both directional edges (including
+  the vertical `Up`/`Down` pair), and returns `true`. The historical
+  handler does not itself register or persist that room. The test's creation
+  counters and in-memory room lookup are **synthetic instrumentation only**.
+- Because `Enum.TryParse` accepts unsupported numeric values, the mirrored
+  original reverse mapping throws for such a value. In the `add` path no
+  map is mutated; in the `build` path a transient room is allocated before
+  the reverse mapping fails, without adding either exit.
+- Deleting the original outgoing direction after a two-way `add` leaves
+  the **destination's reverse mapping** intact. This is an observed dangling
+  backlink risk, not modern intended behavior.
+
+These are legacy characterization findings only; modern code should not
+duplicate the success-reporting, invalid-direction, or dangling-backlink
+quirks. **Still unqualified:** actual MongoDB saves, historic world loading,
+real Telnet editor authorization, full movement commands, character membership
+and multi-user movement side effects. Original production sources and
+protected `master` remain unchanged. Existing new-runtime movement/replay
+tests do **not** prove old-runtime parity. No public deployment or data
+import is authorized.
 
 ## Legacy room projection boundary
 
