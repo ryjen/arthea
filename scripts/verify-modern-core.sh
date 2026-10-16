@@ -34,6 +34,13 @@ dotnet restore "$legacy" --ignore-failed-sources -p:UseAppHost=false
 dotnet build "$legacy" --no-restore -warnaserror -p:UseAppHost=false
 dotnet "$root/tests/Arthea.Legacy.Characterization/bin/Debug/net10.0/Arthea.Legacy.Characterization.dll"
 
+# Original-source command dispatcher characterization, using synthetic only
+# character, social, ability and command types. No server or database access.
+legacy_command="$root/tests/Arthea.Legacy.CommandCharacterization/Arthea.Legacy.CommandCharacterization.csproj"
+dotnet restore "$legacy_command" --ignore-failed-sources -p:UseAppHost=false
+dotnet build "$legacy_command" --no-restore -warnaserror -p:UseAppHost=false
+dotnet "$root/tests/Arthea.Legacy.CommandCharacterization/bin/Debug/net10.0/Arthea.Legacy.CommandCharacterization.dll"
+
 bson="$root/tests/Arthea.LegacyBson.Tests/Arthea.LegacyBson.Tests.csproj"
 dotnet restore "$bson" --locked-mode -p:UseAppHost=false
 dotnet build "$bson" --no-restore -warnaserror -p:UseAppHost=false
