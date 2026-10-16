@@ -59,6 +59,47 @@ Case("safe supplementary Unicode is accepted", () =>
     });
     Check(graph.TryGetRoom("garden", out var room) && room?.Name == "Garden 🌳");
 });
+// Topology is a detached, validated snapshot. The application has no live
+// topology-editing API; a future editor must stage and validate a replacement.
+Case("explicit reciprocal edges survive caller mutation", () =>
+{
+    var tavernExits = new Dictionary<Direction, string> { [Direction.East] = "square" };
+    var squareExits = new Dictionary<Direction, string> { [Direction.West] = "tavern" };
+    var graph = new RoomGraph(new[]
+    {
+        new RoomDefinition("tavern", "Tavern", tavernExits),
+        new RoomDefinition("square", "Square", squareExits),
+    });
+    tavernExits.Clear();
+    squareExits.Clear();
+    Check(graph.TryMove("tavern", Direction.East, out var toSquare) && toSquare == "square");
+    Check(graph.TryMove("square", Direction.West, out var toTavern) && toTavern == "tavern");
+});
+Case("published room exit collection rejects mutation", () =>
+{
+    var graph = Graph();
+    Check(graph.TryGetRoom("tavern", out var room) && room is not null);
+    var writableView = room!.Exits as IDictionary<Direction, string>;
+    Check(writableView is not null);
+    Reject<NotSupportedException>(() => writableView![Direction.South] = "square");
+    Check(!graph.TryMove("tavern", Direction.South, out _));
+    Check(graph.TryMove("tavern", Direction.North, out var north) && north == "square");
+});
+Case("rejected replacement snapshot leaves published topology unchanged", () =>
+{
+    var published = Graph();
+    // A half-edited candidate with a dangling endpoint must fail in its own
+    // constructor; there is no mutable published graph to roll back.
+    Reject<ArgumentException>(() => new RoomGraph(new[]
+    {
+        new RoomDefinition("tavern", "Tavern",
+            new Dictionary<Direction, string> { [Direction.North] = "square" }),
+        new RoomDefinition("square", "Square",
+            new Dictionary<Direction, string> { [Direction.South] = "not-a-room" }),
+    }));
+    Check(published.TryMove("tavern", Direction.North, out var target) && target == "square");
+    Check(!published.TryMove("square", Direction.South, out _));
+});
 if (args.Length == 1 && args[0] == "--list")
 {
     foreach (var item in cases) Console.WriteLine(item.Name);
