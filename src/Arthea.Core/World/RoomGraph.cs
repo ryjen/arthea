@@ -33,6 +33,9 @@ public sealed record RoomDefinition(
 /// </summary>
 public sealed class RoomGraph
 {
+    /// <summary>Maximum UTF-16 code units for room IDs, names and exit targets.</summary>
+    public const int MaxMetadataLength = 256;
+
     private readonly ReadOnlyDictionary<string, RoomDefinition> _rooms;
 
     public RoomGraph(IEnumerable<RoomDefinition> rooms)
@@ -45,14 +48,14 @@ public sealed class RoomGraph
             ArgumentNullException.ThrowIfNull(room);
             // Room IDs appear in line-oriented transport responses. Validate
             // imported/synthetic graph metadata before it reaches any client.
-            if (!SafeMetadata(room.Id, 256) || !SafeMetadata(room.Name, 256))
+            if (!SafeMetadata(room.Id) || !SafeMetadata(room.Name))
                 throw new ArgumentException("Room id or name contains unsafe metadata.", nameof(rooms));
             ArgumentNullException.ThrowIfNull(room.Exits);
 
             var exits = new Dictionary<Direction, string>();
             foreach (var (direction, targetId) in room.Exits)
             {
-                if (!Enum.IsDefined(direction) || !SafeMetadata(targetId, 256))
+                if (!Enum.IsDefined(direction) || !SafeMetadata(targetId))
                     throw new ArgumentException("Exits require a supported direction and safe destination.", nameof(rooms));
                 exits.Add(direction, targetId);
             }
@@ -80,9 +83,9 @@ public sealed class RoomGraph
     // Keep room identifiers opaque rather than restricting them to ASCII.
     // Exclude control codes, newlines and invisible formatting (including
     // bidirectional overrides) from text and terminal metadata boundaries.
-    private static bool SafeMetadata(string? value, int maxLength)
+    private static bool SafeMetadata(string? value)
     {
-        if (value is null || value.Length is 0 || value.Length > maxLength ||
+        if (value is null || value.Length is 0 || value.Length > MaxMetadataLength ||
             string.IsNullOrWhiteSpace(value))
             return false;
 
