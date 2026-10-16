@@ -92,4 +92,159 @@ Check(destination.Exits.Count == 0, "delete leaves destination unchanged");
 Check(editor.Execute(new Argument("delete West")), "missing deletion handled");
 Check(origin.Exits.Count == 1, "missing deletion leaves remaining links unchanged");
 
-Console.WriteLine("Original exit editor one-way link characterization passed.");
+// Confirm the test-only reverse map matches the original six-case method
+// in Extensions.cs instead of silently treating the test copy as authority.
+var originalExtensions = File.ReadAllText(
+    Path.Combine(AppContext.BaseDirectory, "OriginalExtensions.cs.txt"));
+var reversePairs = new (ArtheaEngine.Model.Direction Outbound,
+    ArtheaEngine.Model.Direction Inbound)[]
+{
+    (ArtheaEngine.Model.Direction.North, ArtheaEngine.Model.Direction.South),
+    (ArtheaEngine.Model.Direction.South, ArtheaEngine.Model.Direction.North),
+    (ArtheaEngine.Model.Direction.East, ArtheaEngine.Model.Direction.West),
+    (ArtheaEngine.Model.Direction.West, ArtheaEngine.Model.Direction.East),
+    (ArtheaEngine.Model.Direction.Up, ArtheaEngine.Model.Direction.Down),
+    (ArtheaEngine.Model.Direction.Down, ArtheaEngine.Model.Direction.Up),
+};
+Check(reversePairs.Length == Enum.GetValues<ArtheaEngine.Model.Direction>().Length,
+    "all original enum directions included in mirror validation");
+foreach (var (outbound, inbound) in reversePairs)
+{
+    Check(outbound.Reverse() == inbound && inbound.Reverse() == outbound,
+        "test-only reverse mirror is symmetric for " + outbound);
+    var originalBranch = "case Direction." + outbound +
+        ": return Direction." + inbound + ";";
+    Check(originalExtensions.Contains(originalBranch, StringComparison.Ordinal),
+        "mirror agrees with unmodified original Extensions.cs for " + outbound);
+}
+
+// Keep each original-editor operation on a fresh synthetic room pair.
+// Construction counts are test instrumentation only, not a persistence trace.
+static (Room Source, Room Target, ExitsEditor Editor) NewEditor()
+{
+    Room.Clear();
+    var source = new Room { Id = "source", Name = "Source" };
+    var target = new Room { Id = "target", Name = "Target" };
+    Room.Register(source);
+    Room.Register(target);
+    return (source, target,
+        new ExitsEditor(new TelnetConnection(), source,
+            typeof(Room).GetProperty(nameof(Room.Exits))!));
+}
+
+// 'add' creates a forward and reverse link with matching stored directions.
+// The original branch then falls through instead of returning true: this is
+// observable and should NOT be replicated in a new UI/dispatcher contract.
+var (addSource, addTarget, addEditor) = NewEditor();
+Check(!addEditor.Execute(new Argument("A eAsT target")),
+    "original add mutates two rooms yet reports false");
+Check(addSource.Exits.Count == 1 && addTarget.Exits.Count == 1,
+    "add creates exactly one outgoing and one reverse link");
+Check(addSource.Exits.TryGetValue(ArtheaEngine.Model.Direction.East, out var forward) &&
+      ReferenceEquals(forward.Room, addSource) &&
+      ReferenceEquals(forward.ToRoom, addTarget) &&
+      forward.Direction == ArtheaEngine.Model.Direction.East,
+    "add forward exit retains source, target and direction");
+Check(addTarget.Exits.TryGetValue(ArtheaEngine.Model.Direction.West, out var backward) &&
+      ReferenceEquals(backward.Room, addTarget) &&
+      ReferenceEquals(backward.ToRoom, addSource) &&
+      backward.Direction == ArtheaEngine.Model.Direction.West,
+    "add reverse exit retains target, source and opposite direction");
+Check(addEditor.Execute(new Argument("add East target")),
+    "duplicate outbound add is handled");
+Check(addSource.Exits.Count == 1 && addTarget.Exits.Count == 1,
+    "duplicate outbound add leaves both maps unchanged");
+
+// The editor rejects an occupied reverse direction before changing the
+// source: no replacement or partial two-way graph is permitted by that path.
+var (occupiedSource, occupiedTarget, occupiedEditor) = NewEditor();
+occupiedTarget.Exits[ArtheaEngine.Model.Direction.West] = new Exit
+{
+    Room = occupiedTarget, ToRoom = occupiedTarget,
+    Direction = ArtheaEngine.Model.Direction.West,
+};
+Check(occupiedEditor.Execute(new Argument("add East target")),
+    "occupied reverse direction returns handled");
+Check(occupiedSource.Exits.Count == 0 && occupiedTarget.Exits.Count == 1,
+    "occupied reverse direction leaves the source empty");
+Check(occupiedEditor.Execute(new Argument("add East unknown")),
+    "missing target is handled before edits");
+Check(occupiedSource.Exits.Count == 0, "missing target does not add an exit");
+Check(occupiedEditor.Execute(new Argument("add not-a-direction target")),
+    "unparseable add direction is handled");
+Check(occupiedSource.Exits.Count == 0,
+    "unparseable add direction leaves source unchanged");
+
+// Numeric Enum.TryParse accepts a value outside the declared enum; unlike
+// 'link', the two-way 'add' path calls Reverse(), which throws before writes.
+var invalidNumeric = unsupportedDirectionText; // computed from enum, not a magic number
+var (badSource, badTarget, badEditor) = NewEditor();
+var addFailed = false;
+try { _ = badEditor.Execute(new Argument("add " + invalidNumeric + " target")); }
+catch (Exception error) when (error.Message == "Unknown direction for reverse")
+{
+    addFailed = true;
+}
+Check(addFailed, "unsupported numeric add direction throws in original reverse mapping");
+Check(badSource.Exits.Count == 0 && badTarget.Exits.Count == 0,
+    "invalid numeric add does not mutate either map");
+
+// 'build' creates a new synthetic room and linked pair, but no real save or
+// world registration is invoked in the original editor method.
+var (buildSource, buildTarget, buildEditor) = NewEditor();
+var roomsBeforeBuild = Room.CreatedRooms.Count;
+Check(buildEditor.Execute(new Argument("B Up")),
+    "build abbreviation is handled");
+Check(Room.CreatedRooms.Count == roomsBeforeBuild + 1,
+    "build constructs exactly one new room in this fixture");
+var generatedRoom = Room.CreatedRooms[^1];
+Check(buildSource.Exits.Count == 1 && buildTarget.Exits.Count == 0,
+    "build only changes source and new room, not existing target");
+Check(buildSource.Exits.TryGetValue(ArtheaEngine.Model.Direction.Up, out var builtExit) &&
+      ReferenceEquals(builtExit.Room, buildSource) &&
+      ReferenceEquals(builtExit.ToRoom, generatedRoom) &&
+      builtExit.Direction == ArtheaEngine.Model.Direction.Up,
+    "build installs the upward outgoing direction");
+Check(generatedRoom.Exits.TryGetValue(ArtheaEngine.Model.Direction.Down, out var returnExit) &&
+      ReferenceEquals(returnExit.Room, generatedRoom) &&
+      ReferenceEquals(returnExit.ToRoom, buildSource) &&
+      returnExit.Direction == ArtheaEngine.Model.Direction.Down,
+    "build creates the downward reverse exit");
+Check(Room.Lookup(generatedRoom.Id) is null,
+    "original build handler did not register or persist the synthetic room");
+Check(buildEditor.Execute(new Argument("build Up")), "duplicate build direction handled");
+Check(Room.CreatedRooms.Count == roomsBeforeBuild + 1,
+    "duplicate build does not construct another room");
+Check(buildEditor.Execute(new Argument("build not-a-direction")),
+    "invalid build direction syntax handled");
+Check(Room.CreatedRooms.Count == roomsBeforeBuild + 1,
+    "invalid syntax does not construct a new room");
+
+// Invalid numeric 'build' constructs a transient room BEFORE it tries to
+// reverse the unsupported direction and throws: observable partial work.
+var (badBuildSource, _, badBuildEditor) = NewEditor();
+var beforeInvalidBuild = Room.CreatedRooms.Count;
+var buildFailed = false;
+try { _ = badBuildEditor.Execute(new Argument("build " + invalidNumeric)); }
+catch (Exception error) when (error.Message == "Unknown direction for reverse")
+{
+    buildFailed = true;
+}
+Check(buildFailed, "unsupported numeric build direction throws");
+Check(Room.CreatedRooms.Count == beforeInvalidBuild + 1,
+    "invalid numeric build allocates a transient room before failing");
+Check(badBuildSource.Exits.Count == 0 &&
+      Room.CreatedRooms[^1].Exits.Count == 0,
+    "invalid numeric build does not publish either exit mapping");
+
+// Editor-style deletion is asymmetric: deleting the outward link leaves
+// its counterpart in the destination until separately cleaned up.
+var (deleteSource, deleteTarget, deleteEditor) = NewEditor();
+Check(!deleteEditor.Execute(new Argument("add East target")),
+    "initial two-way add for delete characterization");
+Check(deleteEditor.Execute(new Argument("delete East")), "delete handles outgoing link");
+Check(deleteSource.Exits.Count == 0 &&
+      deleteTarget.Exits.ContainsKey(ArtheaEngine.Model.Direction.West),
+    "deleting a two-way link leaves a dangling reverse mapping in target");
+
+Console.WriteLine("Original exit editor one-way and two-way link characterization passed.");
