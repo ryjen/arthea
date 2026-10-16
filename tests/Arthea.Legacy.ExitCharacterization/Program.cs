@@ -60,15 +60,19 @@ Check(origin.Exits.Count == 1, "unresolved destination not persisted");
 // Critical legacy quirk: Enum.TryParse permits unrecognized numeric enum
 // values. In this synthetic lookup fixture, the original link editor can
 // store such a key, which the modern bridge must reject.
-Check(editor.Execute(new Argument("link 99 destination")), "numeric direction is accepted by editor");
-Check(origin.Exits.ContainsKey((ArtheaEngine.Model.Direction)99),
+var unsupportedDirectionValue =
+    Enum.GetValues<ArtheaEngine.Model.Direction>().Max(value => (int)value) + 1;
+var unsupportedDirectionText =
+    unsupportedDirectionValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
+Check(editor.Execute(new Argument("link " + unsupportedDirectionText + " destination")), "numeric direction is accepted by editor");
+Check(origin.Exits.ContainsKey((ArtheaEngine.Model.Direction)unsupportedDirectionValue),
     "invalid numeric direction inserted into legacy dictionary");
 var invalidLegacy = new[]
 {
     new LegacyRoomSnapshot(origin.Id, origin.Name,
         new Dictionary<string, LegacyExitSnapshot>
         {
-            ["99"] = new(destination.Id, null),
+            [unsupportedDirectionText] = new(destination.Id, null),
         }),
     new LegacyRoomSnapshot(destination.Id, destination.Name,
         new Dictionary<string, LegacyExitSnapshot>()),
@@ -82,7 +86,7 @@ Check(failedClosed, "modern bridge rejects unsupported numeric direction");
 Check(editor.Execute(new Argument("D West")), "delete alias handled");
 Check(!origin.Exits.ContainsKey(ArtheaEngine.Model.Direction.West),
     "deleted direction removed from outgoing map");
-Check(origin.Exits.ContainsKey((ArtheaEngine.Model.Direction)99),
+Check(origin.Exits.ContainsKey((ArtheaEngine.Model.Direction)unsupportedDirectionValue),
     "delete does not accidentally clear unrelated links");
 Check(destination.Exits.Count == 0, "delete leaves destination unchanged");
 Check(editor.Execute(new Argument("delete West")), "missing deletion handled");
