@@ -137,8 +137,8 @@ oversized.Socket.Dispose();
 // Invalid UTF-8 in a pre-auth plaintext command must never reach the
 // password challenge or create a player session. No live game credentials.
 var invalidUtf8Plain = await Connect(endpoint, certificate);
-await invalidUtf8Plain.Ssl.WriteAsync(
-    [..Encoding.ASCII.GetBytes("LOGIN "), 0xC3, 0x28, (byte)'\n']);
+byte[] malformedLogin = [..Encoding.ASCII.GetBytes("LOGIN "), 0xC3, 0x28, (byte)'\n'];
+await invalidUtf8Plain.Ssl.WriteAsync(malformedLogin);
 var badPlainClosed = false;
 try { _ = await Read(invalidUtf8Plain.Ssl); }
 catch (Exception e) when (e is IOException ||
@@ -306,8 +306,8 @@ textOnly.Socket.Dispose();
 var invalidUtf8Telnet = await ConnectTelnet(telnetEndpoint, certificate);
 var invalidUtf8Bearer = await Login(invalidUtf8Telnet.Stream,
     "alice", "sample-alice-only-123!");
-await invalidUtf8Telnet.Stream.WriteAsync(
-    [..Encoding.ASCII.GetBytes("SAY "), 0xC3, 0x28, (byte)'\n']);
+byte[] malformedSay = [..Encoding.ASCII.GetBytes("SAY "), 0xC3, 0x28, (byte)'\n'];
+await invalidUtf8Telnet.Stream.WriteAsync(malformedSay);
 var badTelnetClosed = false;
 try { _ = await Read(invalidUtf8Telnet.Stream); }
 catch (Exception e) when (e is IOException ||
