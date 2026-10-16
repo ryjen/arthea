@@ -20,6 +20,35 @@ This is a scoped risk inventory, not a security certification. Modernization sta
 
 **This does not remove historic credentials, revoke them, fix the login protocol, or clear the repository for public visibility.**
 
+## Branch-specific restricted sample exposure (October 15, 2026)
+
+The five Aurora City game screens in
+`ThirdParty/Thought-Terminals/Samples/Aurora City/Game Files/Text Files/`
+are accompanied by the original author's explicit all-rights-reserved /
+permission-required notice. That copyright/permission evidence is separate
+from the still-unverified source and DLL licensing of Thought.Terminals.
+
+| Public Git branch/ref class | Screen exposure | Meaning |
+| --- | --- | --- |
+| Modern `main` after [PR #47](https://github.com/ryjen/arthea/pull/47) | Zero of the five `.ANS` files in its **current tree** | New `main` checkouts exclude them; this is not historic clearance |
+| Preserved sanitized `master` snapshot | **All five files still in its current tree** | Direct download remains possible even without a history browser |
+| Older reachable commits, GitHub-managed PR refs/diffs and external clones | Not purged | Deleting from `main` does not revoke historical copies |
+
+This is a **known public redistribution risk**, not simply a candidate upstream
+license match. Historical `master` remains subject to the explicit
+preservation rule in [branch policy](branch-policy.md); **do not silently
+rewrite, delete, or replace it**. Appropriate next actions require an
+owner-approved rights disposition: obtain permission for the sample screens,
+or separately plan public-branch/history remediation with recoverable
+archival evidence and review of GitHub-managed refs. Public/private visibility
+changes and GitHub Support actions also require separate authorization.
+
+The `tools/check_publication_hygiene.py` check prevents restoring Aurora
+`.ANS` screens beneath their restricted sample directory in the
+**current committed HEAD** of new `main` PRs. It is a narrow
+anti-regression guard, not a license scanner, historical reachability check
+or confirmation that other vendored materials may be redistributed.
+
 ## Hard public source release gates
 
 1. Scan all reachable history, tags, branches, assets, workflows, and current files for secrets, PII, internal infrastructure details and redistribution limitations. Never copy secret values into PRs or issues.
