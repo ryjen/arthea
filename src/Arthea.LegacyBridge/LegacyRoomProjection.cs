@@ -41,12 +41,12 @@ public static class LegacyRoomProjection
                 // Parse only known legacy names, never numeric enum values or arbitrary keys.
                 var direction = key switch
                 {
-                    _ when string.Equals(key, "North", StringComparison.OrdinalIgnoreCase) => Direction.North,
-                    _ when string.Equals(key, "South", StringComparison.OrdinalIgnoreCase) => Direction.South,
-                    _ when string.Equals(key, "East", StringComparison.OrdinalIgnoreCase) => Direction.East,
-                    _ when string.Equals(key, "West", StringComparison.OrdinalIgnoreCase) => Direction.West,
-                    _ when string.Equals(key, "Up", StringComparison.OrdinalIgnoreCase) => Direction.Up,
-                    _ when string.Equals(key, "Down", StringComparison.OrdinalIgnoreCase) => Direction.Down,
+                    _ when string.Equals(key, nameof(Direction.North), StringComparison.OrdinalIgnoreCase) => Direction.North,
+                    _ when string.Equals(key, nameof(Direction.South), StringComparison.OrdinalIgnoreCase) => Direction.South,
+                    _ when string.Equals(key, nameof(Direction.East), StringComparison.OrdinalIgnoreCase) => Direction.East,
+                    _ when string.Equals(key, nameof(Direction.West), StringComparison.OrdinalIgnoreCase) => Direction.West,
+                    _ when string.Equals(key, nameof(Direction.Up), StringComparison.OrdinalIgnoreCase) => Direction.Up,
+                    _ when string.Equals(key, nameof(Direction.Down), StringComparison.OrdinalIgnoreCase) => Direction.Down,
                     _ => throw new ArgumentException("Unsupported legacy exit direction key.", nameof(rooms)),
                 };
                 if (exit is null || string.IsNullOrWhiteSpace(exit.ToRoomRef))
