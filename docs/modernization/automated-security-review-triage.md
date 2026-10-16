@@ -41,6 +41,14 @@ could therefore arise from stale parser state rather than the intended
 invalid input. Each negative test now uses a fresh negotiated codec, except
 the intentional atomic declaration-state assertion on one instance.
 
+**Additional live-socket regression evidence:** the isolated TLS transport
+suite now also sends a command past its byte ceiling **without a newline**
+and starts an unfinished authenticated Telnet/GMCP subnegotiation that exceeds
+the injected incomplete-frame deadline. Both must close the offending
+connection. These explicitly pin the resource-bound claims above through
+real `SslStream` sockets, rather than relying solely on source inspection
+or an independent model's assertions.
+
 This is a targeted verification improvement, not evidence of a new exploitable
 production vulnerability. No production source changes or public deployment
 are authorized by this review.
